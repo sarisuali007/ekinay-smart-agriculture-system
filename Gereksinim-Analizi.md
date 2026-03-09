@@ -18,4 +18,4 @@
 
 # Gereksinim Dağılımları
 
-1. [Ali Sarısu'sun Gereksinimleri](Ali-Sarısu/Ali-Sarısu-Gereksinimler.md)
+1. [Ali Sarısu'nun Gereksinimleri](Ali-Sarısu/Ali-Sarısu-Gereksinimler.md)
