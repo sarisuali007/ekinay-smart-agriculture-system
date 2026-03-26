@@ -45,9 +45,11 @@ async function addField(){
     console.log(data);
 }
 
-async function getFields(){
+async function getFields() {
     const response = await fetch(API_URL + "/fields");
     const data = await response.json();
+
+    console.log("FIELDS DATA:", data);
 
     const list = document.getElementById("fieldList");
     list.innerHTML = "";
