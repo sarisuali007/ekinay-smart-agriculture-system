@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ekinay Panel</title>
+</head>
+<body>
+    
+    <h1>Ekinay Tarım Sistemi</h1>
+
+    <!-- Kullanıcı Kaydı Formu -->
+    <h2>Kullanıcı Kaydı</h2>
+    <input type="text" id="name" placeholder="Ad">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Şifre">
+    <button onclick="register()">Kayıt Ol</button>
+
+    <!-- Kullanıcı Girişi Formu -->
+    <h2>Kullanıcı Girişi</h2>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Şifre">
+    <button onclick="login()">Giriş Yap</button>
+
+    <!-- Field ekle -->
+    <h2>Tarla Ekle</h2>
+    <input id="fieldName" placeholder="Tarla Adı">
+    <input id="fieldLocation" placeholder="Konum">
+    <button onclick="addField()">Ekle</button>
+
+    <!-- Tarla Listesi -->
+    <h2>Tarlaları Listele</h2>
+    <button onclick="getFields()">Listele</button>
+    <ul id="fieldList"></ul>
+
+    <!-- Crop ekle -->
+    <h2>Ürün Ekle</h2>
+    <input id="cropName" placeholder="Ürün">
+    <input id="cropFieldId" placeholder="Field ID">
+    <button onclick="addCrop()">Ekle</button>
+
+    <!---Öneri Al-->
+    <h2>Sulama Önerisi</h2>
+    <input id ="irrigationFieldId" placeholder="Field ID">
+    <button onclick="getIrrigation()">Öneri Al</button>
+
+    <!--Uyarı Mesajı-->
+    <h2>Hava Uyarısı</h2>
+    <input id = "alertFieldId" placeholder="Field ID">
+    <button onclick="getAlert()">Uyarı Al</button>
+
+    <script src="script.js"></script>
+
+</body>    
+</html>
