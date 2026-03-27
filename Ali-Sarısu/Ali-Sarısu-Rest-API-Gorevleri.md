@@ -1,46 +1,106 @@
-# Ali Tutar'ın REST API Metotları
+# Ali Sarısu'nın REST API Metotları
 
-**API Test Videosu:** [Link buraya eklenecek](https://example.com)
+**API Domain Adresi:**  
+https://ekinay-smart-agriculture-system.onrender.com
 
-## 1. Üye Olma
+**API Test Videosu:** 
+[Link buraya eklenecek](https://example.com)
+
+## 1. Kullanıcı Kaydı Oluşturma
 - **Endpoint:** `POST /auth/register`
-- **Request Body:** 
+- **Request Body:**
   ```json
   {
-    "email": "kullanici@example.com",
-    "password": "Guvenli123!",
-    "firstName": "Ahmet",
-    "lastName": "Yılmaz"
+    "name": "Ali",
+    "email": "ali@test.com",
+    "password": "123456"
   }
   ```
 - **Response:** `201 Created` - Kullanıcı başarıyla oluşturuldu
 
-## 2. Kullanıcı Bilgilerini Görüntüleme
-- **Endpoint:** `GET /users/{userId}`
-- **Path Parameters:** 
-  - `userId` (string, required) - Kullanıcı ID'si
-- **Authentication:** Bearer Token gerekli
-- **Response:** `200 OK` - Kullanıcı bilgileri başarıyla getirildi
-
-## 3. Kullanıcı Bilgilerini Güncelleme
-- **Endpoint:** `PUT /users/{userId}`
-- **Path Parameters:** 
-  - `userId` (string, required) - Kullanıcı ID'si
-- **Request Body:** 
+## 2. Kullanıcı Girişi Yapma
+- **Endpoint:** `POST /auth/login`
+- **Request Body:**
   ```json
   {
-    "firstName": "Ahmet",
-    "lastName": "Yılmaz",
-    "email": "yeniemail@example.com",
-    "phone": "+905551234567"
+    "email": "ali@test.com",
+    "password": "123456"
   }
   ```
-- **Authentication:** Bearer Token gerekli
-- **Response:** `200 OK` - Kullanıcı başarıyla güncellendi
+- **Response:** `200 OK` - Giriş işlemi başarılı
 
-## 4. Kullanıcı Silme
-- **Endpoint:** `DELETE /users/{userId}`
-- **Path Parameters:** 
-  - `userId` (string, required) - Kullanıcı ID'si
-- **Authentication:** Bearer Token gerekli (Yönetici yetkisi veya kendi hesabını silme yetkisi)
-- **Response:** `204 No Content` - Kullanıcı başarıyla silindi
+## 3. Profil Güncelleme
+- **Endpoint:** `PUT /users/{userId}`
+- **Request Body:**
+  ```json
+  {
+    "name": "Ali Güncel",
+    "email": "aliguncel@test.com",
+    "password": "654321"
+  }
+  ```
+- **Response:** `200 OK` - Kullanıcı bilgileri güncellendi
+
+## 4. Tarla Ekleme
+- **Endpoint:** `POST /fields`
+- **Request Body:**
+  ```json
+  {
+    "name": "Tarla 1",
+    "location": "Isparta"
+  }
+  ```
+- **Response:** `201 Created` - Tarla eklendi
+
+## 5. Tarla Güncelleme
+- **Endpoint:** `PUT /fields/{fieldId}`
+- **Request Body:**
+  ```json
+  {
+    "name": "Tarla Güncel",
+    "location": "Antalya"
+  }
+  ```
+- **Response:** `200 OK` - Tarla güncellendi
+
+## 6. Tarla Silme
+- **Endpoint:** `DELETE /fields/{fieldId}`
+- **Response:** `200 OK` - Tarla silindi
+
+## 7. Tarlaları Listeleme
+- **Endpoint:** `GET /fields`
+- **Response:** `200 OK` - Tarla listesi getirildi
+
+## 8. Ürün Ekleme
+- **Endpoint:** `POST /crops`
+- **Request Body:**
+  ```json
+  {
+    "name": "Buğday",
+    "fieldId": "1"
+  }
+  ```
+- **Response:** `201 Created` - Ürün eklendi
+
+## 9. Ürün Güncelleme
+- **Endpoint:** `PUT /crops/{cropId}`
+- **Request Body:**
+  ```json
+  {
+    "name": "Arpa",
+    "fieldId": "1"
+  }
+  ```
+- **Response:** `200 OK` - Ürün güncellendi
+
+## 10. Ürün Silme
+- **Endpoint:** `DELETE /crops/{cropId}`
+- **Response:** `200 OK` - Ürün silindi
+
+## 11. Sulama Önerisi
+- **Endpoint:** `GET /recommendations/irrigation/{fieldId}`
+- **Response:** `200 OK` - Sulama önerisi alındı
+
+## 12. Hava Uyarısı
+- **Endpoint:** `GET /recommendations/alerts/{fieldId}`
+- **Response:** `200 OK` - Hava uyarısı alındı

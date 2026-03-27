@@ -1,141 +1,219 @@
-# Ali Tutar'ın Web Frontend Görevleri
-**Front-end Test Videosu:** [Link buraya eklenecek](https://example.com)
+# Ali Sarısu'nın Web Frontend Görevleri
 
-## 1. Üye Olma (Kayıt) Sayfası
+**Frontend Domain Adresi:**  
+https://ekinay-smart-agriculture-system.vercel.app
+
+**Front-end Test Videosu:** 
+[Link buraya eklenecek](https://example.com)
+
+## 1. Kullanıcı Kaydı Oluşturma Sayfası
 - **API Endpoint:** `POST /auth/register`
-- **Görev:** Kullanıcı kayıt işlemi için web sayfası tasarımı ve implementasyonu
+- **Görev:** Kullanıcının ad, email ve şifre bilgileri ile sisteme kayıt olmasını sağlayan web arayüzünü tasarlamak ve geliştirmek
 - **UI Bileşenleri:**
-  - Responsive kayıt formu (desktop ve mobile uyumlu)
-  - Email input alanı (type="email", autocomplete="email")
-  - Şifre input alanı (type="password", şifre gücü göstergesi)
-  - Şifre tekrar input alanı (doğrulama için)
-  - Ad (firstName) input alanı (autocomplete="given-name")
-  - Soyad (lastName) input alanı (autocomplete="family-name")
-  - "Kayıt Ol" butonu (primary button style)
-  - "Zaten hesabınız var mı? Giriş Yap" linki
-  - Loading spinner (kayıt işlemi sırasında)
-  - Form container (card veya centered layout)
+  - Ad input alanı
+  - Email input alanı
+  - Şifre input alanı
+  - "Kayıt Ol" butonu
+  - Başarı ve hata mesaj alanı
+  - Form bölümü için başlık ve açıklama alanı
 - **Form Validasyonu:**
-  - HTML5 form validation (required, pattern attributes)
-  - JavaScript real-time validation
-  - Email format kontrolü (regex pattern)
-  - Şifre güvenlik kuralları (min 8 karakter, büyük/küçük harf, rakam)
-  - Şifre eşleşme kontrolü
-  - Ad ve soyad boş olamaz kontrolü
-  - Tüm alanlar geçerli olmadan buton disabled
-  - Client-side ve server-side validation
+  - Tüm alanlar boş bırakılamaz
+  - Email alanı email formatında olmalıdır
+  - Şifre alanı boş bırakılamaz
+  - İstek gönderilmeden önce alanlar kontrol edilir
 - **Kullanıcı Deneyimi:**
-  - Form hatalarını input altında gösterilmesi (inline validation)
-  - Başarılı kayıt sonrası success notification ve otomatik giriş sayfasına yönlendirme
-  - Hata durumlarında kullanıcı dostu mesajlar (409 Conflict: "Bu email zaten kullanılıyor")
-  - Form submission prevention (double-click koruması)
-  - Accessible form labels ve ARIA attributes
-  - Keyboard navigation desteği (Tab, Enter)
+  - Kullanıcı bilgileri girildikten sonra kayıt isteği backend'e gönderilir
+  - İşlem başarılı olursa kullanıcıya başarı mesajı gösterilir
+  - İşlem başarısız olursa hata mesajı gösterilir
 - **Teknik Detaylar:**
-  - Framework: React/Vue/Angular veya Vanilla JS
-  - Form library: React Hook Form, Formik, veya native HTML5
-  - State management (form state, loading state, error state)
-  - Routing (kayıt sayfasından giriş sayfasına geçiş)
-  - SEO optimization (meta tags, structured data)
-  - Accessibility (WCAG 2.1 AA compliance)
+  - HTML, CSS ve JavaScript kullanılmıştır
+  - `fetch` API ile backend'e POST isteği gönderilmiştir
+  - API domain adresi ile canlı bağlantı kurulmuştur
 
-## 2. Kullanıcı Profil Görüntüleme Sayfası
-- **API Endpoint:** `GET /users/{userId}`
-- **Görev:** Kullanıcı profil bilgilerini görüntüleme sayfası tasarımı ve implementasyonu
+## 2. Kullanıcı Girişi Yapma Sayfası
+- **API Endpoint:** `POST /auth/login`
+- **Görev:** Kullanıcının email ve şifre bilgileri ile sisteme giriş yapmasını sağlayan arayüzü geliştirmek
 - **UI Bileşenleri:**
-  - Responsive profil layout (desktop: sidebar + content, mobile: stacked)
-  - Profil fotoğrafı alanı (circular avatar, placeholder veya gerçek fotoğraf)
-  - Kullanıcı adı ve soyadı (H1 heading)
-  - Email adresi (icon + text, copy to clipboard özelliği)
-  - Telefon numarası (icon + text, varsa)
-  - Hesap oluşturulma tarihi (formatted date)
-  - "Profili Düzenle" butonu (secondary button)
-  - "Hesabı Sil" butonu (danger button, alt kısımda)
-  - Refresh butonu veya auto-refresh
-  - Breadcrumb navigation (opsiyonel)
+  - Email input alanı
+  - Şifre input alanı
+  - "Giriş Yap" butonu
+  - Başarı ve hata mesaj alanı
+- **Form Validasyonu:**
+  - Email alanı boş bırakılamaz
+  - Şifre alanı boş bırakılamaz
+  - Email formatı kontrol edilir
 - **Kullanıcı Deneyimi:**
-  - Loading skeleton screen (veri yüklenirken)
-  - Empty state (veri yoksa)
-  - Error state (yükleme hatası durumunda retry butonu)
-  - Smooth page transitions
-  - Profil fotoğrafı için placeholder avatar (initials)
-  - Responsive grid layout
-  - Print-friendly styles
+  - Kullanıcı giriş bilgilerini girerek sisteme giriş yapabilir
+  - Başarılı girişte kullanıcıya mesaj gösterilir
+  - Hata durumunda kullanıcı bilgilendirilir
 - **Teknik Detaylar:**
-  - Lazy loading images (profil fotoğrafları için)
-  - Image optimization (WebP format, responsive images)
-  - Client-side caching (localStorage/sessionStorage)
-  - State management (user data, loading, error states)
-  - Routing (profil düzenleme sayfasına geçiş)
-  - Deep linking desteği (profil paylaşımı için)
-  - Meta tags (Open Graph, Twitter Cards)
+  - `fetch` API ile backend'e POST isteği gönderilir
+  - JSON formatında veri gönderilir ve cevap alınır
 
-## 3. Kullanıcı Profil Düzenleme Sayfası
+## 3. Profil Güncelleme Sayfası
 - **API Endpoint:** `PUT /users/{userId}`
-- **Görev:** Kullanıcı profil bilgilerini düzenleme sayfası tasarımı ve implementasyonu
+- **Görev:** Kullanıcının kendi profil bilgilerini güncellemesini sağlayan form arayüzünü geliştirmek
 - **UI Bileşenleri:**
-  - Responsive düzenleme formu
-  - Profil fotoğrafı düzenleme alanı (drag & drop upload, preview)
-  - Ad (firstName) input alanı (mevcut değerle dolu)
-  - Soyad (lastName) input alanı (mevcut değerle dolu)
-  - Email input alanı (mevcut değerle dolu, düzenlenebilir)
-  - Telefon numarası input alanı (mevcut değerle dolu, format maskesi)
-  - "Kaydet" butonu (primary button, sağ üst veya form altında)
-  - "İptal" butonu (secondary button, sol üst veya form altında)
-  - Değişiklik yapıldığında "Kaydet" butonu aktif olur
-  - Unsaved changes indicator
+  - Kullanıcı ID input alanı
+  - Yeni ad input alanı
+  - Yeni email input alanı
+  - Yeni şifre input alanı
+  - "Profili Güncelle" butonu
+  - Mesaj gösterim alanı
 - **Form Validasyonu:**
-  - Email format kontrolü (real-time)
-  - Telefon numarası format kontrolü (ülke kodu desteği, input masking)
-  - Real-time validation feedback
-  - Değişiklik yoksa "Kaydet" butonu disabled
-  - File upload validation (image type, size limits)
+  - Kullanıcı ID boş bırakılamaz
+  - Email alanı geçerli formatta olmalıdır
+  - Güncellenecek alanlar kontrol edilir
 - **Kullanıcı Deneyimi:**
-  - Optimistic update (kaydet butonuna basıldığında UI anında güncellenir)
-  - Başarılı güncelleme sonrası success notification (toast/snackbar)
-  - Hata durumunda error mesajı ve değişiklikler geri alınır
-  - "İptal" butonuna basıldığında değişiklik kaybı için browser confirmation dialog
-  - Beforeunload event (sayfa kapatılırken uyarı)
-  - Image preview (upload öncesi)
-  - Progress indicator (image upload için)
+  - Kullanıcı mevcut bilgilerini değiştirip güncelleme isteği gönderebilir
+  - Başarılı işlem sonrası kullanıcıya bilgi verilir
+  - Hata durumlarında anlaşılır mesaj gösterilir
 - **Teknik Detaylar:**
-  - Form state management (initial values, edited values, dirty state)
-  - File upload component (drag & drop, file picker)
-  - Image compression (client-side, before upload)
-  - Image preview functionality
-  - Routing (geri dönüş, kaydetme sonrası profil sayfasına dönüş)
-  - Unsaved changes warning (browser navigation)
-  - Form persistence (localStorage, draft saving)
+  - Dinamik `userId` değeri ile PUT isteği gönderilir
+  - Formdan alınan veriler JSON formatında backend'e iletilir
 
-## 4. Hesap Silme Akışı
-- **API Endpoint:** `DELETE /users/{userId}`
-- **Görev:** Kullanıcı hesabını silme işlemi için web UI akışı tasarımı ve implementasyonu
+## 4. Tarla Ekleme Sayfası
+- **API Endpoint:** `POST /fields`
+- **Görev:** Kullanıcının yeni bir tarla eklemesini sağlayan web arayüzünü geliştirmek
 - **UI Bileşenleri:**
-  - "Hesabı Sil" butonu (profil sayfasında, danger button style)
-  - Modal dialog (destructive action için)
-  - Şifre doğrulama alanı (güvenlik için opsiyonel)
-  - Son onay ekranı (uyarı mesajları ile)
-  - "Emin misiniz?" confirmation dialog (çift onay mekanizması)
-  - Warning icons ve visual cues
+  - Tarla adı input alanı
+  - Konum input alanı
+  - "Ekle" butonu
+  - Sonuç mesaj alanı
+- **Form Validasyonu:**
+  - Tarla adı boş bırakılamaz
+  - Konum bilgisi boş bırakılamaz
 - **Kullanıcı Deneyimi:**
-  - Destructive action için görsel uyarılar (kırmızı renk, warning icons)
-  - Açık ve net uyarı mesajları ("Bu işlem geri alınamaz")
-  - İptal seçeneği her zaman mevcut (modal close, cancel button)
-  - Silme işlemi sırasında loading indicator
-  - Başarılı silme sonrası logout ve login sayfasına yönlendirme
-  - Success message gösterilmesi
-- **Akış Adımları:**
-  1. Profil sayfasında "Hesabı Sil" butonuna tıklama
-  2. İlk uyarı modal dialog'u gösterilmesi
-  3. Onaylandığında şifre doğrulama (opsiyonel)
-  4. Son onay ekranı (detaylı uyarılar, checkbox confirmation)
-  5. Silme işlemi gerçekleştirme
-  6. Başarılı silme sonrası logout ve login sayfasına yönlendirme
+  - Kullanıcı tarla bilgilerini girerek sisteme yeni tarla ekleyebilir
+  - Başarılı işlem sonrası kullanıcıya bilgi verilir
 - **Teknik Detaylar:**
-  - Modal/Dialog component kullanımı
-  - Multi-step flow yönetimi (state machine veya step-based)
-  - Error handling (silme başarısız olursa)
-  - Logout işlemi entegrasyonu
-  - Session storage ve localStorage temizleme
-  - Redirect handling (login sayfasına dönüş)
-  - Browser history management
+  - POST isteği ile backend'e tarla verisi gönderilir
+  - `fetch` API kullanılmıştır
+
+## 5. Tarla Güncelleme Sayfası
+- **API Endpoint:** `PUT /fields/{fieldId}`
+- **Görev:** Kullanıcının mevcut tarla bilgisini güncellemesini sağlayan arayüzü geliştirmek
+- **UI Bileşenleri:**
+  - Tarla ID input alanı
+  - Yeni tarla adı input alanı
+  - Yeni konum input alanı
+  - "Tarlayı Güncelle" butonu
+  - Mesaj alanı
+- **Form Validasyonu:**
+  - Tarla ID zorunludur
+  - Güncellenecek bilgiler kontrol edilir
+- **Kullanıcı Deneyimi:**
+  - Kullanıcı tarla kimliğini girerek ilgili kaydı güncelleyebilir
+  - Güncelleme sonrası başarı mesajı gösterilir
+- **Teknik Detaylar:**
+  - Dinamik `fieldId` ile PUT isteği gönderilir
+  - JSON body kullanılır
+
+## 6. Tarla Silme Sayfası
+- **API Endpoint:** `DELETE /fields/{fieldId}`
+- **Görev:** Kullanıcının seçtiği tarlayı silmesini sağlayan arayüzü geliştirmek
+- **UI Bileşenleri:**
+  - Tarla ID input alanı
+  - "Tarlayı Sil" butonu
+  - Sonuç mesajı alanı
+- **Kullanıcı Deneyimi:**
+  - Kullanıcı ID girerek ilgili tarlayı silebilir
+  - İşlem sonucunda kullanıcıya bilgi mesajı gösterilir
+- **Teknik Detaylar:**
+  - Dinamik `fieldId` ile DELETE isteği gönderilir
+  - Başarılı cevap kullanıcıya yansıtılır
+
+## 7. Tarlaları Listeleme Sayfası
+- **API Endpoint:** `GET /fields`
+- **Görev:** Sistemde kayıtlı tarlaları kullanıcıya liste halinde göstermek
+- **UI Bileşenleri:**
+  - "Listele" butonu
+  - Liste gösterim alanı (`ul` ve `li`)
+- **Kullanıcı Deneyimi:**
+  - Kullanıcı butona bastığında mevcut tarlalar ekranda listelenir
+  - Liste okunabilir ve sade bir biçimde gösterilir
+- **Teknik Detaylar:**
+  - GET isteği ile backend'den veri alınır
+  - Gelen dizi JavaScript ile DOM üzerine yazdırılır
+
+## 8. Ürün Ekleme Sayfası
+- **API Endpoint:** `POST /crops`
+- **Görev:** Kullanıcının bir tarlaya yeni ürün eklemesini sağlayan arayüzü geliştirmek
+- **UI Bileşenleri:**
+  - Ürün adı input alanı
+  - Tarla ID input alanı
+  - "Ekle" butonu
+  - Sonuç mesaj alanı
+- **Form Validasyonu:**
+  - Ürün adı boş bırakılamaz
+  - Tarla ID boş bırakılamaz
+- **Kullanıcı Deneyimi:**
+  - Kullanıcı ürün bilgilerini girerek kayıt oluşturabilir
+  - Başarılı işlem sonrası mesaj gösterilir
+- **Teknik Detaylar:**
+  - POST isteği ile JSON veri backend'e gönderilir
+
+## 9. Ürün Güncelleme Sayfası
+- **API Endpoint:** `PUT /crops/{cropId}`
+- **Görev:** Kullanıcının ürün bilgisini güncellemesini sağlayan arayüzü geliştirmek
+- **UI Bileşenleri:**
+  - Ürün ID input alanı
+  - Yeni ürün adı input alanı
+  - Tarla ID input alanı
+  - "Ürünü Güncelle" butonu
+  - Sonuç mesajı alanı
+- **Form Validasyonu:**
+  - Ürün ID zorunludur
+  - Güncellenecek bilgiler boş bırakılmamalıdır
+- **Kullanıcı Deneyimi:**
+  - Kullanıcı ürün kimliği ile mevcut ürünü güncelleyebilir
+  - Başarılı güncelleme sonrası mesaj gösterilir
+- **Teknik Detaylar:**
+  - Dinamik `cropId` ile PUT isteği gönderilir
+  - JSON body backend'e iletilir
+
+## 10. Ürün Silme Sayfası
+- **API Endpoint:** `DELETE /crops/{cropId}`
+- **Görev:** Kullanıcının seçilen ürün kaydını silmesini sağlayan arayüzü geliştirmek
+- **UI Bileşenleri:**
+  - Ürün ID input alanı
+  - "Ürünü Sil" butonu
+  - Sonuç mesaj alanı
+- **Kullanıcı Deneyimi:**
+  - Kullanıcı ürün kimliğini girerek silme işlemi yapabilir
+  - Sonuç ekranda kullanıcıya gösterilir
+- **Teknik Detaylar:**
+  - Dinamik `cropId` ile DELETE isteği gönderilir
+
+## 11. Sulama Önerisi Görüntüleme Sayfası
+- **API Endpoint:** `GET /recommendations/irrigation/{fieldId}`
+- **Görev:** Kullanıcının seçilen tarla için sulama önerisi almasını sağlayan arayüzü geliştirmek
+- **UI Bileşenleri:**
+  - Tarla ID input alanı
+  - "Öneri Al" butonu
+  - Sonuç mesaj alanı
+- **Kullanıcı Deneyimi:**
+  - Kullanıcı tarla ID girerek sulama önerisi alabilir
+  - Backend'den gelen sonuç kullanıcıya gösterilir
+- **Teknik Detaylar:**
+  - Dinamik `fieldId` ile GET isteği gönderilir
+
+## 12. Hava Riski Uyarısı Görüntüleme Sayfası
+- **API Endpoint:** `GET /recommendations/alerts/{fieldId}`
+- **Görev:** Kullanıcının seçilen tarla için hava riski uyarısı almasını sağlayan arayüzü geliştirmek
+- **UI Bileşenleri:**
+  - Tarla ID input alanı
+  - "Uyarı Al" butonu
+  - Sonuç mesaj alanı
+- **Kullanıcı Deneyimi:**
+  - Kullanıcı tarla ID girerek hava durumu uyarısını alabilir
+  - Gelen sonuç mesajı kullanıcıya gösterilir
+- **Teknik Detaylar:**
+  - Dinamik `fieldId` ile GET isteği gönderilir
+
+## Kullanılan Teknolojiler
+- HTML
+- CSS
+- JavaScript
+- Fetch API
+- Vercel üzerinde yayınlanan canlı frontend
