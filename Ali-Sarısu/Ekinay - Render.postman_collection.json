@@ -1,0 +1,325 @@
+{
+  "info": {
+    "_postman_id": "0d9459ed-e98b-4e14-b335-2a0be0e1581f",
+    "name": "Ekinay - Render",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50523952",
+    "_collection_link": "https://go.postman.co/collection/50523952-0d9459ed-e98b-4e14-b335-2a0be0e1581f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Kullanıcı Kaydı",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Ali\",\r\n  \"email\": \"ali@test.com\",\r\n  \"password\": \"123456\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://ekinay-smart-agriculture-system.onrender.com/auth/register",
+          "protocol": "https",
+          "host": [
+            "ekinay-smart-agriculture-system",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Kullanıcı Girişi",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"ali@test.com\",\r\n  \"password\": \"123456\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://ekinay-smart-agriculture-system.onrender.com/auth/login",
+          "protocol": "https",
+          "host": [
+            "ekinay-smart-agriculture-system",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Profil Güncelleme",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Ali Yeni\",\r\n  \"email\": \"aliyeni@test.com\",\r\n  \"password\": \"654321\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://ekinay-smart-agriculture-system.onrender.com/users/1",
+          "protocol": "https",
+          "host": [
+            "ekinay-smart-agriculture-system",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "users",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Tarla Ekleme",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Tarla 1\",\r\n  \"location\": \"Isparta\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://ekinay-smart-agriculture-system.onrender.com/fields",
+          "protocol": "https",
+          "host": [
+            "ekinay-smart-agriculture-system",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "fields"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Tarla Güncelleme",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Tarla Güncel\",\r\n  \"location\": \"Antalya\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://ekinay-smart-agriculture-system.onrender.com/fields/1",
+          "protocol": "https",
+          "host": [
+            "ekinay-smart-agriculture-system",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "fields",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Tarla Silme",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://ekinay-smart-agriculture-system.onrender.com/fields/1",
+          "protocol": "https",
+          "host": [
+            "ekinay-smart-agriculture-system",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "fields",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Tarla Listeleme",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://ekinay-smart-agriculture-system.onrender.com/fields",
+          "protocol": "https",
+          "host": [
+            "ekinay-smart-agriculture-system",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "fields"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Ürün Ekle",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Buğday\",\r\n  \"fieldId\": \"1\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://ekinay-smart-agriculture-system.onrender.com/crops",
+          "protocol": "https",
+          "host": [
+            "ekinay-smart-agriculture-system",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "crops"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Ürün Güncelle",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Arpa\",\r\n  \"fieldId\": \"1\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://ekinay-smart-agriculture-system.onrender.com/crops/1",
+          "protocol": "https",
+          "host": [
+            "ekinay-smart-agriculture-system",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "crops",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Ürün Silme",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://ekinay-smart-agriculture-system.onrender.com/crops/1",
+          "protocol": "https",
+          "host": [
+            "ekinay-smart-agriculture-system",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "crops",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Sulama Önerisi",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://ekinay-smart-agriculture-system.onrender.com/recommendations/irrigation/1",
+          "protocol": "https",
+          "host": [
+            "ekinay-smart-agriculture-system",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "recommendations",
+            "irrigation",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Hava Uyarısı",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://ekinay-smart-agriculture-system.onrender.com/recommendations/alerts/1",
+          "protocol": "https",
+          "host": [
+            "ekinay-smart-agriculture-system",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "recommendations",
+            "alerts",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
