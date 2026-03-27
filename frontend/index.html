@@ -41,7 +41,15 @@
     <input type="password" id="loginPassword" placeholder="Şifre">
     <button onclick="login()">Giriş Yap</button>
 
-    <!-- Field ekle -->
+    <!-- Profil Güncelleme Formu -->
+    <h2>Profil Güncelle</h2>
+    <input id="userId" placeholder="User ID">
+    <input id="updateName" placeholder="Yeni Ad">
+    <input id="updateEmail" placeholder="Yeni Email">
+    <input id="updatePassword" placeholder="Yeni Şifre">
+    <button onclick="updateProfile()">Profili Güncelle</button>
+
+    <!-- Tarla Ekle -->
     <h2>Tarla Ekle</h2>
     <input id="fieldName" placeholder="Tarla Adı">
     <input id="fieldLocation" placeholder="Konum">
@@ -52,11 +60,35 @@
     <button onclick="getFields()">Listele</button>
     <ul id="fieldList"></ul>
 
-    <!-- Crop ekle -->
+    <!-- Tarla Güncelle -->
+    <h2>Tarla Güncelle</h2>
+    <input id="updateFieldId" placeholder="Field ID">
+    <input id="updateFieldName" placeholder="Yeni Tarla Adı">
+    <input id="updateFieldLocation" placeholder="Yeni Konum">
+    <button onclick="updateField()">Tarlayı Güncelle</button>
+
+    <!-- Tarla Sil -->
+    <h2>Tarla Sil</h2>
+    <input id="deleteFieldId" placeholder="Field ID">
+    <button onclick="deleteField()">Tarlayı Sil</button>
+
+    <!-- Ürün Ekle -->
     <h2>Ürün Ekle</h2>
     <input id="cropName" placeholder="Ürün">
     <input id="cropFieldId" placeholder="Field ID">
     <button onclick="addCrop()">Ekle</button>
+
+    <!-- Ürün Güncelle -->
+    <h2>Ürün Güncelle</h2>
+    <input id="updateCropId" placeholder="Crop ID">
+    <input id="updateCropName" placeholder="Yeni Ürün Adı">
+    <input id="updateCropFieldId" placeholder="Field ID">
+    <button onclick="updateCrop()">Ürünü Güncelle</button>
+
+    <!-- Ürün Sil -->
+    <h2>Ürün Sil</h2>
+    <input id="deleteCropId" placeholder="Crop ID">
+    <button onclick="deleteCrop()">Ürünü Sil</button>
 
     <!---Öneri Al-->
     <h2>Sulama Önerisi</h2>

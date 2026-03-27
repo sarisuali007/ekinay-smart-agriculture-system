@@ -9,20 +9,36 @@ router.get("/", (req, res) => {
 });
 
 router.post('/', (req, res) => {
+    const { name, location } = req.body;
+
     res.json({
-        message: "Yeni tarla bilgisi eklendi."
+        message: "Yeni tarla bilgisi eklendi.",
+        field: {
+            name,
+            location
+        }
     });
 });
 
 router.put('/:fieldId', (req, res) => {
+    const { fieldId } = req.params;
+    const { name, location } = req.body;
+
     res.json({
-        message: `Tarla bilgisi güncellendi.`
+        message: "Tarla bilgisi güncellendi.",
+        updatedField: {
+            id: fieldId,
+            name,
+            location
+        }
     });
 });
 
 router.delete('/:fieldId', (req, res) => {
+    const { fieldId } = req.params;
+
     res.json({
-        message: `Tarla bilgisi silindi.`
+        message: `Tarla ${fieldId} silindi.`
     });
 });
 

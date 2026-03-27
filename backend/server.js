@@ -8,11 +8,13 @@ app.use(express.json());
 
 // Routes
 const authRouter = require('./routes/auth');  
+const usersRouter = require('./routes/users');
 const fieldsRouter = require('./routes/fields');
 const cropsRouter = require('./routes/crops');
 const recommendationsRouter = require('./routes/recommendations');
 
 app.use('/auth', authRouter);
+app.use('/users', usersRouter);
 app.use('/fields', fieldsRouter);
 app.use('/crops', cropsRouter);
 app.use('/recommendations', recommendationsRouter);
