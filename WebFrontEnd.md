@@ -8,7 +8,7 @@ Bu dokümanda, web uygulamasının kullanıcı arayüzü (UI) ve kullanıcı den
 
 ## Grup Üyelerinin Web Frontend Görevleri
 
-1. [Ali Sarısu'nun Web Frontend Görevleri](Ali-Sarısu-Web-Frontend-Gorevleri.md)
+1. [Ali Sarısu'nun Web Frontend Görevleri](Ali-Sarısu/Ali-Sarısu-Web-Frontend-Gorevleri.md)
 
 ---
 
