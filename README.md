@@ -17,8 +17,10 @@ Ekinay, özellikle küçük ve orta ölçekli üreticilerin tarımsal bilgiye da
 
 ## Proje Linkleri
 
-- **REST API Adresi:** 
+- **REST API Adresi:**
+https://ekinay-smart-agriculture-system.onrender.com
 - **Web Frontend Adresi:** 
+https://ekinay-smart-agriculture-system.vercel.app
 
 ---
 
