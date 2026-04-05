@@ -4,7 +4,7 @@
 https://ekinay-smart-agriculture-system.onrender.com
 
 **API Test Videosu:** 
-[Link buraya eklenecek](https://example.com)
+https://youtu.be/VbrXzlYZBH0?si=rtP-A80te2AEmG6O
 
 ## 1. Kullanıcı Kaydı Oluşturma
 - **Endpoint:** `POST /auth/register`

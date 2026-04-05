@@ -4,7 +4,7 @@
 https://ekinay-smart-agriculture-system.vercel.app
 
 **Front-end Test Videosu:** 
-[Link buraya eklenecek](https://example.com)
+https://youtu.be/MwbRercFgKg?si=u06kgc0HuLhhKLXN
 
 ## 1. Kullanıcı Kaydı Oluşturma Sayfası
 - **API Endpoint:** `POST /auth/register`
