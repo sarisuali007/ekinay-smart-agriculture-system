@@ -1,5 +1,11 @@
 const API_URL = "https://ekinay-smart-agriculture-system.onrender.com";
 
+function showMessage(message, isError = false) {
+  const box = document.getElementById("messageBox");
+  box.textContent = message;
+  box.style.color = isError ? "red" : "green";
+}
+
 async function register(){
     const name = document.getElementById("name").value;
     const email = document.getElementById("email").value;
@@ -50,35 +56,48 @@ async function updateProfile() {
     alert(data.message);
 }
 
-async function addField(){
+async function addField() {
+  try {
     const name = document.getElementById("fieldName").value;
     const location = document.getElementById("fieldLocation").value;
 
     const response = await fetch(API_URL + "/fields", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ name, location })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, location })
     });
 
     const data = await response.json();
-    console.log(data);
-    alert(data.message);
+
+    if (!response.ok) {
+      throw new Error(data.message || "Tarla eklenemedi.");
+    }
+
+    showMessage(data.message);
+    getFields(); // 🔥 EN ÖNEMLİ SATIR
+
+  } catch (error) {
+    showMessage(error.message, true);
+  }
 }
 
 async function getFields() {
+  try {
     const response = await fetch(API_URL + "/fields");
     const data = await response.json();
 
-    console.log("FIELDS DATA:", data);
-
-    const list = document.getElementById("fieldList");
+    const list = document.getElementById("fieldsList");
     list.innerHTML = "";
 
     data.forEach(field => {
-        const li = document.createElement("li");
-        li.textContent = field.name + " - " + field.location;
-        list.appendChild(li);
+      const li = document.createElement("li");
+      li.textContent = `${field.name} - ${field.location}`;
+      list.appendChild(li);
     });
+
+  } catch (error) {
+    showMessage("Tarlalar getirilemedi", true);
+  }
 }
 
 async function updateField() {
@@ -171,3 +190,7 @@ async function getAlert() {
     console.log(data);
     alert(data.message);
 }
+
+window.onload = () => {
+  getFields();
+};
