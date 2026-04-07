@@ -74,8 +74,7 @@ async function addField() {
     }
 
     showMessage(data.message);
-    getFields(); 
-
+    getFields();
   } catch (error) {
     showMessage(error.message, true);
   }
@@ -94,9 +93,8 @@ async function getFields() {
       li.textContent = `${field.name} - ${field.location}`;
       list.appendChild(li);
     });
-
   } catch (error) {
-    showMessage("Tarlalar getirilemedi", true);
+    showMessage("Tarlalar getirilemedi.", true);
   }
 }
 

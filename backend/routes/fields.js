@@ -64,7 +64,9 @@ router.delete("/:fieldId", async (req, res) => {
       return res.status(404).json({ message: "Tarla bulunamadı." });
     }
 
-    res.json({ message: "Tarla silindi." });
+    res.json({
+      message: "Tarla silindi."
+    });
   } catch (error) {
     res.status(500).json({ message: "Tarla silinemedi." });
   }
