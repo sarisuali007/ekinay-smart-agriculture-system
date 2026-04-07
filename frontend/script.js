@@ -74,7 +74,7 @@ async function addField() {
     }
 
     showMessage(data.message);
-    getFields(); // 🔥 EN ÖNEMLİ SATIR
+    getFields(); 
 
   } catch (error) {
     showMessage(error.message, true);
@@ -86,7 +86,7 @@ async function getFields() {
     const response = await fetch(API_URL + "/fields");
     const data = await response.json();
 
-    const list = document.getElementById("fieldsList");
+    const list = document.getElementById("fieldList");
     list.innerHTML = "";
 
     data.forEach(field => {
