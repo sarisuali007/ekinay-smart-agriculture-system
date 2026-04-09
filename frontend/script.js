@@ -108,9 +108,12 @@ async function updateProfile() {
         });
 
         const data = await response.json();
+
         if (!response.ok) {
             throw new Error(data.message || "Profil güncellenemedi.");
         }
+
+        showMessage(data.message);
     } 
     catch (error) {
         showMessage(error.message, true);
