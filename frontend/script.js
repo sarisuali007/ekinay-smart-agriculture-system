@@ -1,4 +1,5 @@
 const API_URL = "https://ekinay-smart-agriculture-system.onrender.com";
+let currentUserId = localStorage.getItem("userId") || "";
 
 function showMessage(message, isError = false) {
   const box = document.getElementById("messageBox");
@@ -50,6 +51,9 @@ async function login(){
             throw new Error(data.message || "Giriş başarısız.");
         }
 
+        currentUserId = data.user._id;
+        localStorage.setItem("userId", currentUserId);
+
         showMessage(data.message);
 
     } 
@@ -58,13 +62,40 @@ async function login(){
     }
 }
 
+async function getProfile() {
+    try {
+        if (!currentUserId) {
+            throw new Error("Profil bilgilerini görmek için giriş yapmalısınız.");
+        }
+
+        const response = await fetch(API_URL + "/users/" + currentUserId);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Profil bilgileri getirilemedi.");
+        }
+
+        document.getElementById("updateName").value = data.user.name || "";
+        document.getElementById("updateEmail").value = data.user.email || "";
+
+        showMessage("Profil bilgileri getirildi.");
+
+    } catch (error) {
+        
+    }
+    
+}
+
 async function updateProfile() {
     try {
+        if (!currentUserId) {
+            throw new Error("Güncelleme için giriş yapmalısınız.");
+        }
         const name = document.getElementById("updateName").value;
         const email = document.getElementById("updateEmail").value;
         const password = document.getElementById("updatePassword").value;
 
-        const response = await fetch(API_URL + "/users/" + userId, {
+        const response = await fetch(API_URL + "/users/" + currentUserId, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name, email, password })
@@ -278,4 +309,9 @@ async function getAlert() {
 
 window.onload = () => {
   getFields();
+
+  if(currentUserId) {
+    getProfile();
+  }
+
 };
