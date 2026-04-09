@@ -55,7 +55,7 @@ async function login(){
         localStorage.setItem("userId", currentUserId);
 
         showMessage(data.message);
-
+        getProfile();
     } 
     catch (error) {
         showMessage(error.message, true);
@@ -81,7 +81,7 @@ async function getProfile() {
         showMessage("Profil bilgileri getirildi.");
 
     } catch (error) {
-        
+        showMessage(error.message, true);
     }
     
 }
