@@ -9,6 +9,9 @@ function showMessage(message, isError = false) {
 
 async function register(){
     try {
+        console.log("Kayıt fonksiyonu çağrıldı.");
+        showMessage("Kayıt işlemi gerçekleştiriliyor...");
+
         const name = document.getElementById("registerName").value;
         const email = document.getElementById("registerEmail").value;
         const password = document.getElementById("registerPassword").value;
@@ -36,6 +39,9 @@ async function register(){
 
 async function login(){
     try {
+        console.log("Giriş fonksiyonu çağrıldı.");
+        showMessage("Giriş işlemi gerçekleştiriliyor...");
+
         const email = document.getElementById("loginEmail").value;
         const password = document.getElementById("loginPassword").value;
 
@@ -102,8 +108,9 @@ async function updateProfile() {
         });
 
         const data = await response.json();
-        console.log(data);
-        alert(data.message);
+        if (!response.ok) {
+            throw new Error(data.message || "Profil güncellenemedi.");
+        }
     } 
     catch (error) {
         showMessage(error.message, true);
@@ -283,8 +290,9 @@ async function getIrrigation() {
         const response = await fetch(API_URL + "/recommendations/irrigation/" + fieldId);
         const data = await response.json();
 
-        console.log(data);
-        alert(data.message);
+        if (!response.ok) {
+            throw new Error(data.message || "Sulama önerisi getirilemedi.");
+        }
     } 
     catch (error) {
         showMessage(error.message, true);
@@ -299,8 +307,9 @@ async function getAlert() {
         const response = await fetch(API_URL + "/recommendations/alerts/" + fieldId);
         const data = await response.json();
 
-        console.log(data);
-        alert(data.message);
+        if (!response.ok) {
+            throw new Error(data.message || "Uyarılar getirilemedi.");
+        }
     }
     catch (error) {
         showMessage(error.message, true);
