@@ -7,53 +7,77 @@ function showMessage(message, isError = false) {
 }
 
 async function register(){
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    try {
+        const name = document.getElementById("registerName").value;
+        const email = document.getElementById("registerEmail").value;
+        const password = document.getElementById("registerPassword").value;
 
-    const response = await fetch(API_URL + "/auth/register", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ name, email, password })
-    });
+        const response = await fetch(API_URL + "/auth/register", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ name, email, password })
+        });
 
-    const data = await response.json();
-    console.log(data);
-    alert(data.message);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Kayıt başarısız.");
+        }
+
+        showMessage(data.message);
+
+    } 
+    catch (error) {
+        showMessage(error.message, true);
+    }
+
 }
 
 async function login(){
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
+    try {
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
 
-    const response = await fetch(API_URL + "/auth/login", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ email, password })
-    });
+        const response = await fetch(API_URL + "/auth/login", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ email, password })
+        });
 
-    const data = await response.json();
-    console.log(data);
-    alert(data.message);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Giriş başarısız.");
+        }
+
+        showMessage(data.message);
+
+    } 
+    catch (error) {
+        showMessage(error.message, true);
+    }
 }
 
 async function updateProfile() {
-    const userId = document.getElementById("userId").value;
-    const name = document.getElementById("updateName").value;
-    const email = document.getElementById("updateEmail").value;
-    const password = document.getElementById("updatePassword").value;
+    try {
+        const name = document.getElementById("updateName").value;
+        const email = document.getElementById("updateEmail").value;
+        const password = document.getElementById("updatePassword").value;
 
-    const response = await fetch(API_URL + "/users/" + userId, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password })
-    });
+        const response = await fetch(API_URL + "/users/" + userId, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password })
+        });
 
-    const data = await response.json();
-    console.log(data);
-    alert(data.message);
+        const data = await response.json();
+        console.log(data);
+        alert(data.message);
+    } 
+    catch (error) {
+        showMessage(error.message, true);
+    }
+
 }
 
 async function addField() {
@@ -75,7 +99,8 @@ async function addField() {
 
     showMessage(data.message);
     getFields();
-  } catch (error) {
+  } 
+  catch (error) {
     showMessage(error.message, true);
   }
 }
@@ -93,100 +118,162 @@ async function getFields() {
       li.textContent = `${field.name} - ${field.location}`;
       list.appendChild(li);
     });
-  } catch (error) {
+  } 
+  catch (error) {
     showMessage("Tarlalar getirilemedi.", true);
   }
 }
 
 async function updateField() {
-    const fieldId = document.getElementById("updateFieldId").value;
-    const name = document.getElementById("updateFieldName").value;
-    const location = document.getElementById("updateFieldLocation").value;
+    try {
+        const fieldId = document.getElementById("updateFieldId").value;
+        const name = document.getElementById("updateFieldName").value;
+        const location = document.getElementById("updateFieldLocation").value;
 
-    const response = await fetch(API_URL + "/fields/" + fieldId, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, location })
-    });
+        const response = await fetch(API_URL + "/fields/" + fieldId, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, location })
+        });
 
-    const data = await response.json();
-    console.log(data);
-    alert(data.message);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Tarla güncellenemedi.");
+        }
+
+        showMessage(data.message);
+        getFields();
+
+    } 
+    catch (error) {
+        showMessage(error.message, true);
+    }
 }
 
 async function deleteField() {
-    const fieldId = document.getElementById("deleteFieldId").value;
+    try {
+        const fieldId = document.getElementById("deleteFieldId").value;
+        
+        const response = await fetch(API_URL + "/fields/" + fieldId, {
+            method: "DELETE"
+        });
 
-    const response = await fetch(API_URL + "/fields/" + fieldId, {
-        method: "DELETE"
-    });
+        const data = await response.json();
 
-    const data = await response.json();
-    console.log(data);
-    alert(data.message);
+        if (!response.ok) {
+            throw new Error(data.message || "Tarla silinemedi.");
+        }
+
+        showMessage(data.message);
+        getFields();
+    } 
+    catch (error) {
+        showMessage(error.message, true);
+    }
+
 }
 
 async function addCrop(){
-    const name = document.getElementById("cropName").value;
-    const fieldId = document.getElementById("cropFieldId").value;
+    try {
+        const name = document.getElementById("cropName").value;
+        const fieldId = document.getElementById("cropFieldId").value;
 
-    const response = await fetch(API_URL + "/crops", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ name, fieldId })
-    });
+        const response = await fetch(API_URL + "/crops", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, fieldId })
+        });
 
-    const data = await response.json();
-    console.log(data);
-    alert(data.message);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Ürün eklenemedi.");
+        }
+
+        showMessage(data.message);
+
+    } 
+    catch (error) {
+        showMessage(error.message, true);
+    }
 }
 
 async function updateCrop() {
-    const cropId = document.getElementById("updateCropId").value;
-    const name = document.getElementById("updateCropName").value;
-    const fieldId = document.getElementById("updateCropFieldId").value;
+    try {
+        const cropId = document.getElementById("updateCropId").value;
+        const name = document.getElementById("updateCropName").value;
+        const fieldId = document.getElementById("updateCropFieldId").value;
 
-    const response = await fetch(API_URL + "/crops/" + cropId, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, fieldId })
-    });
+        const response = await fetch(API_URL + "/crops/" + cropId, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, fieldId })
+        });
 
-    const data = await response.json();
-    console.log(data);
-    alert(data.message);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Ürün güncellenemedi.");
+        }
+
+        showMessage(data.message);
+    } 
+    catch (error) {
+        showMessage(error.message, true);
+    }
 }
 
 async function deleteCrop() {
-    const cropId = document.getElementById("deleteCropId").value;
+    try {
+        const cropId = document.getElementById("deleteCropId").value;
+        
+        const response = await fetch(API_URL + "/crops/" + cropId, {
+            method: "DELETE"
+        });
 
-    const response = await fetch(API_URL + "/crops/" + cropId, {
-        method: "DELETE"
-    });
+        const data = await response.json();
 
-    const data = await response.json();
-    console.log(data);
-    alert(data.message);
+        if (!response.ok) {
+            throw new Error(data.message || "Ürün silinemedi.");
+        }
+
+        showMessage(data.message);
+    } 
+    catch (error) {
+        showMessage(error.message, true);
+    }
 }
 
 async function getIrrigation() {
-    const fieldId = document.getElementById("irrigationFieldId").value;
+    try {
+        const fieldId = document.getElementById("irrigationFieldId").value;
 
-    const response = await fetch(API_URL + "/recommendations/irrigation/" + fieldId);
-    const data = await response.json();
+        const response = await fetch(API_URL + "/recommendations/irrigation/" + fieldId);
+        const data = await response.json();
 
-    console.log(data);
-    alert(data.message);
+        console.log(data);
+        alert(data.message);
+    } 
+    catch (error) {
+        showMessage(error.message, true);
+    }
+
 }
 
 async function getAlert() {
-    const fieldId = document.getElementById("alertFieldId").value;
+    try {
+        const fieldId = document.getElementById("alertFieldId").value;
 
-    const response = await fetch(API_URL + "/recommendations/alerts/" + fieldId);
-    const data = await response.json();
+        const response = await fetch(API_URL + "/recommendations/alerts/" + fieldId);
+        const data = await response.json();
 
-    console.log(data);
-    alert(data.message);
+        console.log(data);
+        alert(data.message);
+    }
+    catch (error) {
+        showMessage(error.message, true);
+    }
 }
 
 window.onload = () => {
