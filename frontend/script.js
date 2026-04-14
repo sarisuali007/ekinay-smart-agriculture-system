@@ -81,8 +81,15 @@ async function getProfile() {
             throw new Error(data.message || "Profil bilgileri getirilemedi.");
         }
 
-        document.getElementById("updateName").value = data.user.name || "";
-        document.getElementById("updateEmail").value = data.user.email || "";
+        const user = data.user || data;;
+
+        document.getElementById("updateName").value = user.name || "";
+        document.getElementById("updateEmail").value = user.email || "";
+
+        const debugUserId = document.getElementById("debugUserId");
+        if (debugUserId) {
+            debugUserId.textContent = "Kullanıcı ID: " + (user._id || currentUserId);
+        }
 
         showMessage("Profil bilgileri getirildi.");
 
@@ -119,6 +126,41 @@ async function updateProfile() {
         showMessage(error.message, true);
     }
 
+}
+
+async function deleteProfile() {
+    try {
+        if (!currentUserId) {
+            throw new Error("Silme işlemi için giriş yapmalısınız.");
+        }
+
+        const response = await fetch(API_URL + "/users/" + currentUserId, {
+            method: "DELETE"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Profil silinemedi.");
+        }
+
+        localStorage.removeItem("userId");
+        currentUserId = "";
+
+        document.getElementById("updateName").value = "";
+        document.getElementById("updateEmail").value = "";
+        document.getElementById("updatePassword").value = "";
+
+        const debugUserId = document.getElementById("debugUserId");
+        if (debugUserId) {
+            debugUserId.textContent = "";
+        }
+
+        showMessage(data.message || "Profil silindi.");
+    } 
+    catch (error) {
+        showMessage(error.message, true);
+    }
 }
 
 async function addField() {
