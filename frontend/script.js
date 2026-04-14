@@ -275,7 +275,7 @@ async function updateField() {
 
 async function deleteField() {
     try {
-        const fieldId = document.getElementById("deleteFieldSelect").value;
+        const fieldId = document.getElementById("updateFieldSelect").value;
         
         const response = await fetch(API_URL + "/fields/" + fieldId, {
             method: "DELETE"
@@ -399,7 +399,7 @@ async function updateCrop() {
 
 async function deleteCrop() {
     try {
-        const cropId = document.getElementById("deleteCropSelect").value;
+        const cropId = document.getElementById("updateCropSelect").value;
         
         const response = await fetch(API_URL + "/crops/" + cropId, {
             method: "DELETE"
