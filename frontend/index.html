@@ -24,77 +24,112 @@
 </style>
 
 </head>
-<body>
-    
-    <h1>Ekinay Tarım Sistemi</h1>
-    <div id="messageBox"></div>
 
-    <!-- Kullanıcı Kaydı Formu -->
-    <h2>Kullanıcı Kaydı</h2>
-    <input type="text" id="registerName" placeholder="Ad">
-    <input type="email" id="registerEmail" placeholder="Email">
-    <input type="password" id="registerPassword" placeholder="Şifre">
-    <button onclick="register()">Kayıt Ol</button>
+<body>    
+    <div class="container">
 
-    <!-- Kullanıcı Girişi Formu -->
-    <h2>Kullanıcı Girişi</h2>
-    <input type="email" id="loginEmail" placeholder="Email">
-    <input type="password" id="loginPassword" placeholder="Şifre">
-    <button onclick="login()">Giriş Yap</button>
+        <header class="hero">
+            <h1>Ekinay Tarım Sistemi</h1>
+            <p>Çiftçiler için akıllı tarla, ürün ve öneri yönetim sistemi</p>
+        </header>
 
-    <!-- Profil Güncelleme Formu -->
-    <h2>Profil Güncelle</h2>
-    <input id="updateName" placeholder="Yeni Ad">
-    <input id="updateEmail" placeholder="Yeni Email">
-    <input id="updatePassword" placeholder="Yeni Şifre">
-    <button onclick="updateProfile()">Profili Güncelle</button>
-    <button onclick="deleteProfile()">Profili Sil</button>
+        <div id="messageBox"></div>
 
+        <section class="card">
+            <h2>Kimlik İşlemleri</h2>
 
-    <!-- Tarla Ekle -->
-    <h2>Tarla Ekle</h2>
-    <input id="fieldName" placeholder="Tarla Adı">
-    <input id="fieldLocation" placeholder="Konum">
-    <button onclick="addField()">Ekle</button>
+            <div class="form-group">
+                <h3>Kullanıcı Kaydı</h3>
+                <input type="text" id="registerName" placeholder="Ad">
+                <input type="email" id="registerEmail" placeholder="Email">
+                <input type="password" id="registerPassword" placeholder="Şifre">
+                <button onclick="register()">Kayıt Ol</button>
+            </div>
 
-    <!-- Tarla Listesi -->
-    <h2>Tarlaları Listele</h2>
-    <button onclick="getFields()">Listele</button>
-    <ul id="fieldList"></ul>
+            <div class="form-group">
+                <h3>Kullanıcı Girişi</h3>
+                <input type="email" id="loginEmail" placeholder="Email">
+                <input type="password" id="loginPassword" placeholder="Şifre">
+                <button onclick="login()">Giriş Yap</button>
+            </div>
+        </section>
 
-    <!-- Tarla Güncelle -->
-    <h2>Tarla Güncelle</h2>
-    <select id="updateFieldSelect"></select>
-    <input id="updateFieldName" placeholder="Yeni Tarla Adı">
-    <input id="updateFieldLocation" placeholder="Yeni Konum">
-    <button onclick="updateField()">Tarlayı Güncelle</button>
-    <button onclick="deleteField()">Tarlayı Sil</button>
+        <section class="card">
+            <h2>Profil İşlemleri</h2>
 
-    <!-- Ürün Ekle -->
-    <h2>Ürün Ekle</h2>
-    <input id="cropName" placeholder="Ürün">
-    <select id="cropFieldSelect"></select>
-    <button onclick="addCrop()">Ekle</button>
+            <div class="form-group">
+                <input id="updateName" placeholder="Yeni Ad">
+                <input id="updateEmail" placeholder="Yeni Email">
+                <input id="updatePassword" placeholder="Yeni Şifre">
+                <button onclick="updateProfile()">Profili Güncelle</button>
+                <button onclick="deleteProfile()">Profili Sil</button>
+            </div>
+        </section>
 
-    <!-- Ürün Güncelle -->
-    <h2>Ürün Güncelle</h2>
-    <select id="updateCropSelect"></select>
-    <input id="updateCropName" placeholder="Yeni Ürün Adı">
-    <select id="updateCropFieldSelect"></select>
-    <button onclick="updateCrop()">Ürünü Güncelle</button>
-    <button onclick="deleteCrop()">Ürünü Sil</button>
+        <section class="card">
+            <h2>Tarla Yönetimi</h2>
 
-    <!---Öneri Al-->
-    <h2>Sulama Önerisi</h2>
-    <select id="irrigationFieldSelect"></select>
-    <button onclick="getIrrigation()">Öneri Al</button>
+            <div class="form-group">
+                <h3>Tarla Ekle</h3>
+                <input id="fieldName" placeholder="Tarla Adı">
+                <input id="fieldLocation" placeholder="Konum">
+                <button onclick="addField()">Ekle</button>
+            </div>
 
-    <!--Uyarı Mesajı-->
-    <h2>Hava Uyarısı</h2>
-    <select id="alertFieldSelect"></select>
-    <button onclick="getAlert()">Uyarı Al</button>
+            <div class="form-group">
+                <h3>Kayıtlı Tarlalar</h3>
+                <button onclick="getFields()">Listele</button>
+                <ul id="fieldList"></ul>
+            </div>
+
+            <div class="form-group">
+                <h3>Tarla Güncelle / Sil</h3>
+                <select id="updateFieldSelect"></select>
+                <input id="updateFieldName" placeholder="Yeni Tarla Adı">
+                <input id="updateFieldLocation" placeholder="Yeni Konum">
+                <button onclick="updateField()">Tarlayı Güncelle</button>
+                <button onclick="deleteField()">Tarlayı Sil</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Ürün Yönetimi</h2>
+
+            <div class="form-group">
+                <h3>Ürün Ekle</h3>
+                <input id="cropName" placeholder="Ürün">
+                <select id="cropFieldSelect"></select>
+                <button onclick="addCrop()">Ekle</button>
+            </div>
+
+            <div class="form-group">
+                <h3>Ürün Güncelle / Sil</h3>
+                <select id="updateCropSelect"></select>
+                <input id="updateCropName" placeholder="Yeni Ürün Adı">
+                <select id="updateCropFieldSelect"></select>
+                <button onclick="updateCrop()">Ürünü Güncelle</button>
+                <button onclick="deleteCrop()">Ürünü Sil</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Akıllı Öneriler</h2>
+
+            <div class="form-group">
+                <h3>Sulama Önerisi</h3>
+                <select id="irrigationFieldSelect"></select>
+                <button onclick="getIrrigation()">Öneri Al</button>
+            </div>
+
+            <div class="form-group">
+                <h3>Hava Uyarısı</h3>
+                <select id="alertFieldSelect"></select>
+                <button onclick="getAlert()">Uyarı Al</button>
+            </div>
+        </section>
+
+    </div>
 
     <script src="script.js"></script>
-
-</body>    
+</body>
 </html>
