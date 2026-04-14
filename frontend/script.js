@@ -177,7 +177,7 @@ function populateFieldSelects() {
 
     selectIds.forEach(id => {
         const select = document.getElementById(id);
-        if (select) return;
+        if (!select) return;
 
         select.innerHTML = "<option value=''>Tarla seçiniz</option>";
 
@@ -305,7 +305,7 @@ function populateCropSelects() {
 
     SelectIds.forEach(id => {
         const select = document.getElementById(id);
-        if (select) return;
+        if (!select) return;
 
         select.innerHTML = "<option value=''>Ürün seçiniz</option>";
 
