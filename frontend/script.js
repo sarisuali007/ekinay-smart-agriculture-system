@@ -175,7 +175,7 @@ function populateFieldSelects() {
         "alertFieldSelect"
     ];
 
-    selectIds.forEach(selectId => {
+    selectIds.forEach(id => {
         const select = document.getElementById(id);
         if (select) return;
 
@@ -220,20 +220,29 @@ async function getFields() {
     const response = await fetch(API_URL + "/fields");
     const data = await response.json();
     
+    if (!response.ok) {
+        throw new Error(data.message || "Tarlalar getirilemedi.");
+    }    
+
     fieldsCache = data;
     populateFieldSelects();
 
     const list = document.getElementById("fieldList");
-    list.innerHTML = "";
+    if (list) {
+        list.innerHTML = "";
 
-    data.forEach(field => {
-      const li = document.createElement("li");
-      li.textContent = `${field.name} - ${field.location}`;
-      list.appendChild(li);
-    });
+        data.forEach(field => {
+            const li = document.createElement("li");
+            li.textContent = `${field.name} - ${field.location}`;
+            list.appendChild(li);
+        });
+    }
+
+    showMessage("Tarlalar getirildi.");
+
   } 
   catch (error) {
-    showMessage("Tarlalar getirilemedi.", true);
+    showMessage(error.message, true);
   }
 }
 
