@@ -168,7 +168,6 @@ async function deleteProfile() {
 function populateFieldSelects() {
     const selectIds = [
         "updateFieldSelect",
-        "deleteFieldSelect",
         "cropFieldSelect",
         "updateCropFieldSelect",
         "irrigationFieldSelect",
@@ -300,7 +299,6 @@ async function deleteField() {
 function populateCropSelects() {
     const SelectIds = [
         "updateCropSelect",
-        "deleteCropSelect"
     ];
 
     SelectIds.forEach(id => {
