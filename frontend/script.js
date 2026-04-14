@@ -1,5 +1,7 @@
 const API_URL = "https://ekinay-smart-agriculture-system.onrender.com";
 let currentUserId = localStorage.getItem("userId") || "";
+let fieldsCache = [];
+let cropsCache = [];
 
 function showMessage(message, isError = false) {
   const box = document.getElementById("messageBox");
@@ -163,6 +165,31 @@ async function deleteProfile() {
     }
 }
 
+function populateFieldSelects() {
+    const selectIds = [
+        "updateFieldSelect",
+        "deleteFieldSelect",
+        "cropFieldSelect",
+        "updateCropFieldSelect",
+        "irrigationFieldSelect",
+        "alertFieldSelect"
+    ];
+
+    selectIds.forEach(selectId => {
+        const select = document.getElementById(id);
+        if (select) return;
+
+        select.innerHTML = "<option value=''>Tarla seçiniz</option>";
+
+        fieldsCache.forEach(field => {
+            const option = document.createElement("option");
+            option.value = field._id;
+            option.textContent = `${field.name} - ${field.location}`;
+            select.appendChild(option);
+        });
+    });
+}
+
 async function addField() {
   try {
     const name = document.getElementById("fieldName").value;
@@ -192,6 +219,9 @@ async function getFields() {
   try {
     const response = await fetch(API_URL + "/fields");
     const data = await response.json();
+    
+    fieldsCache = data;
+    populateFieldSelects();
 
     const list = document.getElementById("fieldList");
     list.innerHTML = "";
@@ -209,7 +239,7 @@ async function getFields() {
 
 async function updateField() {
     try {
-        const fieldId = document.getElementById("updateFieldId").value;
+        const fieldId = document.getElementById("updateFieldSelect").value;
         const name = document.getElementById("updateFieldName").value;
         const location = document.getElementById("updateFieldLocation").value;
 
@@ -236,7 +266,7 @@ async function updateField() {
 
 async function deleteField() {
     try {
-        const fieldId = document.getElementById("deleteFieldId").value;
+        const fieldId = document.getElementById("deleteFieldSelect").value;
         
         const response = await fetch(API_URL + "/fields/" + fieldId, {
             method: "DELETE"
@@ -250,6 +280,7 @@ async function deleteField() {
 
         showMessage(data.message);
         getFields();
+        getCrops();
     } 
     catch (error) {
         showMessage(error.message, true);
@@ -257,10 +288,35 @@ async function deleteField() {
 
 }
 
+function populateCropSelects() {
+    const SelectIds = [
+        "updateCropSelect",
+        "deleteCropSelect"
+    ];
+
+    SelectIds.forEach(id => {
+        const select = document.getElementById(id);
+        if (select) return;
+
+        select.innerHTML = "<option value=''>Ürün seçiniz</option>";
+
+        cropsCache.forEach(crop => {
+            const option = document.createElement("option");
+            option.value = crop._id;
+
+            const fieldName = crop.fieldId && crop.fieldId.name ? crop.fieldId.name : "Tarla bilgisi yok";
+            option.textContent = `${crop.name} - ${fieldName}`;
+
+            select.appendChild(option);
+        });
+    });
+}
+
+
 async function addCrop(){
     try {
         const name = document.getElementById("cropName").value;
-        const fieldId = document.getElementById("cropFieldId").value;
+        const fieldId = document.getElementById("cropFieldSelect").value;
 
         const response = await fetch(API_URL + "/crops", {
             method: "POST",
@@ -269,6 +325,10 @@ async function addCrop(){
         });
 
         const data = await response.json();
+
+        if (response.ok) {
+            getCrops();
+        }
 
         if (!response.ok) {
             throw new Error(data.message || "Ürün eklenemedi.");
@@ -282,11 +342,28 @@ async function addCrop(){
     }
 }
 
+async function getCrops() {
+    try {
+        const response = await fetch(API_URL + "/crops");
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Ürünler getirilemedi.");
+        }
+
+        cropsCache = data;
+        populateCropSelects();
+    } 
+    catch (error) {
+        showMessage(error.message, true);
+    }
+}        
+
 async function updateCrop() {
     try {
-        const cropId = document.getElementById("updateCropId").value;
+        const cropId = document.getElementById("updateCropSelect").value;
         const name = document.getElementById("updateCropName").value;
-        const fieldId = document.getElementById("updateCropFieldId").value;
+        const fieldId = document.getElementById("updateCropFieldSelect").value;
 
         const response = await fetch(API_URL + "/crops/" + cropId, {
             method: "PUT",
@@ -295,6 +372,10 @@ async function updateCrop() {
         });
 
         const data = await response.json();
+
+        if (response.ok) {
+            getCrops();
+        }
 
         if (!response.ok) {
             throw new Error(data.message || "Ürün güncellenemedi.");
@@ -309,13 +390,17 @@ async function updateCrop() {
 
 async function deleteCrop() {
     try {
-        const cropId = document.getElementById("deleteCropId").value;
+        const cropId = document.getElementById("deleteCropSelect").value;
         
         const response = await fetch(API_URL + "/crops/" + cropId, {
             method: "DELETE"
         });
 
         const data = await response.json();
+
+        if (response.ok) {
+            getCrops();
+        }
 
         if (!response.ok) {
             throw new Error(data.message || "Ürün silinemedi.");
@@ -330,10 +415,14 @@ async function deleteCrop() {
 
 async function getIrrigation() {
     try {
-        const fieldId = document.getElementById("irrigationFieldId").value;
+        const fieldId = document.getElementById("irrigationFieldSelect").value;
 
         const response = await fetch(API_URL + "/recommendations/irrigation/" + fieldId);
         const data = await response.json();
+
+        if (response.ok) {
+            showMessage(data.message);
+        }
 
         if (!response.ok) {
             throw new Error(data.message || "Sulama önerisi getirilemedi.");
@@ -347,10 +436,14 @@ async function getIrrigation() {
 
 async function getAlert() {
     try {
-        const fieldId = document.getElementById("alertFieldId").value;
+        const fieldId = document.getElementById("alertFieldSelect").value;
 
         const response = await fetch(API_URL + "/recommendations/alerts/" + fieldId);
         const data = await response.json();
+
+        if (response.ok) {
+            showMessage(data.message);
+        }
 
         if (!response.ok) {
             throw new Error(data.message || "Uyarılar getirilemedi.");
@@ -363,6 +456,7 @@ async function getAlert() {
 
 window.onload = () => {
   getFields();
+  getCrops();
 
   if(currentUserId) {
     getProfile();

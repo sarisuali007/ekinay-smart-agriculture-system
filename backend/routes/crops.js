@@ -3,6 +3,15 @@ const router = express.Router();
 const Crop = require("../models/Crop");
 const Field = require("../models/Field");
 
+router.get("/", async (req, res) => {
+    try {
+        const crops = await Crop.find().populate("fieldId").sort({ createdAt: -1 });
+        res.json(crops);
+    } catch (error) {
+        res.status(500).json({ message: "Ürünler getirilemedi." });
+    }
+});
+
 router.post("/", async (req, res) => {
   try {
     const { name, fieldId } = req.body;
