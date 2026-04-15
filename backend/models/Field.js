@@ -3,7 +3,11 @@ const mongoose = require("mongoose");
 const fieldSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    location: { type: String, required: true, trim: true }
+    location: { type: String, required: true, trim: true },
+    latitue: { type: Number, required: true },
+    longitude: { type: Number, required: true },
+    areaM2: { type: Number, default: 0 },
+    isGreenhouse: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

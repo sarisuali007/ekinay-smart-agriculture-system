@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Crop = require("../models/Crop");
 const Field = require("../models/Field");
+const ALLOWED_CROPS = [ "Domates", "Biber", "Fasulye", "Salatalık" ];
 
 router.get("/", async (req, res) => {
     try {
@@ -14,10 +15,14 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { name, fieldId } = req.body;
+    const { name, fieldId, sowingDate } = req.body;
 
-    if (!name || !fieldId) {
-      return res.status(400).json({ message: "Ürün adı ve tarla ID zorunludur." });
+    if (!name || !fieldId || !sowingDate) {
+      return res.status(400).json({ message: "Ürün adı, tarla ID ve ekim tarihi zorunludur." });
+    }
+
+    if (!ALLOWED_CROPS.includes(name)) {
+      return res.status(400).json({ message: `Geçersiz ürün adı. İzin verilen ürünler: ${ALLOWED_CROPS.join(", ")}` });
     }
 
     const fieldExists = await Field.findById(fieldId);
@@ -25,7 +30,7 @@ router.post("/", async (req, res) => {
       return res.status(404).json({ message: "İlgili tarla bulunamadı." });
     }
 
-    const crop = await Crop.create({ name, fieldId });
+    const crop = await Crop.create({ name, fieldId, sowingDate });
 
     res.status(201).json({
       message: "Yeni ürün bilgisi eklendi.",
@@ -39,11 +44,15 @@ router.post("/", async (req, res) => {
 router.put("/:cropId", async (req, res) => {
   try {
     const { cropId } = req.params;
-    const { name, fieldId } = req.body;
+    const { name, fieldId, sowingDate } = req.body;
+
+    if(!ALLOWED_CROPS.includes(name)) {
+      return res.status(400).json({ message: `Geçersiz ürün adı. İzin verilen ürünler: ${ALLOWED_CROPS.join(", ")}` });
+    }
 
     const updatedCrop = await Crop.findByIdAndUpdate(
       cropId,
-      { name, fieldId },
+      { name, fieldId, sowingDate },
       { new: true, runValidators: true }
     );
 

@@ -183,7 +183,7 @@ function populateFieldSelects() {
         fieldsCache.forEach(field => {
             const option = document.createElement("option");
             option.value = field._id;
-            option.textContent = `${field.name} - ${field.location}`;
+            option.textContent = `${field.name} - ${field.location} - ${field.isGreenhouse ? "Sera" : "Açık Alan"}`;
             select.appendChild(option);
         });
     });
@@ -193,11 +193,22 @@ async function addField() {
   try {
     const name = document.getElementById("fieldName").value;
     const location = document.getElementById("fieldLocation").value;
+    const latitude = document.getElementById("fieldLatitude").value;
+    const longitude = document.getElementById("fieldLongitude").value;
+    const areaM2 = document.getElementById("fieldArea").value;
+    const isGreenhouse = document.getElementById("fieldIsGreenhouse").checked;
 
     const response = await fetch(API_URL + "/fields", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, location })
+      body: JSON.stringify({
+        name,
+        location,
+        latitude,
+        longitude,
+        areaM2,
+        isGreenhouse
+      })
     });
 
     const data = await response.json();
@@ -232,7 +243,7 @@ async function getFields() {
 
         data.forEach(field => {
             const li = document.createElement("li");
-            li.textContent = `${field.name} - ${field.location}`;
+            li.textContent = `${field.name} - ${field.location} - ${field.isGreenhouse ? "Sera" : "Açık Alan"} - (${field.latitude}, ${field.longitude})`;
             list.appendChild(li);
         });
     }
@@ -250,11 +261,22 @@ async function updateField() {
         const fieldId = document.getElementById("updateFieldSelect").value;
         const name = document.getElementById("updateFieldName").value;
         const location = document.getElementById("updateFieldLocation").value;
+        const latitude = document.getElementById("updateFieldLatitude").value;
+        const longitude = document.getElementById("updateFieldLongitude").value;
+        const areaM2 = document.getElementById("updateFieldArea").value;
+        const isGreenhouse = document.getElementById("updateFieldIsGreenhouse").checked;
 
         const response = await fetch(API_URL + "/fields/" + fieldId, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, location })
+            body: JSON.stringify({
+                name,
+                location,
+                latitude,
+                longitude,
+                areaM2,
+                isGreenhouse
+            })
         });
 
         const data = await response.json();
@@ -324,24 +346,22 @@ async function addCrop(){
     try {
         const name = document.getElementById("cropName").value;
         const fieldId = document.getElementById("cropFieldSelect").value;
+        const sowingDate = document.getElementById("cropSowingDate").value;
 
         const response = await fetch(API_URL + "/crops", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, fieldId })
+            body: JSON.stringify({ name, fieldId, sowingDate })
         });
 
         const data = await response.json();
-
-        if (response.ok) {
-            getCrops();
-        }
 
         if (!response.ok) {
             throw new Error(data.message || "Ürün eklenemedi.");
         }
 
         showMessage(data.message);
+        getCrops();
 
     } 
     catch (error) {
@@ -371,24 +391,22 @@ async function updateCrop() {
         const cropId = document.getElementById("updateCropSelect").value;
         const name = document.getElementById("updateCropName").value;
         const fieldId = document.getElementById("updateCropFieldSelect").value;
+        const sowingDate = document.getElementById("updateCropSowingDate").value;
 
         const response = await fetch(API_URL + "/crops/" + cropId, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, fieldId })
+            body: JSON.stringify({ name, fieldId, sowingDate })
         });
 
         const data = await response.json();
-
-        if (response.ok) {
-            getCrops();
-        }
 
         if (!response.ok) {
             throw new Error(data.message || "Ürün güncellenemedi.");
         }
 
         showMessage(data.message);
+        getCrops();
     } 
     catch (error) {
         showMessage(error.message, true);

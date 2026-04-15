@@ -13,13 +13,20 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { name, location } = req.body;
+    const { name, location, latitude, longitude, areaM2, isGreenhouse } = req.body;
 
-    if (!name || !location) {
-      return res.status(400).json({ message: "Tarla adı ve konum zorunludur." });
+    if (!name || !location || latitude === undefined || longitude === undefined) {
+      return res.status(400).json({ message: "Tarla adı, konum, enlem ve boylam zorunludur." });
     }
 
-    const field = await Field.create({ name, location });
+    const field = await Field.create({ 
+      name,
+      location,
+      latitue: Number(latitude),
+      longitude: Number(longitude),
+      areaM2: areaM2 ? Number(areaM2) : 0,
+      isGreenhouse: Boolean(isGreenhouse)
+    });
 
     res.status(201).json({
       message: "Yeni tarla bilgisi eklendi.",
@@ -33,11 +40,18 @@ router.post("/", async (req, res) => {
 router.put("/:fieldId", async (req, res) => {
   try {
     const { fieldId } = req.params;
-    const { name, location } = req.body;
+    const { name, location, latitude, longitude, areaM2, isGreenhouse } = req.body;
 
     const updatedField = await Field.findByIdAndUpdate(
       fieldId,
-      { name, location },
+      {
+      name,
+      location,
+      latitue: Number(latitude),
+      longitude: Number(longitude),
+      areaM2: areaM2 ? Number(areaM2) : 0,
+      isGreenhouse: Boolean(isGreenhouse) 
+      },
       { new: true, runValidators: true }
     );
 
