@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Crop = require("../models/Crop");
 const Field = require("../models/Field");
-const ALLOWED_CROPS = [ "Domates", "Biber", "Fasulye", "Salatalık" ];
+const ALLOWED_CROPS = ["domates", "biber", "salatalık", "fasulye"];
 
 router.get("/", async (req, res) => {
     try {
@@ -28,6 +28,13 @@ router.post("/", async (req, res) => {
     const fieldExists = await Field.findById(fieldId);
     if (!fieldExists) {
       return res.status(404).json({ message: "İlgili tarla bulunamadı." });
+    }
+
+    const existingCrop = await Crop.findOne({ fieldId });
+    if (existingCrop) {
+      return res.status(400).json({
+        message: "Bu tarlada zaten bir ürün kayıtlı. Önce mevcut ürünü güncelleyin veya silin."
+      });
     }
 
     const crop = await Crop.create({ name, fieldId, sowingDate });

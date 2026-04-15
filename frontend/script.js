@@ -169,9 +169,9 @@ function populateFieldSelects() {
     const selectIds = [
         "updateFieldSelect",
         "cropFieldSelect",
-        "updateCropFieldSelect",
         "irrigationFieldSelect",
-        "alertFieldSelect"
+        "alertFieldSelect",
+        "manageCropFieldSelect"
     ];
 
     selectIds.forEach(id => {
@@ -186,6 +186,14 @@ function populateFieldSelects() {
             option.textContent = `${field.name} - ${field.location} - ${field.isGreenhouse ? "Sera" : "Açık Alan"}`;
             select.appendChild(option);
         });
+    });
+}
+
+function getCropByFieldId(fieldId) {
+    return cropsCache.find(crop => {
+        const cropFieldId =
+            typeof crop.fieldId === "object" ? crop.fieldId._id : crop.fieldId;
+        return cropFieldId === fieldId;
     });
 }
 
@@ -388,9 +396,15 @@ async function getCrops() {
 
 async function updateCrop() {
     try {
-        const cropId = document.getElementById("updateCropSelect").value;
+        const fieldId = document.getElementById("manageCropFieldSelect").value;
+        const crop = getCropByFieldId(fieldId);
+
+        if (!crop) {
+            throw new Error("Bu tarlaya ait ürün bulunamadı.");
+        }
+
+        const cropId = crop._id;
         const name = document.getElementById("updateCropName").value;
-        const fieldId = document.getElementById("updateCropFieldSelect").value;
         const sowingDate = document.getElementById("updateCropSowingDate").value;
 
         const response = await fetch(API_URL + "/crops/" + cropId, {
@@ -407,33 +421,33 @@ async function updateCrop() {
 
         showMessage(data.message);
         getCrops();
-    } 
-    catch (error) {
+    } catch (error) {
         showMessage(error.message, true);
     }
 }
 
 async function deleteCrop() {
     try {
-        const cropId = document.getElementById("updateCropSelect").value;
-        
-        const response = await fetch(API_URL + "/crops/" + cropId, {
+        const fieldId = document.getElementById("manageCropFieldSelect").value;
+        const crop = getCropByFieldId(fieldId);
+
+        if (!crop) {
+            throw new Error("Bu tarlaya ait ürün bulunamadı.");
+        }
+
+        const response = await fetch(API_URL + "/crops/" + crop._id, {
             method: "DELETE"
         });
 
         const data = await response.json();
-
-        if (response.ok) {
-            getCrops();
-        }
 
         if (!response.ok) {
             throw new Error(data.message || "Ürün silinemedi.");
         }
 
         showMessage(data.message);
-    } 
-    catch (error) {
+        getCrops();
+    } catch (error) {
         showMessage(error.message, true);
     }
 }

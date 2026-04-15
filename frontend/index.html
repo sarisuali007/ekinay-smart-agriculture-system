@@ -260,13 +260,15 @@
             </div>
 
             <div class="form-group">
-                <input id="fieldName" placeholder="Tarla Adı">
-                <input id="fieldLocation" placeholder="Konum Açıklaması">
-                <input id="fieldLatitude" type="number" step="any" placeholder="Enlem">
-                <input id="fieldLongitude" type="number" step="any" placeholder="Boylam">
-                <input id="fieldArea" type="number" placeholder="Alan (m²)">
+                <h3>Tarla Güncelle / Sil</h3>
+                <select id="updateFieldSelect"></select>
+                <input id="updateFieldName" placeholder="Yeni Tarla Adı">
+                <input id="updateFieldLocation" placeholder="Yeni Konum Açıklaması">
+                <input id="updateFieldLatitude" type="number" step="any" placeholder="Yeni Enlem">
+                <input id="updateFieldLongitude" type="number" step="any" placeholder="Yeni Boylam">
+                <input id="updateFieldArea" type="number" placeholder="Yeni Alan (m²)">
                 <label class="checkbox-row">
-                    <input id="fieldIsGreenhouse" type="checkbox">
+                    <input id="updateFieldIsGreenhouse" type="checkbox">
                     Bu tarla seradır
                 </label>
                 <button onclick="updateField()">Tarlayı Güncelle</button>
@@ -281,10 +283,10 @@
                 <h3>Ürün Ekle</h3>
                 <select id="cropName">
                     <option value="">Ürün Seçin</option>
-                    <option value="Domates">Domates</option>
-                    <option value="Biber">Biber</option>
-                    <option value="Fasulye">Fasulye</option>
-                    <option value="Salatalık">Salatalık</option>
+                    <option value="domates">Domates</option>
+                    <option value="biber">Biber</option>
+                    <option value="salatalık">Salatalık</option>
+                    <option value="fasulye">Fasulye</option>
                 </select>
                 <select id="cropFieldSelect"></select>
                 <input id="cropSowingDate" type="date">
@@ -292,17 +294,15 @@
             </div>
 
             <div class="form-group">
-                <select id="updateCropSelect">
-                    <option value="">Değiştirmek için ürün seçin</option>
-                </select>
+                <h3>Ürün Güncelle / Sil</h3>
+                <select id="manageCropFieldSelect"></select>
                 <select id="updateCropName">
                     <option value="">Ürün seçiniz</option>
                     <option value="domates">Domates</option>
                     <option value="biber">Biber</option>
-                    <option value="salatalık">Fasulye</option>
-                    <option value="fasulye">Salatalık</option>
+                    <option value="salatalık">Salatalık</option>
+                    <option value="fasulye">Fasulye</option>
                 </select>
-                <select id="updateCropFieldSelect"></select>
                 <input id="updateCropSowingDate" type="date">
                 <button onclick="updateCrop()">Ürünü Güncelle</button>
                 <button onclick="deleteCrop()">Ürünü Sil</button>

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const ALLOWED_CROPS = ["Domates", "Biber", "Fasulye", "Salatalık"];
+const ALLOWED_CROPS = ["domates", "biber", "salatalık", "fasulye"];
 
 const cropSchema = new mongoose.Schema(
   {
@@ -17,7 +17,7 @@ const cropSchema = new mongoose.Schema(
       required: true,
     },
 
-    showingDate: {
+    sowingDate: {
       type: Date,
       required: true,
     }

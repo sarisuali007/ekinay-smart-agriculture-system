@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
     const field = await Field.create({ 
       name,
       location,
-      latitue: Number(latitude),
+      latitude: Number(latitude),
       longitude: Number(longitude),
       areaM2: areaM2 ? Number(areaM2) : 0,
       isGreenhouse: Boolean(isGreenhouse)
@@ -47,7 +47,7 @@ router.put("/:fieldId", async (req, res) => {
       {
       name,
       location,
-      latitue: Number(latitude),
+      latitude: Number(latitude),
       longitude: Number(longitude),
       areaM2: areaM2 ? Number(areaM2) : 0,
       isGreenhouse: Boolean(isGreenhouse) 
