@@ -64,6 +64,7 @@ async function login(){
 
         showMessage(data.message);
         getProfile();
+        showAppSection();
     } 
     catch (error) {
         showMessage(error.message, true);
@@ -159,6 +160,7 @@ async function deleteProfile() {
         }
 
         showMessage(data.message || "Profil silindi.");
+        logout();
     } 
     catch (error) {
         showMessage(error.message, true);
@@ -493,12 +495,52 @@ async function getAlert() {
     }
 }
 
+function showAuthSection() {
+    const authSection = document.getElementById("authSection");
+    const appSection = document.getElementById("appSection");
+
+    if (authSection) authSection.classList.remove("hidden");
+    if (appSection) appSection.classList.add("hidden");
+}
+
+function showAppSection() {
+    const authSection = document.getElementById("authSection");
+    const appSection = document.getElementById("appSection");
+
+    if (!currentUserId) {
+        showMessage("Önce giriş yapmalısınız.", true);
+        return;
+    }
+
+    if (authSection) authSection.classList.add("hidden");
+    if (appSection) appSection.classList.remove("hidden");
+}
+
+function logout() {
+    localStorage.removeItem("userId");
+    currentUserId = "";
+
+    const authSection = document.getElementById("authSection");
+    const appSection = document.getElementById("appSection");
+
+    if (authSection) authSection.classList.remove("hidden");
+    if (appSection) appSection.classList.add("hidden");
+
+    showMessage("Çıkış yapıldı.");
+
+    document.getElementById("updateName").value = "";
+    document.getElementById("updateEmail").value = "";
+    document.getElementById("updatePassword").value = "";
+}
+
 window.onload = () => {
-  getFields();
-  getCrops();
+    getFields();
+    getCrops();
 
-  if(currentUserId) {
-    getProfile();
-  }
-
+    if (currentUserId) {
+        getProfile();
+        showAppSection();
+    } else {
+        showAuthSection();
+    }
 };
