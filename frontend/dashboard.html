@@ -12,12 +12,15 @@
 <body>
     <div class="container">
 
-        <header class="hero">
-            <h1>Ekinay Dashboard</h1>
-            <p>Tarlalarınızı, ürünlerinizi, önerilerinizi ve profil ayarlarınızı buradan yönetin.</p>
-            <div class="hero-actions">
-                <button onclick="window.location.href='auth.html'">Giriş Yap / Kayıt Ol</button>
-                <button onclick="showAppSection()">Panele Git</button>
+        <header class="dashboard-topbar">
+            <div>
+                <h1>Ekinay Dashboard</h1>
+                <p>Tarlalarınızı, ürünlerinizi ve önerilerinizi buradan yönetin.</p>
+            </div>
+
+            <div class="dashboard-topbar-actions">
+                <button onclick="window.location.href='index.html'">Ana Sayfa</button>
+                <button onclick="logout()">Çıkış Yap</button>
             </div>
         </header>
 
@@ -44,15 +47,20 @@
 
         <div id="appSection">
 
-            <section class="card" id="dashboardCard">
-                <h2>Kullanıcı Paneli</h2>
+            <section class="dashboard-overview" id="dashboardCard">
 
-                <div class="dashboard-welcome">
-                    <h3 id="dashboardWelcome">Hoş geldiniz</h3>
-                    <p id="dashboardSubtext">Tarlalarınızı, ürünlerinizi ve önerilerinizi buradan yönetebilirsiniz.</p>
+                <div class="mini-profile-card">
+                    <h2>Profil Özeti</h2>
+                    <p class="mini-profile-name" id="dashboardWelcome">Hoş geldiniz</p>
+                    <p class="mini-profile-email" id="dashboardSubtext">Kullanıcı bilgileri yükleniyor...</p>
+
+                    <div class="mini-profile-actions">
+                        <a href="#profileSection">Profili Düzenle</a>
+                        <a href="#fieldSection">Tarlalara Git</a>
+                    </div>
                 </div>
 
-                <div class="dashboard-grid">
+                <div class="stats-panel">
                     <div class="stat-card">
                         <span class="stat-label">Toplam Tarla</span>
                         <strong id="statFieldCount">0</strong>
@@ -73,9 +81,10 @@
                         <strong id="statOpenFieldCount">0</strong>
                     </div>
                 </div>
+
             </section>
 
-            <section class="card">
+            <section class="card" id="profileSection">
                 <h2>Profil İşlemleri</h2>
 
                 <div class="form-group">
@@ -88,7 +97,7 @@
                 </div>
             </section>
 
-            <section class="card">
+            <section class="card" id="fieldSection">
                 <h2>Tarla Yönetimi</h2>
 
                 <div class="form-group">
@@ -128,7 +137,7 @@
                 </div>
             </section>
 
-            <section class="card">
+            <section class="card" id="cropSection">
                 <h2>Ürün Yönetimi</h2>
 
                 <div class="form-group">
@@ -161,7 +170,7 @@
                 </div>
             </section>
 
-            <section class="card">
+            <section class="card" id="recommendationSection">
                 <h2>Akıllı Öneriler</h2>
 
                 <div class="form-group">

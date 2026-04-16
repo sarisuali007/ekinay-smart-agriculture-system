@@ -508,3 +508,114 @@ li {
         width: 100%;
     }
 }
+
+.dashboard-topbar {
+    width: min(1100px, calc(100% - 32px));
+    margin: 24px auto 18px;
+    padding: 18px 22px;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+    border: 1px solid #e5ece1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.dashboard-topbar h1 {
+    margin: 0 0 6px;
+    color: #1f4d2a;
+    font-size: 28px;
+}
+
+.dashboard-topbar p {
+    margin: 0;
+    color: #5b6b5f;
+}
+
+.dashboard-topbar-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.dashboard-overview {
+    width: min(1100px, calc(100% - 32px));
+    margin: 0 auto 20px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+}
+
+.mini-profile-card {
+    background: white;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+    border: 1px solid #e5ece1;
+}
+
+.mini-profile-card h2 {
+    margin-top: 0;
+    margin-bottom: 14px;
+    color: #234b2c;
+    font-size: 22px;
+}
+
+.mini-profile-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1f4d2a;
+    margin: 0 0 8px;
+}
+
+.mini-profile-email {
+    color: #5b6b5f;
+    line-height: 1.6;
+    margin: 0 0 18px;
+}
+
+.mini-profile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mini-profile-actions a {
+    text-decoration: none;
+    color: #2f6f3e;
+    font-weight: bold;
+    background: #f5faf4;
+    border: 1px solid #dce8d8;
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.stats-panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+@media (max-width: 900px) {
+    .dashboard-topbar,
+    .dashboard-overview {
+        width: min(100% - 20px, 1100px);
+    }
+
+    .dashboard-topbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dashboard-overview {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    .stats-panel {
+        grid-template-columns: 1fr;
+    }
+}
