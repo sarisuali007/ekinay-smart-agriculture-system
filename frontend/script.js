@@ -200,6 +200,9 @@ function populateFieldSelects() {
             select.appendChild(option);
         });
     });
+
+    fillFieldFormFromSelection();
+
 }
 
 function getCropByFieldId(fieldId) {
@@ -208,6 +211,10 @@ function getCropByFieldId(fieldId) {
             typeof crop.fieldId === "object" ? crop.fieldId._id : crop.fieldId;
         return cropFieldId === fieldId;
     });
+}
+
+function getFieldById(fieldId) {
+    return fieldsCache.find(field => field._id === fieldId);
 }
 
 async function addField() {
@@ -288,6 +295,31 @@ async function getFields() {
     catch (error) {
         showMessage(error.message, true);
     }
+}
+
+function fillFieldFormFromSelection() {
+    const select = document.getElementById("updateFieldSelect");
+    if (!select) return;
+
+    const fieldId = select.value;
+    const field = getFieldById(fieldId);
+
+    if (!field) {
+        document.getElementById("updateFieldName").value = "";
+        document.getElementById("updateFieldLocation").value = "";
+        document.getElementById("updateFieldLatitude").value = "";
+        document.getElementById("updateFieldLongitude").value = "";
+        document.getElementById("updateFieldArea").value = "";
+        document.getElementById("updateFieldIsGreenhouse").checked = false;
+        return;
+    }
+
+    document.getElementById("updateFieldName").value = field.name || "";
+    document.getElementById("updateFieldLocation").value = field.location || "";
+    document.getElementById("updateFieldLatitude").value = field.latitude ?? "";
+    document.getElementById("updateFieldLongitude").value = field.longitude ?? "";
+    document.getElementById("updateFieldArea").value = field.areaM2 ?? "";
+    document.getElementById("updateFieldIsGreenhouse").checked = !!field.isGreenhouse;
 }
 
 async function updateField() {
