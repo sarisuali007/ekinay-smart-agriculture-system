@@ -156,7 +156,9 @@
 
                 <div class="form-group">
                     <h3>Ürün Güncelle / Sil</h3>
-                    <select id="manageCropFieldSelect"></select>
+                    <select id="manageCropFieldSelect" onchange="fillCropFormFromSelection()"></select>
+                    <p id="cropManageStatus" class="helper-text"></p>
+
                     <select id="updateCropName">
                         <option value="">Ürün seçiniz</option>
                         <option value="domates">Domates</option>
@@ -164,7 +166,9 @@
                         <option value="salatalık">Salatalık</option>
                         <option value="fasulye">Fasulye</option>
                     </select>
+
                     <input id="updateCropSowingDate" type="date">
+                    
                     <button onclick="updateCrop()">Ürünü Güncelle</button>
                     <button onclick="deleteCrop()">Ürünü Sil</button>
                 </div>

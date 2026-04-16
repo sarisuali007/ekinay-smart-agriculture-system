@@ -202,6 +202,7 @@ function populateFieldSelects() {
     });
 
     fillFieldFormFromSelection();
+    fillCropFormFromSelection();
 
 }
 
@@ -211,6 +212,49 @@ function getCropByFieldId(fieldId) {
             typeof crop.fieldId === "object" ? crop.fieldId._id : crop.fieldId;
         return cropFieldId === fieldId;
     });
+}
+
+function fillCropFormFromSelection() {
+    const select = document.getElementById("manageCropFieldSelect");
+    const cropNameInput = document.getElementById("updateCropName");
+    const cropSowingDateInput = document.getElementById("updateCropSowingDate");
+    const status = document.getElementById("cropManageStatus");
+
+    if (!select || !cropNameInput || !cropSowingDateInput) return;
+
+    const fieldId = select.value;
+
+    if (!fieldId) {
+        cropNameInput.value = "";
+        cropSowingDateInput.value = "";
+        if (status) {
+            status.textContent = "Önce bir tarla seçin.";
+        }
+        return;
+    }
+
+    const crop = getCropByFieldId(fieldId);
+
+    if (!crop) {
+        cropNameInput.value = "";
+        cropSowingDateInput.value = "";
+        if (status) {
+            status.textContent = "Bu tarlaya ait kayıtlı ürün bulunamadı.";
+        }
+        return;
+    }
+
+    cropNameInput.value = crop.name || "";
+
+    if (crop.sowingDate) {
+        cropSowingDateInput.value = new Date(crop.sowingDate).toISOString().split("T")[0];
+    } else {
+        cropSowingDateInput.value = "";
+    }
+
+    if (status) {
+        status.textContent = `Seçili tarladaki mevcut ürün: ${crop.name}`;
+    }
 }
 
 function getFieldById(fieldId) {
@@ -447,6 +491,7 @@ async function getCrops() {
         cropsCache = data;
         populateCropSelects();
         refreshDashboardStats();
+        fillCropFormFromSelection();
     }
     catch (error) {
         showMessage(error.message, true);

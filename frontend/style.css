@@ -678,3 +678,10 @@ li {
         grid-template-columns: 1fr;
     }
 }
+
+.helper-text {
+    margin: 8px 0 12px;
+    color: #5b6b5f;
+    font-size: 14px;
+    line-height: 1.5;
+}
