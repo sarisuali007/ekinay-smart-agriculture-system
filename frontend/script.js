@@ -4,12 +4,12 @@ let fieldsCache = [];
 let cropsCache = [];
 
 function showMessage(message, isError = false) {
-  const box = document.getElementById("messageBox");
-  box.textContent = message;
-  box.style.color = isError ? "red" : "green";
+    const box = document.getElementById("messageBox");
+    box.textContent = message;
+    box.style.color = isError ? "red" : "green";
 }
 
-async function register(){
+async function register() {
     try {
         console.log("Kayıt fonksiyonu çağrıldı.");
         showMessage("Kayıt işlemi gerçekleştiriliyor...");
@@ -20,7 +20,7 @@ async function register(){
 
         const response = await fetch(API_URL + "/auth/register", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name, email, password })
         });
 
@@ -32,14 +32,14 @@ async function register(){
 
         showMessage(data.message);
 
-    } 
+    }
     catch (error) {
         showMessage(error.message, true);
     }
 
 }
 
-async function login(){
+async function login() {
     try {
         console.log("Giriş fonksiyonu çağrıldı.");
         showMessage("Giriş işlemi gerçekleştiriliyor...");
@@ -49,7 +49,7 @@ async function login(){
 
         const response = await fetch(API_URL + "/auth/login", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })
         });
 
@@ -64,8 +64,8 @@ async function login(){
 
         showMessage(data.message);
         window.location.href = "dashboard.html";
-    
-    } 
+
+    }
     catch (error) {
         showMessage(error.message, true);
     }
@@ -110,7 +110,7 @@ async function getProfile() {
     } catch (error) {
         showMessage(error.message, true);
     }
-    
+
 }
 
 async function updateProfile() {
@@ -135,7 +135,7 @@ async function updateProfile() {
         }
 
         showMessage(data.message);
-    } 
+    }
     catch (error) {
         showMessage(error.message, true);
     }
@@ -172,7 +172,7 @@ async function deleteProfile() {
 
         showMessage(data.message || "Profil silindi.");
         logout();
-    } 
+    }
     catch (error) {
         showMessage(error.message, true);
     }
@@ -211,71 +211,83 @@ function getCropByFieldId(fieldId) {
 }
 
 async function addField() {
-  try {
-    const name = document.getElementById("fieldName").value;
-    const location = document.getElementById("fieldLocation").value;
-    const latitude = document.getElementById("fieldLatitude").value;
-    const longitude = document.getElementById("fieldLongitude").value;
-    const areaM2 = document.getElementById("fieldArea").value;
-    const isGreenhouse = document.getElementById("fieldIsGreenhouse").checked;
+    try {
+        const name = document.getElementById("fieldName").value;
+        const location = document.getElementById("fieldLocation").value;
+        const latitude = document.getElementById("fieldLatitude").value;
+        const longitude = document.getElementById("fieldLongitude").value;
+        const areaM2 = document.getElementById("fieldArea").value;
+        const isGreenhouse = document.getElementById("fieldIsGreenhouse").checked;
 
-    const response = await fetch(API_URL + "/fields", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        location,
-        latitude,
-        longitude,
-        areaM2,
-        isGreenhouse
-      })
-    });
+        const response = await fetch(API_URL + "/fields", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name,
+                location,
+                latitude,
+                longitude,
+                areaM2,
+                isGreenhouse
+            })
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.message || "Tarla eklenemedi.");
+        if (!response.ok) {
+            throw new Error(data.message || "Tarla eklenemedi.");
+        }
+
+        showMessage(data.message);
+        getFields();
     }
-
-    showMessage(data.message);
-    getFields();
-  } 
-  catch (error) {
-    showMessage(error.message, true);
-  }
+    catch (error) {
+        showMessage(error.message, true);
+    }
 }
 
 async function getFields() {
-  try {
-    const response = await fetch(API_URL + "/fields");
-    const data = await response.json();
-    
-    if (!response.ok) {
-        throw new Error(data.message || "Tarlalar getirilemedi.");
-    }    
+    try {
+        const response = await fetch(API_URL + "/fields");
+        const data = await response.json();
 
-    fieldsCache = data;
-    populateFieldSelects();
-    refreshDashboardStats();
+        if (!response.ok) {
+            throw new Error(data.message || "Tarlalar getirilemedi.");
+        }
 
-    const list = document.getElementById("fieldList");
-    if (list) {
-        list.innerHTML = "";
+        fieldsCache = data;
+        populateFieldSelects();
+        refreshDashboardStats();
 
-        data.forEach(field => {
-            const li = document.createElement("li");
-            li.textContent = `${field.name} - ${field.location} - ${field.isGreenhouse ? "Sera" : "Açık Alan"} - (${field.latitude}, ${field.longitude})`;
-            list.appendChild(li);
-        });
+        const list = document.getElementById("fieldList");
+        if (list) {
+            list.innerHTML = "";
+
+            data.forEach(field => {
+                const card = document.createElement("div");
+                card.className = "field-card";
+
+                const typeClass = field.isGreenhouse ? "greenhouse" : "open";
+                const typeText = field.isGreenhouse ? "Sera" : "Açık Alan";
+
+                card.innerHTML = `
+            <span class="field-badge ${typeClass}">${typeText}</span>
+            <h4>${field.name}</h4>
+            <p><strong>Konum:</strong> ${field.location}</p>
+            <p><strong>Koordinat:</strong> ${field.latitude}, ${field.longitude}</p>
+            <p><strong>Alan:</strong> ${field.areaM2 || 0} m²</p>
+        `;
+
+                list.appendChild(card);
+            });
+        }
+
+        showMessage("Tarlalar getirildi.");
+
     }
-
-    showMessage("Tarlalar getirildi.");
-
-  } 
-  catch (error) {
-    showMessage(error.message, true);
-  }
+    catch (error) {
+        showMessage(error.message, true);
+    }
 }
 
 async function updateField() {
@@ -310,7 +322,7 @@ async function updateField() {
         showMessage(data.message);
         getFields();
 
-    } 
+    }
     catch (error) {
         showMessage(error.message, true);
     }
@@ -319,7 +331,7 @@ async function updateField() {
 async function deleteField() {
     try {
         const fieldId = document.getElementById("updateFieldSelect").value;
-        
+
         const response = await fetch(API_URL + "/fields/" + fieldId, {
             method: "DELETE"
         });
@@ -333,7 +345,7 @@ async function deleteField() {
         showMessage(data.message);
         getFields();
         getCrops();
-    } 
+    }
     catch (error) {
         showMessage(error.message, true);
     }
@@ -364,7 +376,7 @@ function populateCropSelects() {
 }
 
 
-async function addCrop(){
+async function addCrop() {
     try {
         const name = document.getElementById("cropName").value;
         const fieldId = document.getElementById("cropFieldSelect").value;
@@ -385,7 +397,7 @@ async function addCrop(){
         showMessage(data.message);
         getCrops();
 
-    } 
+    }
     catch (error) {
         showMessage(error.message, true);
     }
@@ -403,11 +415,11 @@ async function getCrops() {
         cropsCache = data;
         populateCropSelects();
         refreshDashboardStats();
-    } 
+    }
     catch (error) {
         showMessage(error.message, true);
     }
-}        
+}
 
 async function updateCrop() {
     try {
@@ -481,7 +493,7 @@ async function getIrrigation() {
         if (!response.ok) {
             throw new Error(data.message || "Sulama önerisi getirilemedi.");
         }
-    } 
+    }
     catch (error) {
         showMessage(error.message, true);
     }

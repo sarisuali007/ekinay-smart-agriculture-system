@@ -619,3 +619,62 @@ li {
         grid-template-columns: 1fr;
     }
 }
+
+.field-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+}
+
+.field-card {
+    background: #f8fbf7;
+    border: 1px solid #dce8d8;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+
+.field-card h4 {
+    margin: 0 0 10px;
+    font-size: 20px;
+    color: #1f4d2a;
+}
+
+.field-card p {
+    margin: 6px 0;
+    color: #4b5d4f;
+    line-height: 1.5;
+}
+
+.field-badge {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: bold;
+    background: #e8f4e5;
+    color: #2f6f3e;
+    border: 1px solid #cfe3ca;
+}
+
+.field-badge.greenhouse {
+    background: #e7f7ea;
+    color: #1f7a31;
+}
+
+.field-badge.open {
+    background: #eef2f7;
+    color: #35516d;
+}
+
+.field-card strong {
+    color: #234b2c;
+}
+
+@media (max-width: 800px) {
+    .field-card-grid {
+        grid-template-columns: 1fr;
+    }
+}
