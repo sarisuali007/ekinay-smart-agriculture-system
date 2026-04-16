@@ -10,178 +10,115 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="landing-page">
 
-        <header class="hero">
-            <h1>Ekinay Tarım Sistemi</h1>
-            <p>Çiftçiler için akıllı tarla, ürün ve öneri yönetim sistemi</p>
-            <div class="hero-actions">
-                <button onclick="showAuthSection()">Giriş Yap / Kayıt Ol</button>
-                <button onclick="showAppSection()">Panele Git</button>
-            </div>
+        <header class="landing-header">
+            <div class="landing-logo">Ekinay</div>
+
+            <nav class="landing-nav">
+                <a href="#features">Özellikler</a>
+                <a href="#how-it-works">Nasıl Çalışır</a>
+                <a href="#about">Hakkında</a>
+                <a href="dashboard.html" class="nav-button secondary">Dashboard</a>
+                <a href="dashboard.html" class="nav-button primary">Giriş Yap / Kayıt Ol</a>
+            </nav>
         </header>
 
-        <div id="messageBox"></div>
+        <section class="landing-hero">
+            <div class="landing-hero-text">
+                <h1>Tarım Yönetimini Daha Akıllı Hale Getirin</h1>
+                <p>
+                    Ekinay, çiftçilerin tarlalarını, ürünlerini, sulama planlarını ve hava uyarılarını
+                    daha düzenli ve daha akıllı biçimde yönetmesine yardımcı olan bir tarım yönetim sistemidir.
+                </p>
 
-        <section class="card" id="authSection">
-            <h2>Kimlik İşlemleri</h2>
-
-            <div class="form-group">
-                <h3>Kullanıcı Kaydı</h3>
-                <input type="text" id="registerName" placeholder="Ad">
-                <input type="email" id="registerEmail" placeholder="Email">
-                <input type="password" id="registerPassword" placeholder="Şifre">
-                <button onclick="register()">Kayıt Ol</button>
+                <div class="landing-hero-actions">
+                    <a href="dashboard.html" class="hero-btn primary">Hemen Başla</a>
+                    <a href="#features" class="hero-btn secondary">Özellikleri İncele</a>
+                </div>
             </div>
 
-            <div class="form-group">
-                <h3>Kullanıcı Girişi</h3>
-                <input type="email" id="loginEmail" placeholder="Email">
-                <input type="password" id="loginPassword" placeholder="Şifre">
-                <button onclick="login()">Giriş Yap</button>
+            <div class="landing-hero-card">
+                <h3>Bugün Ekinay ile neler yapabilirsiniz?</h3>
+                <ul>
+                    <li>Tarlalarınızı tek panelden yönetin</li>
+                    <li>Ürün bilgilerini düzenli şekilde takip edin</li>
+                    <li>Sulama önerilerini görüntüleyin</li>
+                    <li>Hava risklerini erkenden görün</li>
+                    <li>Sera ve açık alan tarlalarını ayrı değerlendirin</li>
+                </ul>
             </div>
         </section>
 
-        <div id="appSection">
+        <section class="landing-section" id="features">
+            <h2>Özellikler</h2>
 
-            <section class="card" id="dashboardCard">
-                <h2>Kullanıcı Paneli</h2>
-
-                <div class="dashboard-welcome">
-                    <h3 id="dashboardWelcome">Hoş geldiniz</h3>
-                    <p id="dashboardSubtext">Tarlalarınızı, ürünlerinizi ve önerilerinizi buradan yönetebilirsiniz.</p>
+            <div class="landing-grid">
+                <div class="feature-card">
+                    <h3>Tarla Yönetimi</h3>
+                    <p>Tarlalarınızı kayıt altına alın, düzenleyin ve takip edin.</p>
                 </div>
 
-                <div class="dashboard-grid">
-                    <div class="stat-card">
-                        <span class="stat-label">Toplam Tarla</span>
-                        <strong id="statFieldCount">0</strong>
-                    </div>
-
-                    <div class="stat-card">
-                        <span class="stat-label">Toplam Ürün</span>
-                        <strong id="statCropCount">0</strong>
-                    </div>
-
-                    <div class="stat-card">
-                        <span class="stat-label">Sera Sayısı</span>
-                        <strong id="statGreenhouseCount">0</strong>
-                    </div>
-
-                    <div class="stat-card">
-                        <span class="stat-label">Açık Alan</span>
-                        <strong id="statOpenFieldCount">0</strong>
-                    </div>
-                </div>
-            </section>
-
-            <section class="card">
-                <h2>Profil İşlemleri</h2>
-
-                <div class="form-group">
-                    <input id="updateName" placeholder="Yeni Ad">
-                    <input id="updateEmail" placeholder="Yeni Email">
-                    <input id="updatePassword" placeholder="Yeni Şifre">
-                    <button onclick="updateProfile()">Profili Güncelle</button>
-                    <button onclick="deleteProfile()">Profili Sil</button>
-                    <button onclick="logout()">Çıkış Yap</button>
-                </div>
-            </section>
-
-            <section class="card">
-                <h2>Tarla Yönetimi</h2>
-
-                <div class="form-group">
-                    <h3>Tarla Ekle</h3>
-                    <input id="fieldName" placeholder="Tarla Adı">
-                    <input id="fieldLocation" placeholder="Konum Açıklaması">
-                    <input id="fieldLatitude" type="number" step="any" placeholder="Enlem">
-                    <input id="fieldLongitude" type="number" step="any" placeholder="Boylam">
-                    <input id="fieldArea" type="number" placeholder="Alan (m²)">
-                    <label class="checkbox-row">
-                        <input id="fieldIsGreenhouse" type="checkbox">
-                        Bu tarla seradır
-                    </label>
-                    <button onclick="addField()">Ekle</button>
+                <div class="feature-card">
+                    <h3>Ürün Takibi</h3>
+                    <p>Domates, biber, salatalık ve fasulye için ürün bilgilerinizi yönetin.</p>
                 </div>
 
-                <div class="form-group">
-                    <h3>Kayıtlı Tarlalar</h3>
-                    <button onclick="getFields()">Listele</button>
-                    <ul id="fieldList"></ul>
+                <div class="feature-card">
+                    <h3>Akıllı Öneriler</h3>
+                    <p>Hava verileri ve ekim tarihi ile sulama önerileri üretin.</p>
                 </div>
 
-                <div class="form-group">
-                    <h3>Tarla Güncelle / Sil</h3>
-                    <select id="updateFieldSelect"></select>
-                    <input id="updateFieldName" placeholder="Yeni Tarla Adı">
-                    <input id="updateFieldLocation" placeholder="Yeni Konum Açıklaması">
-                    <input id="updateFieldLatitude" type="number" step="any" placeholder="Yeni Enlem">
-                    <input id="updateFieldLongitude" type="number" step="any" placeholder="Yeni Boylam">
-                    <input id="updateFieldArea" type="number" placeholder="Yeni Alan (m²)">
-                    <label class="checkbox-row">
-                        <input id="updateFieldIsGreenhouse" type="checkbox">
-                        Bu tarla seradır
-                    </label>
-                    <button onclick="updateField()">Tarlayı Güncelle</button>
-                    <button onclick="deleteField()">Tarlayı Sil</button>
+                <div class="feature-card">
+                    <h3>Hava Uyarıları</h3>
+                    <p>Riskli hava durumlarını önceden fark edin ve hazırlıklı olun.</p>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section class="card">
-                <h2>Ürün Yönetimi</h2>
+        <section class="landing-section alt" id="how-it-works">
+            <h2>Nasıl Çalışır?</h2>
 
-                <div class="form-group">
-                    <h3>Ürün Ekle</h3>
-                    <select id="cropName">
-                        <option value="">Ürün Seçin</option>
-                        <option value="domates">Domates</option>
-                        <option value="biber">Biber</option>
-                        <option value="salatalık">Salatalık</option>
-                        <option value="fasulye">Fasulye</option>
-                    </select>
-                    <select id="cropFieldSelect"></select>
-                    <input id="cropSowingDate" type="date">
-                    <button onclick="addCrop()">Ekle</button>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <span>1</span>
+                    <h3>Hesap Oluştur</h3>
+                    <p>Sisteme giriş yaparak kişisel tarım panelinize erişin.</p>
                 </div>
 
-                <div class="form-group">
-                    <h3>Ürün Güncelle / Sil</h3>
-                    <select id="manageCropFieldSelect"></select>
-                    <select id="updateCropName">
-                        <option value="">Ürün seçiniz</option>
-                        <option value="domates">Domates</option>
-                        <option value="biber">Biber</option>
-                        <option value="salatalık">Salatalık</option>
-                        <option value="fasulye">Fasulye</option>
-                    </select>
-                    <input id="updateCropSowingDate" type="date">
-                    <button onclick="updateCrop()">Ürünü Güncelle</button>
-                    <button onclick="deleteCrop()">Ürünü Sil</button>
-                </div>
-            </section>
-
-            <section class="card">
-                <h2>Akıllı Öneriler</h2>
-
-                <div class="form-group">
-                    <h3>Sulama Önerisi</h3>
-                    <select id="irrigationFieldSelect"></select>
-                    <button onclick="getIrrigation()">Öneri Al</button>
+                <div class="step-card">
+                    <span>2</span>
+                    <h3>Tarlanı ve Ürününü Ekle</h3>
+                    <p>Tarla bilgilerini ve ekili ürünü sisteme kaydedin.</p>
                 </div>
 
-                <div class="form-group">
-                    <h3>Hava Uyarısı</h3>
-                    <select id="alertFieldSelect"></select>
-                    <button onclick="getAlert()">Uyarı Al</button>
+                <div class="step-card">
+                    <span>3</span>
+                    <h3>Önerileri Takip Et</h3>
+                    <p>Sulama ve hava uyarılarını düzenli olarak görüntüleyin.</p>
                 </div>
-            </section>
+            </div>
+        </section>
 
-        </div>
+        <section class="landing-section" id="about">
+            <h2>Ekinay Hakkında</h2>
+            <p class="about-text">
+                Ekinay, modern tarım süreçlerini dijitalleştirmeyi hedefleyen bir akıllı tarım projesidir.
+                Amaç, çiftçilerin tarlalarını daha bilinçli yönetmesine yardımcı olmak, karar süreçlerini
+                veri odaklı hale getirmek ve üretim sürecinde daha güvenli bir planlama sunmaktır.
+            </p>
+        </section>
 
+        <section class="landing-cta">
+            <h2>Ekinay ile tarım yönetimini daha sistemli hale getirin</h2>
+            <p>Şimdi giriş yaparak panelinize erişin ve tarlalarınızı yönetmeye başlayın.</p>
+            <a href="dashboard.html" class="hero-btn primary">Dashboard'a Git</a>
+        </section>
+
+        <footer class="landing-footer">
+            <p>© 2026 Ekinay Smart Agriculture System</p>
+        </footer>
     </div>
-
-    <script src="script.js"></script>
 </body>
 
 </html>
