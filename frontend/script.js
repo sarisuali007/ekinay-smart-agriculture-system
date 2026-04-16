@@ -2,6 +2,7 @@ const API_URL = "https://ekinay-smart-agriculture-system.onrender.com";
 let currentUserId = localStorage.getItem("userId") || "";
 let fieldsCache = [];
 let cropsCache = [];
+let alertTickerItems = [];
 
 function showMessage(message, isError = false) {
     const box = document.getElementById("messageBox");
@@ -355,18 +356,31 @@ async function loadFieldCardInsights(fieldId) {
         const alertData = await alertResponse.json();
 
         if (alertResponse.ok) {
+            const shortened = shortenText(alertData.message, 140);
+
             if (alertEl) {
-                alertEl.textContent = shortenText(alertData.message, 140);
+                alertEl.textContent = shortened;
             }
+
+            updateAlertTickerItem(fieldId, alertData.message);
         } else {
+            const errorMessage = alertData.message || "Uyarı bilgisi alınamadı.";
+
             if (alertEl) {
-                alertEl.textContent = alertData.message || "Uyarı bilgisi alınamadı.";
+                alertEl.textContent = errorMessage;
             }
+
+            updateAlertTickerItem(fieldId, errorMessage);
         }
     } catch (error) {
+        const fallbackMessage = "Uyarı bilgisi alınamadı.";
+
         if (alertEl) {
-            alertEl.textContent = "Uyarı bilgisi alınamadı.";
+            alertEl.textContent = fallbackMessage;
         }
+
+        updateAlertTickerItem(fieldId, fallbackMessage);
+
     }
 }
 
@@ -418,6 +432,10 @@ async function getFields() {
         fieldsCache = data;
         populateFieldSelects();
         refreshDashboardStats();
+        
+        alertTickerItems = [];
+        renderAlertTicker();
+
         renderFieldCards();
         showMessage("Tarlalar getirildi.");
 
@@ -750,6 +768,36 @@ function refreshDashboardStats() {
     if (cropCountEl) cropCountEl.textContent = totalCrops;
     if (greenhouseCountEl) greenhouseCountEl.textContent = greenhouseCount;
     if (openFieldCountEl) openFieldCountEl.textContent = openFieldCount;
+}
+
+function renderAlertTicker() {
+    const ticker = document.getElementById("alertTickerTrack");
+    if (!ticker) return;
+
+    if (!alertTickerItems.length) {
+        ticker.textContent = "Şu anda gösterilecek aktif uyarı bulunmuyor.";
+        return;
+    }
+
+    ticker.textContent = alertTickerItems.join("   •   ");
+}
+
+function updateAlertTickerItem(fieldId, message) {
+    const field = getFieldById(fieldId);
+    const fieldName = field ? field.name : "Bilinmeyen Tarla";
+
+    const cleanMessage = shortenText(message, 110);
+    const entry = `${fieldName}: ${cleanMessage}`;
+
+    const existingIndex = alertTickerItems.findIndex(item => item.startsWith(fieldName + ":"));
+
+    if (existingIndex >= 0) {
+        alertTickerItems[existingIndex] = entry;
+    } else {
+        alertTickerItems.push(entry);
+    }
+
+    renderAlertTicker();
 }
 
 window.onload = () => {
