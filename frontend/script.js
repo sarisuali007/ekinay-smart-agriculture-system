@@ -89,6 +89,17 @@ async function getProfile() {
         document.getElementById("updateName").value = user.name || "";
         document.getElementById("updateEmail").value = user.email || "";
 
+        const dashboardWelcome = document.getElementById("dashboardWelcome");
+        const dashboardSubtext = document.getElementById("dashboardSubtext");
+
+        if (dashboardWelcome) {
+            dashboardWelcome.textContent = `Hoş geldin, ${user.name || "Kullanıcı"}`;
+        }
+
+        if (dashboardSubtext) {
+            dashboardSubtext.textContent = `${user.email || "E-posta bilgisi yok"} hesabıyla giriş yaptınız. Tarlalarınızı ve ürünlerinizi aşağıdan yönetebilirsiniz.`;
+        }
+
         const debugUserId = document.getElementById("debugUserId");
         if (debugUserId) {
             debugUserId.textContent = "Kullanıcı ID: " + (user._id || currentUserId);
@@ -246,6 +257,7 @@ async function getFields() {
 
     fieldsCache = data;
     populateFieldSelects();
+    refreshDashboardStats();
 
     const list = document.getElementById("fieldList");
     if (list) {
@@ -390,6 +402,7 @@ async function getCrops() {
 
         cropsCache = data;
         populateCropSelects();
+        refreshDashboardStats();
     } 
     catch (error) {
         showMessage(error.message, true);
@@ -531,6 +544,36 @@ function logout() {
     document.getElementById("updateName").value = "";
     document.getElementById("updateEmail").value = "";
     document.getElementById("updatePassword").value = "";
+
+    const dashboardWelcome = document.getElementById("dashboardWelcome");
+    const dashboardSubtext = document.getElementById("dashboardSubtext");
+
+    if (dashboardWelcome) {
+        dashboardWelcome.textContent = "Hoş geldiniz";
+    }
+
+    if (dashboardSubtext) {
+        dashboardSubtext.textContent = "Tarlalarınızı, ürünlerinizi ve önerilerinizi buradan yönetebilirsiniz.";
+    }
+
+    refreshDashboardStats();
+}
+
+function refreshDashboardStats() {
+    const fieldCountEl = document.getElementById("statFieldCount");
+    const cropCountEl = document.getElementById("statCropCount");
+    const greenhouseCountEl = document.getElementById("statGreenhouseCount");
+    const openFieldCountEl = document.getElementById("statOpenFieldCount");
+
+    const totalFields = fieldsCache.length;
+    const totalCrops = cropsCache.length;
+    const greenhouseCount = fieldsCache.filter(field => field.isGreenhouse).length;
+    const openFieldCount = totalFields - greenhouseCount;
+
+    if (fieldCountEl) fieldCountEl.textContent = totalFields;
+    if (cropCountEl) cropCountEl.textContent = totalCrops;
+    if (greenhouseCountEl) greenhouseCountEl.textContent = greenhouseCount;
+    if (openFieldCountEl) openFieldCountEl.textContent = openFieldCount;
 }
 
 window.onload = () => {

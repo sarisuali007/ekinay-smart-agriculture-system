@@ -209,6 +209,61 @@
         display: none !important;
     }
 
+    .dashboard-welcome {
+    margin-bottom: 20px;
+    }
+
+    .dashboard-welcome h3 {
+        margin: 0 0 8px;
+        font-size: 22px;
+        color: #234b2c;
+    }
+
+    .dashboard-welcome p {
+        margin: 0;
+        color: #5b6b5f;
+        line-height: 1.5;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .stat-card {
+        background: #f7faf6;
+        border: 1px solid #dce8d8;
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .stat-label {
+        display: block;
+        font-size: 13px;
+        color: #5b6b5f;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .stat-card strong {
+        font-size: 28px;
+        color: #1f4d2a;
+    }
+
+    @media (max-width: 900px) {
+        .dashboard-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 520px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
 </style>
 
 </head>
@@ -247,6 +302,37 @@
         </section>
 
         <div id="appSection">
+
+            <section class="card" id="dashboardCard">
+                <h2>Kullanıcı Paneli</h2>
+
+                <div class="dashboard-welcome">
+                    <h3 id="dashboardWelcome">Hoş geldiniz</h3>
+                    <p id="dashboardSubtext">Tarlalarınızı, ürünlerinizi ve önerilerinizi buradan yönetebilirsiniz.</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">Toplam Tarla</span>
+                        <strong id="statFieldCount">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <span class="stat-label">Toplam Ürün</span>
+                        <strong id="statCropCount">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <span class="stat-label">Sera Sayısı</span>
+                        <strong id="statGreenhouseCount">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <span class="stat-label">Açık Alan</span>
+                        <strong id="statOpenFieldCount">0</strong>
+                    </div>
+                </div>
+            </section>
 
             <section class="card">
                 <h2>Profil İşlemleri</h2>
