@@ -63,8 +63,8 @@ async function login(){
         localStorage.setItem("userId", currentUserId);
 
         showMessage(data.message);
-        getProfile();
-        showAppSection();
+        window.location.href = "dashboard.html";
+    
     } 
     catch (error) {
         showMessage(error.message, true);
@@ -577,13 +577,28 @@ function refreshDashboardStats() {
 }
 
 window.onload = () => {
-    getFields();
-    getCrops();
+    const authSection = document.getElementById("authSection");
+    const appSection = document.getElementById("appSection");
+
+    if (document.getElementById("fieldList")) {
+        getFields();
+    }
+
+    if (document.getElementById("manageCropFieldSelect") || document.getElementById("updateCropSelect")) {
+        getCrops();
+    }
 
     if (currentUserId) {
-        getProfile();
-        showAppSection();
+        if (document.getElementById("updateName")) {
+            getProfile();
+        }
+
+        if (appSection) {
+            showAppSection();
+        }
     } else {
-        showAuthSection();
+        if (authSection) {
+            showAuthSection();
+        }
     }
 };
