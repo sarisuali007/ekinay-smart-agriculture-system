@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+
+    <meta charset="UTF-8">
+    <title>Ekinay Dashboard</title>
+    <p>Tarlalarınızı, ürünlerinizi, önerilerinizi ve profil ayarlarınızı buradan yönetin.</p>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+    <div class="container">
+
+        <header class="hero">
+            <h1>Ekinay Tarım Sistemi</h1>
+            <p>Çiftçiler için akıllı tarla, ürün ve öneri yönetim sistemi</p>
+            <div class="hero-actions">
+                <button onclick="showAuthSection()">Giriş Yap / Kayıt Ol</button>
+                <button onclick="showAppSection()">Panele Git</button>
+            </div>
+        </header>
+
+        <div id="messageBox"></div>
+
+        <section class="card" id="authSection">
+            <h2>Kimlik İşlemleri</h2>
+
+            <div class="form-group">
+                <h3>Kullanıcı Kaydı</h3>
+                <input type="text" id="registerName" placeholder="Ad">
+                <input type="email" id="registerEmail" placeholder="Email">
+                <input type="password" id="registerPassword" placeholder="Şifre">
+                <button onclick="register()">Kayıt Ol</button>
+            </div>
+
+            <div class="form-group">
+                <h3>Kullanıcı Girişi</h3>
+                <input type="email" id="loginEmail" placeholder="Email">
+                <input type="password" id="loginPassword" placeholder="Şifre">
+                <button onclick="login()">Giriş Yap</button>
+            </div>
+        </section>
+
+        <div id="appSection">
+
+            <section class="card" id="dashboardCard">
+                <h2>Kullanıcı Paneli</h2>
+
+                <div class="dashboard-welcome">
+                    <h3 id="dashboardWelcome">Hoş geldiniz</h3>
+                    <p id="dashboardSubtext">Tarlalarınızı, ürünlerinizi ve önerilerinizi buradan yönetebilirsiniz.</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">Toplam Tarla</span>
+                        <strong id="statFieldCount">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <span class="stat-label">Toplam Ürün</span>
+                        <strong id="statCropCount">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <span class="stat-label">Sera Sayısı</span>
+                        <strong id="statGreenhouseCount">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <span class="stat-label">Açık Alan</span>
+                        <strong id="statOpenFieldCount">0</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Profil İşlemleri</h2>
+
+                <div class="form-group">
+                    <input id="updateName" placeholder="Yeni Ad">
+                    <input id="updateEmail" placeholder="Yeni Email">
+                    <input id="updatePassword" placeholder="Yeni Şifre">
+                    <button onclick="updateProfile()">Profili Güncelle</button>
+                    <button onclick="deleteProfile()">Profili Sil</button>
+                    <button onclick="logout()">Çıkış Yap</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Tarla Yönetimi</h2>
+
+                <div class="form-group">
+                    <h3>Tarla Ekle</h3>
+                    <input id="fieldName" placeholder="Tarla Adı">
+                    <input id="fieldLocation" placeholder="Konum Açıklaması">
+                    <input id="fieldLatitude" type="number" step="any" placeholder="Enlem">
+                    <input id="fieldLongitude" type="number" step="any" placeholder="Boylam">
+                    <input id="fieldArea" type="number" placeholder="Alan (m²)">
+                    <label class="checkbox-row">
+                        <input id="fieldIsGreenhouse" type="checkbox">
+                        Bu tarla seradır
+                    </label>
+                    <button onclick="addField()">Ekle</button>
+                </div>
+
+                <div class="form-group">
+                    <h3>Kayıtlı Tarlalar</h3>
+                    <button onclick="getFields()">Listele</button>
+                    <ul id="fieldList"></ul>
+                </div>
+
+                <div class="form-group">
+                    <h3>Tarla Güncelle / Sil</h3>
+                    <select id="updateFieldSelect"></select>
+                    <input id="updateFieldName" placeholder="Yeni Tarla Adı">
+                    <input id="updateFieldLocation" placeholder="Yeni Konum Açıklaması">
+                    <input id="updateFieldLatitude" type="number" step="any" placeholder="Yeni Enlem">
+                    <input id="updateFieldLongitude" type="number" step="any" placeholder="Yeni Boylam">
+                    <input id="updateFieldArea" type="number" placeholder="Yeni Alan (m²)">
+                    <label class="checkbox-row">
+                        <input id="updateFieldIsGreenhouse" type="checkbox">
+                        Bu tarla seradır
+                    </label>
+                    <button onclick="updateField()">Tarlayı Güncelle</button>
+                    <button onclick="deleteField()">Tarlayı Sil</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Ürün Yönetimi</h2>
+
+                <div class="form-group">
+                    <h3>Ürün Ekle</h3>
+                    <select id="cropName">
+                        <option value="">Ürün Seçin</option>
+                        <option value="domates">Domates</option>
+                        <option value="biber">Biber</option>
+                        <option value="salatalık">Salatalık</option>
+                        <option value="fasulye">Fasulye</option>
+                    </select>
+                    <select id="cropFieldSelect"></select>
+                    <input id="cropSowingDate" type="date">
+                    <button onclick="addCrop()">Ekle</button>
+                </div>
+
+                <div class="form-group">
+                    <h3>Ürün Güncelle / Sil</h3>
+                    <select id="manageCropFieldSelect"></select>
+                    <select id="updateCropName">
+                        <option value="">Ürün seçiniz</option>
+                        <option value="domates">Domates</option>
+                        <option value="biber">Biber</option>
+                        <option value="salatalık">Salatalık</option>
+                        <option value="fasulye">Fasulye</option>
+                    </select>
+                    <input id="updateCropSowingDate" type="date">
+                    <button onclick="updateCrop()">Ürünü Güncelle</button>
+                    <button onclick="deleteCrop()">Ürünü Sil</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Akıllı Öneriler</h2>
+
+                <div class="form-group">
+                    <h3>Sulama Önerisi</h3>
+                    <select id="irrigationFieldSelect"></select>
+                    <button onclick="getIrrigation()">Öneri Al</button>
+                </div>
+
+                <div class="form-group">
+                    <h3>Hava Uyarısı</h3>
+                    <select id="alertFieldSelect"></select>
+                    <button onclick="getAlert()">Uyarı Al</button>
+                </div>
+            </section>
+
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
