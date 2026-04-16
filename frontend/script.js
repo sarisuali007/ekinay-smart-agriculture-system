@@ -214,6 +214,22 @@ function getCropByFieldId(fieldId) {
     });
 }
 
+function formatDate(dateValue) {
+    if (!dateValue) return "Belirtilmedi";
+
+    const date = new Date(dateValue);
+
+    if (isNaN(date.getTime())) return "Belirtilmedi";
+
+    return date.toLocaleDateString("tr-TR");
+}
+
+function shortenText(text, maxLength = 120) {
+    if (!text) return "Bilgi bulunamadı.";
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength).trim() + "...";
+}
+
 function fillCropFormFromSelection() {
     const select = document.getElementById("manageCropFieldSelect");
     const cropNameInput = document.getElementById("updateCropName");
@@ -259,6 +275,99 @@ function fillCropFormFromSelection() {
 
 function getFieldById(fieldId) {
     return fieldsCache.find(field => field._id === fieldId);
+}
+
+function renderFieldCards() {
+    const list = document.getElementById("fieldList");
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    fieldsCache.forEach(field => {
+        const crop = getCropByFieldId(field._id);
+
+        const cropName = crop ? crop.name : "Henüz ürün yok";
+        const sowingDate = crop ? formatDate(crop.sowingDate) : "-";
+
+        const card = document.createElement("div");
+        card.className = "field-card";
+
+        const typeClass = field.isGreenhouse ? "greenhouse" : "open";
+        const typeText = field.isGreenhouse ? "Sera" : "Açık Alan";
+
+        card.innerHTML = `
+            <span class="field-badge ${typeClass}">${typeText}</span>
+            <h4>${field.name}</h4>
+
+            <p><strong>Konum:</strong> ${field.location}</p>
+            <p><strong>Koordinat:</strong> ${field.latitude}, ${field.longitude}</p>
+            <p><strong>Alan:</strong> ${field.areaM2 || 0} m²</p>
+
+            <div class="field-card-divider"></div>
+
+            <p><strong>Ürün:</strong> ${cropName}</p>
+            <p><strong>Ekim Tarihi:</strong> ${sowingDate}</p>
+
+            <div class="field-card-divider"></div>
+
+            <div class="field-info-box">
+                <span class="field-info-title">Sulama Özeti</span>
+                <p id="irrigation-summary-${field._id}">Yükleniyor...</p>
+            </div>
+
+            <div class="field-info-box">
+                <span class="field-info-title">Hava Uyarısı</span>
+                <p id="alert-summary-${field._id}">Yükleniyor...</p>
+            </div>
+        `;
+
+        list.appendChild(card);
+
+        loadFieldCardInsights(field._id);
+    });
+}
+
+async function loadFieldCardInsights(fieldId) {
+    const irrigationEl = document.getElementById(`irrigation-summary-${fieldId}`);
+    const alertEl = document.getElementById(`alert-summary-${fieldId}`);
+
+    try {
+        const irrigationResponse = await fetch(API_URL + "/recommendations/irrigation/" + fieldId);
+        const irrigationData = await irrigationResponse.json();
+
+        if (irrigationResponse.ok) {
+            if (irrigationEl) {
+                irrigationEl.textContent = shortenText(irrigationData.message, 140);
+            }
+        } else {
+            if (irrigationEl) {
+                irrigationEl.textContent = irrigationData.message || "Sulama bilgisi alınamadı.";
+            }
+        }
+    } catch (error) {
+        if (irrigationEl) {
+            irrigationEl.textContent = "Sulama bilgisi alınamadı.";
+        }
+    }
+
+    try {
+        const alertResponse = await fetch(API_URL + "/recommendations/alerts/" + fieldId);
+        const alertData = await alertResponse.json();
+
+        if (alertResponse.ok) {
+            if (alertEl) {
+                alertEl.textContent = shortenText(alertData.message, 140);
+            }
+        } else {
+            if (alertEl) {
+                alertEl.textContent = alertData.message || "Uyarı bilgisi alınamadı.";
+            }
+        }
+    } catch (error) {
+        if (alertEl) {
+            alertEl.textContent = "Uyarı bilgisi alınamadı.";
+        }
+    }
 }
 
 async function addField() {
@@ -309,30 +418,7 @@ async function getFields() {
         fieldsCache = data;
         populateFieldSelects();
         refreshDashboardStats();
-
-        const list = document.getElementById("fieldList");
-        if (list) {
-            list.innerHTML = "";
-
-            data.forEach(field => {
-                const card = document.createElement("div");
-                card.className = "field-card";
-
-                const typeClass = field.isGreenhouse ? "greenhouse" : "open";
-                const typeText = field.isGreenhouse ? "Sera" : "Açık Alan";
-
-                card.innerHTML = `
-            <span class="field-badge ${typeClass}">${typeText}</span>
-            <h4>${field.name}</h4>
-            <p><strong>Konum:</strong> ${field.location}</p>
-            <p><strong>Koordinat:</strong> ${field.latitude}, ${field.longitude}</p>
-            <p><strong>Alan:</strong> ${field.areaM2 || 0} m²</p>
-        `;
-
-                list.appendChild(card);
-            });
-        }
-
+        renderFieldCards();
         showMessage("Tarlalar getirildi.");
 
     }
@@ -492,6 +578,7 @@ async function getCrops() {
         populateCropSelects();
         refreshDashboardStats();
         fillCropFormFromSelection();
+        renderFieldCards();
     }
     catch (error) {
         showMessage(error.message, true);

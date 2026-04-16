@@ -685,3 +685,31 @@ li {
     font-size: 14px;
     line-height: 1.5;
 }
+
+.field-card-divider {
+    height: 1px;
+    background: #e2ebe0;
+    margin: 14px 0;
+}
+
+.field-info-box {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #f4f8f3;
+    border: 1px solid #dce8d8;
+}
+
+.field-info-title {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    color: #355e3b;
+    margin-bottom: 6px;
+}
+
+.field-info-box p {
+    margin: 0;
+    color: #4b5d4f;
+    line-height: 1.6;
+}
