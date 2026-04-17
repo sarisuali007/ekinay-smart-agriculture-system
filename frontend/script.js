@@ -108,6 +108,7 @@ async function getProfile() {
         }
 
         showMessage("Profil bilgileri getirildi.");
+        refreshAllDashboardData();
 
     } catch (error) {
         showMessage(error.message, true);
@@ -648,6 +649,8 @@ async function getFields() {
         renderFieldCards();
         renderCropCards();
         refreshTodaySummary();
+        renderPriorityFields();
+
         showMessage("Tarlalar getirildi.");
 
     }
@@ -810,6 +813,7 @@ async function getCrops() {
         renderFieldCards();
         renderCropCards();
         refreshTodaySummary();
+        renderPriorityFields();
     }
     catch (error) {
         showMessage(error.message, true);
@@ -939,6 +943,7 @@ function showAppSection() {
 function logout() {
     localStorage.removeItem("userId");
     currentUserId = "";
+    window.location.href = "auth.html";
 
     const authSection = document.getElementById("authSection");
     const appSection = document.getElementById("appSection");
@@ -1140,6 +1145,82 @@ function refreshTodaySummary() {
     if (activeCropEl) activeCropEl.textContent = activeCropCount;
 }
 
+function renderPriorityFields() {
+    const list = document.getElementById("priorityFieldsList");
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    const priorityItems = [];
+
+    fieldsCache.forEach(field => {
+        const crop = getCropByFieldId(field._id);
+        const insight = fieldInsightsCache[field._id] || {};
+
+        if (!crop) {
+            priorityItems.push({
+                type: "info",
+                title: field.name,
+                message: "Bu tarlada henüz ürün yok. Önce ürün eklenmeli.",
+                fieldId: field._id
+            });
+            return;
+        }
+
+        if (insight.alertSeverity === "critical") {
+            priorityItems.push({
+                type: "critical",
+                title: field.name,
+                message: insight.alertMessage || "Kritik hava uyarısı var.",
+                fieldId: field._id
+            });
+            return;
+        }
+
+        const irrigationText = (insight.irrigationMessage || "").toLowerCase();
+        if (irrigationText.includes("bugün sulama önerilir")) {
+            priorityItems.push({
+                type: "warning",
+                title: field.name,
+                message: insight.irrigationMessage || "Bugün sulama öneriliyor.",
+                fieldId: field._id
+            });
+        }
+    });
+
+    if (!priorityItems.length) {
+        list.innerHTML = `<div class="empty-state">Şu anda öne çıkarılacak bir tarla bulunmuyor.</div>`;
+        return;
+    }
+
+    priorityItems.forEach(item => {
+        const card = document.createElement("div");
+        card.className = `priority-card ${item.type}`;
+
+        card.innerHTML = `
+            <h4>${item.title}</h4>
+            <p>${shortenText(item.message, 150)}</p>
+
+            <div class="priority-actions">
+                <button onclick="selectFieldFromCard('${item.fieldId}')">Tarlayı Düzenle</button>
+                <button onclick="selectRecommendationFieldFromCard('${item.fieldId}')">Önerilere Git</button>
+            </div>
+        `;
+
+        list.appendChild(card);
+    });
+}
+
+function refreshAllDashboardData() {
+    if (document.getElementById("fieldList")) {
+        getFields();
+    }
+
+    if (document.getElementById("cropList") || document.getElementById("manageCropFieldSelect")) {
+        getCrops();
+    }
+}
+
 window.onload = () => {
     const authSection = document.getElementById("authSection");
     const appSection = document.getElementById("appSection");
@@ -1148,8 +1229,21 @@ window.onload = () => {
         getFields();
     }
 
-    if (document.getElementById("manageCropFieldSelect") || document.getElementById("updateCropSelect")) {
+    if (document.getElementById("manageCropFieldSelect") || document.getElementById("cropList")) {
         getCrops();
+    }
+
+    const isDashboardPage = window.location.pathname.includes("dashboard.html");
+    const isAuthPage = window.location.pathname.includes("auth.html");
+
+    if (isDashboardPage && !currentUserId) {
+        window.location.href = "auth.html";
+        return;
+    }
+
+    if (isAuthPage && currentUserId) {
+        window.location.href = "dashboard.html";
+        return;
     }
 
     if (currentUserId) {

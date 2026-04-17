@@ -1007,3 +1007,66 @@ li {
         grid-template-columns: 1fr;
     }
 }
+
+.priority-field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+}
+
+.priority-card {
+    border-radius: 16px;
+    padding: 18px;
+    border: 1px solid #e5ece1;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+    background: white;
+}
+
+.priority-card h4 {
+    margin: 0 0 10px;
+    color: #1f4d2a;
+    font-size: 20px;
+}
+
+.priority-card p {
+    margin: 6px 0;
+    color: #4b5d4f;
+    line-height: 1.5;
+}
+
+.priority-card.critical {
+    background: #fdeaea;
+    border-color: #e6b2b2;
+}
+
+.priority-card.warning {
+    background: #fff7e2;
+    border-color: #efd28a;
+}
+
+.priority-card.info {
+    background: #eef6ed;
+    border-color: #d5e3d1;
+}
+
+.priority-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.priority-actions button {
+    margin: 0;
+}
+
+@media (max-width: 800px) {
+    .priority-field-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card h2 {
+    letter-spacing: 0.2px;
+}
