@@ -965,3 +965,45 @@ li {
         grid-template-columns: 1fr;
     }
 }
+
+.today-summary-strip {
+    width: min(1100px, calc(100% - 32px));
+    margin: 0 auto 20px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.today-summary-card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px;
+    border: 1px solid #e5ece1;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.today-summary-label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    color: #5b6b5f;
+    margin-bottom: 8px;
+}
+
+.today-summary-card strong {
+    font-size: 30px;
+    color: #1f4d2a;
+}
+
+@media (max-width: 900px) {
+    .today-summary-strip {
+        width: min(100% - 20px, 1100px);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .today-summary-strip {
+        grid-template-columns: 1fr;
+    }
+}

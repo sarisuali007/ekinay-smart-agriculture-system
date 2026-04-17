@@ -3,6 +3,7 @@ let currentUserId = localStorage.getItem("userId") || "";
 let fieldsCache = [];
 let cropsCache = [];
 let alertTickerItems = [];
+let fieldInsightsCache = {};
 
 function showMessage(message, isError = false) {
     const box = document.getElementById("messageBox");
@@ -501,6 +502,11 @@ async function loadFieldCardInsights(fieldId) {
             }
 
             applySeverityToBox(irrigationBox, severity);
+
+            if (!fieldInsightsCache[fieldId]) fieldInsightsCache[fieldId] = {};
+            fieldInsightsCache[fieldId].irrigationMessage = irrigationData.message;
+            fieldInsightsCache[fieldId].irrigationSeverity = severity;
+            refreshTodaySummary();
         }
         else {
             const errorMessage = irrigationData.message || "Sulama bilgisi alınamadı.";
@@ -514,6 +520,11 @@ async function loadFieldCardInsights(fieldId) {
             }
 
             applySeverityToBox(irrigationBox, "neutral");
+
+            if (!fieldInsightsCache[fieldId]) fieldInsightsCache[fieldId] = {};
+            fieldInsightsCache[fieldId].irrigationMessage = errorMessage;
+            fieldInsightsCache[fieldId].irrigationSeverity = "neutral";
+            refreshTodaySummary();
         }
     }
     catch (error) {
@@ -526,6 +537,10 @@ async function loadFieldCardInsights(fieldId) {
         }
 
         applySeverityToBox(irrigationBox, "neutral");
+        if (!fieldInsightsCache[fieldId]) fieldInsightsCache[fieldId] = {};
+        fieldInsightsCache[fieldId].irrigationMessage = "Sulama bilgisi alınamadı.";
+        fieldInsightsCache[fieldId].irrigationSeverity = "neutral";
+        refreshTodaySummary();
     }
 
 
@@ -543,6 +558,10 @@ async function loadFieldCardInsights(fieldId) {
 
             applySeverityToBox(alertBox, severity);
             updateAlertTickerItem(fieldId, alertData.message);
+            if (!fieldInsightsCache[fieldId]) fieldInsightsCache[fieldId] = {};
+            fieldInsightsCache[fieldId].alertMessage = alertData.message;
+            fieldInsightsCache[fieldId].alertSeverity = severity;
+            refreshTodaySummary();
         } else {
             const errorMessage = alertData.message || "Uyarı bilgisi alınamadı.";
 
@@ -552,6 +571,11 @@ async function loadFieldCardInsights(fieldId) {
 
             applySeverityToBox(alertBox, "neutral");
             updateAlertTickerItem(fieldId, errorMessage);
+            if (!fieldInsightsCache[fieldId]) fieldInsightsCache[fieldId] = {};
+            fieldInsightsCache[fieldId].alertMessage = errorMessage;
+            fieldInsightsCache[fieldId].alertSeverity = "neutral";
+            refreshTodaySummary();
+
         }
     } catch (error) {
         const fallbackMessage = "Uyarı bilgisi alınamadı.";
@@ -562,6 +586,11 @@ async function loadFieldCardInsights(fieldId) {
 
         applySeverityToBox(alertBox, "neutral");
         updateAlertTickerItem(fieldId, fallbackMessage);
+        if (!fieldInsightsCache[fieldId]) fieldInsightsCache[fieldId] = {};
+        fieldInsightsCache[fieldId].alertMessage = fallbackMessage;
+        fieldInsightsCache[fieldId].alertSeverity = "neutral";
+        refreshTodaySummary();
+
     }
 }
 
@@ -613,12 +642,12 @@ async function getFields() {
         fieldsCache = data;
         populateFieldSelects();
         refreshDashboardStats();
-
+        fieldInsightsCache = {};
         alertTickerItems = [];
         renderAlertTicker();
-
         renderFieldCards();
         renderCropCards();
+        refreshTodaySummary();
         showMessage("Tarlalar getirildi.");
 
     }
@@ -780,6 +809,7 @@ async function getCrops() {
         fillCropFormFromSelection();
         renderFieldCards();
         renderCropCards();
+        refreshTodaySummary();
     }
     catch (error) {
         showMessage(error.message, true);
@@ -1075,6 +1105,39 @@ function selectRecommendationFieldFromCard(fieldId) {
     }
 
     scrollToSection("recommendationSection");
+}
+
+function refreshTodaySummary() {
+    const criticalEl = document.getElementById("summaryCriticalCount");
+    const todayWaterEl = document.getElementById("summaryTodayWaterCount");
+    const noCropEl = document.getElementById("summaryNoCropCount");
+    const activeCropEl = document.getElementById("summaryActiveCropCount");
+
+    const noCropCount = fieldsCache.filter(field => !getCropByFieldId(field._id)).length;
+    const activeCropCount = cropsCache.length;
+
+    let criticalCount = 0;
+    let todayWaterCount = 0;
+
+    fieldsCache.forEach(field => {
+        const insight = fieldInsightsCache[field._id];
+
+        if (!insight) return;
+
+        if (insight.alertSeverity === "critical") {
+            criticalCount += 1;
+        }
+
+        const irrigationText = (insight.irrigationMessage || "").toLowerCase();
+        if (irrigationText.includes("bugün sulama önerilir")) {
+            todayWaterCount += 1;
+        }
+    });
+
+    if (criticalEl) criticalEl.textContent = criticalCount;
+    if (todayWaterEl) todayWaterEl.textContent = todayWaterCount;
+    if (noCropEl) noCropEl.textContent = noCropCount;
+    if (activeCropEl) activeCropEl.textContent = activeCropCount;
 }
 
 window.onload = () => {
