@@ -774,3 +774,35 @@ li {
         font-size: 14px;
     }
 }
+
+.severity-neutral {
+    background: #f4f8f3;
+    border-color: #dce8d8;
+}
+
+.severity-safe {
+    background: #eaf7ea;
+    border-color: #bfe0bf;
+}
+
+.severity-warning {
+    background: #fff6df;
+    border-color: #f0d48a;
+}
+
+.severity-critical {
+    background: #fdeaea;
+    border-color: #e8b3b3;
+}
+
+.severity-safe .field-info-title {
+    color: #246b35;
+}
+
+.severity-warning .field-info-title {
+    color: #8a6112;
+}
+
+.severity-critical .field-info-title {
+    color: #9b2c2c;
+}
