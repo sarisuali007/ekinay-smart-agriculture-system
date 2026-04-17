@@ -4,6 +4,8 @@ let fieldsCache = [];
 let cropsCache = [];
 let alertTickerItems = [];
 let fieldInsightsCache = {};
+let addFieldMapState = null;
+let updateFieldMapState = null;
 
 function showMessage(message, isError = false) {
     const box = document.getElementById("messageBox");
@@ -603,6 +605,9 @@ async function addField() {
         const longitude = document.getElementById("fieldLongitude").value;
         const areaM2 = document.getElementById("fieldArea").value;
         const isGreenhouse = document.getElementById("fieldIsGreenhouse").checked;
+        const polygonRaw = document.getElementById("fieldPolygon").value;
+        const polygon = polygonRaw ? JSON.parse(polygonRaw) : [];
+
 
         const response = await fetch(API_URL + "/fields", {
             method: "POST",
@@ -613,7 +618,8 @@ async function addField() {
                 latitude,
                 longitude,
                 areaM2,
-                isGreenhouse
+                isGreenhouse,
+                polygon
             })
         });
 
@@ -673,6 +679,9 @@ function fillFieldFormFromSelection() {
         document.getElementById("updateFieldLongitude").value = "";
         document.getElementById("updateFieldArea").value = "";
         document.getElementById("updateFieldIsGreenhouse").checked = false;
+        if (updateFieldMapState) {
+            clearMapStateSelection(updateFieldMapState);
+        }
         return;
     }
 
@@ -682,6 +691,11 @@ function fillFieldFormFromSelection() {
     document.getElementById("updateFieldLongitude").value = field.longitude ?? "";
     document.getElementById("updateFieldArea").value = field.areaM2 ?? "";
     document.getElementById("updateFieldIsGreenhouse").checked = !!field.isGreenhouse;
+    document.getElementById("updateFieldPolygon").value = JSON.stringify(field.polygon || []);
+
+    if (updateFieldMapState) {
+        loadPolygonIntoMap(updateFieldMapState, field.polygon || []);
+    }
 }
 
 async function updateField() {
@@ -693,6 +707,8 @@ async function updateField() {
         const longitude = document.getElementById("updateFieldLongitude").value;
         const areaM2 = document.getElementById("updateFieldArea").value;
         const isGreenhouse = document.getElementById("updateFieldIsGreenhouse").checked;
+        const polygonRaw = document.getElementById("updateFieldPolygon").value;
+        const polygon = polygonRaw ? JSON.parse(polygonRaw) : [];
 
         const response = await fetch(API_URL + "/fields/" + fieldId, {
             method: "PUT",
@@ -703,7 +719,8 @@ async function updateField() {
                 latitude,
                 longitude,
                 areaM2,
-                isGreenhouse
+                isGreenhouse,
+                polygon
             })
         });
 
@@ -1221,6 +1238,191 @@ function refreshAllDashboardData() {
     }
 }
 
+function getPolygonCenter(latlngs) {
+    if (!latlngs || !latlngs.length) {
+        return { lat: 0, lng: 0 };
+    }
+
+    let totalLat = 0;
+    let totalLng = 0;
+
+    latlngs.forEach(point => {
+        totalLat += point.lat;
+        totalLng += point.lng;
+    });
+
+    return {
+        lat: totalLat / latlngs.length,
+        lng: totalLng / latlngs.length
+    };
+}
+
+function normalizePolygonPoints(latlngs) {
+    return latlngs.map(point => ({
+        lat: Number(point.lat),
+        lng: Number(point.lng)
+    }));
+}
+
+function updateMapSummary(summaryId, areaM2, center, pointCount) {
+    const summary = document.getElementById(summaryId);
+    if (!summary) return;
+
+    summary.textContent = `Alan seçildi. Nokta sayısı: ${pointCount}, Merkez: ${center.lat.toFixed(6)}, ${center.lng.toFixed(6)}, Alan: ${Math.round(areaM2)} m²`;
+}
+
+function writePolygonToInputs(config, latlngs, areaM2) {
+    const center = getPolygonCenter(latlngs);
+    const normalized = normalizePolygonPoints(latlngs);
+
+    document.getElementById(config.latInputId).value = center.lat;
+    document.getElementById(config.lngInputId).value = center.lng;
+    document.getElementById(config.areaInputId).value = Math.round(areaM2);
+    document.getElementById(config.polygonInputId).value = JSON.stringify(normalized);
+
+    updateMapSummary(config.summaryId, areaM2, center, normalized.length);
+}
+
+function clearMapStateSelection(state) {
+    if (!state) return;
+
+    state.drawnItems.clearLayers();
+
+    document.getElementById(state.config.latInputId).value = "";
+    document.getElementById(state.config.lngInputId).value = "";
+    document.getElementById(state.config.areaInputId).value = "";
+    document.getElementById(state.config.polygonInputId).value = "";
+
+    const summary = document.getElementById(state.config.summaryId);
+    if (summary) {
+        summary.textContent = "Haritada poligon çizerek tarla alanını seçin.";
+    }
+}
+
+function loadPolygonIntoMap(state, polygon) {
+    if (!state) return;
+
+    state.drawnItems.clearLayers();
+
+    if (!polygon || !polygon.length) {
+        return;
+    }
+
+    const latlngs = polygon.map(point => [point.lat, point.lng]);
+    const layer = L.polygon(latlngs);
+    state.drawnItems.addLayer(layer);
+
+    state.map.fitBounds(layer.getBounds(), { padding: [20, 20] });
+
+    const areaM2 = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
+    writePolygonToInputs(state.config, layer.getLatLngs()[0], areaM2);
+}
+
+function createMapPicker(config) {
+    if (typeof L === "undefined") return null;
+
+    const map = L.map(config.mapId).setView([38.9637, 35.2433], 6);
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    const drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+
+    const drawControl = new L.Control.Draw({
+        edit: {
+            featureGroup: drawnItems
+        },
+        draw: {
+            polygon: true,
+            polyline: false,
+            rectangle: false,
+            circle: false,
+            marker: false,
+            circlemarker: false
+        }
+    });
+
+    map.addControl(drawControl);
+
+    const state = {
+        map,
+        drawnItems,
+        config
+    };
+
+    map.on(L.Draw.Event.CREATED, function (event) {
+        drawnItems.clearLayers();
+
+        const layer = event.layer;
+        drawnItems.addLayer(layer);
+
+        const latlngs = layer.getLatLngs()[0];
+        const areaM2 = L.GeometryUtil.geodesicArea(latlngs);
+
+        writePolygonToInputs(config, latlngs, areaM2);
+    });
+
+    map.on(L.Draw.Event.EDITED, function () {
+        drawnItems.eachLayer(layer => {
+            const latlngs = layer.getLatLngs()[0];
+            const areaM2 = L.GeometryUtil.geodesicArea(latlngs);
+
+            writePolygonToInputs(config, latlngs, areaM2);
+        });
+    });
+
+    map.on(L.Draw.Event.DELETED, function () {
+        document.getElementById(config.latInputId).value = "";
+        document.getElementById(config.lngInputId).value = "";
+        document.getElementById(config.areaInputId).value = "";
+        document.getElementById(config.polygonInputId).value = "";
+
+        const summary = document.getElementById(config.summaryId);
+        if (summary) {
+            summary.textContent = "Haritada poligon çizerek tarla alanını seçin.";
+        }
+    });
+
+    return state;
+}
+
+function initFieldMaps() {
+    if (typeof L === "undefined") return;
+
+    if (document.getElementById("fieldMap") && !addFieldMapState) {
+        addFieldMapState = createMapPicker({
+            mapId: "fieldMap",
+            summaryId: "fieldMapSummary",
+            latInputId: "fieldLatitude",
+            lngInputId: "fieldLongitude",
+            areaInputId: "fieldArea",
+            polygonInputId: "fieldPolygon"
+        });
+    }
+
+    if (document.getElementById("updateFieldMap") && !updateFieldMapState) {
+        updateFieldMapState = createMapPicker({
+            mapId: "updateFieldMap",
+            summaryId: "updateFieldMapSummary",
+            latInputId: "updateFieldLatitude",
+            lngInputId: "updateFieldLongitude",
+            areaInputId: "updateFieldArea",
+            polygonInputId: "updateFieldPolygon"
+        });
+    }
+}
+
+function clearFieldMapSelection() {
+    clearMapStateSelection(addFieldMapState);
+}
+
+function clearUpdateFieldMapSelection() {
+    clearMapStateSelection(updateFieldMapState);
+}
+
 window.onload = () => {
     const authSection = document.getElementById("authSection");
     const appSection = document.getElementById("appSection");
@@ -1245,6 +1447,8 @@ window.onload = () => {
         window.location.href = "dashboard.html";
         return;
     }
+
+    initFieldMaps();
 
     if (currentUserId) {
         if (document.getElementById("updateName")) {

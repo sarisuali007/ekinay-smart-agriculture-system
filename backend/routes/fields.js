@@ -13,9 +13,9 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { name, location, latitude, longitude, areaM2, isGreenhouse } = req.body;
+    const { name, location, latitude, longitude, areaM2, isGreenhouse, polygon } = req.body;
 
-    if (!name || !location || latitude === undefined || longitude === undefined) {
+    if (!name || !location || latitude === undefined || longitude === undefined || !polygon || !Array.isArray(polygon) || polygon.length < 3) {
       return res.status(400).json({ message: "Tarla adı, konum, enlem ve boylam zorunludur." });
     }
 
@@ -25,7 +25,11 @@ router.post("/", async (req, res) => {
       latitude: Number(latitude),
       longitude: Number(longitude),
       areaM2: areaM2 ? Number(areaM2) : 0,
-      isGreenhouse: Boolean(isGreenhouse)
+      isGreenhouse: Boolean(isGreenhouse),
+      polygon: polygon.map(point => ({
+        lat: Number(point.lat),
+        lng: Number(point.lng)
+      }))
     });
 
     res.status(201).json({
@@ -40,7 +44,7 @@ router.post("/", async (req, res) => {
 router.put("/:fieldId", async (req, res) => {
   try {
     const { fieldId } = req.params;
-    const { name, location, latitude, longitude, areaM2, isGreenhouse } = req.body;
+    const { name, location, latitude, longitude, areaM2, isGreenhouse, polygon } = req.body;
 
     const updatedField = await Field.findByIdAndUpdate(
       fieldId,
@@ -50,7 +54,11 @@ router.put("/:fieldId", async (req, res) => {
       latitude: Number(latitude),
       longitude: Number(longitude),
       areaM2: areaM2 ? Number(areaM2) : 0,
-      isGreenhouse: Boolean(isGreenhouse) 
+      isGreenhouse: Boolean(isGreenhouse),
+      polygon: polygon ? polygon.map(point => ({
+        lat: Number(point.lat),
+        lng: Number(point.lng)
+      })) : undefined
       },
       { new: true, runValidators: true }
     );

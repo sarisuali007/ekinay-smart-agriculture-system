@@ -6,6 +6,8 @@
     <meta charset="UTF-8">
     <title>Ekinay Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
 
 </head>
 
@@ -138,15 +140,26 @@
 
                 <div class="form-group">
                     <h3>Tarla Ekle</h3>
+
                     <input id="fieldName" placeholder="Tarla Adı">
                     <input id="fieldLocation" placeholder="Konum Açıklaması">
-                    <input id="fieldLatitude" type="number" step="any" placeholder="Enlem">
-                    <input id="fieldLongitude" type="number" step="any" placeholder="Boylam">
-                    <input id="fieldArea" type="number" placeholder="Alan (m²)">
+
+                    <div class="map-picker-block">
+                        <div id="fieldMap" class="field-map"></div>
+                        <p id="fieldMapSummary" class="helper-text">Haritada poligon çizerek tarla alanını seçin.</p>
+                        <button type="button" onclick="clearFieldMapSelection()">Seçimi Temizle</button>
+                    </div>
+
+                    <input id="fieldLatitude" type="hidden">
+                    <input id="fieldLongitude" type="hidden">
+                    <input id="fieldArea" type="hidden">
+                    <input id="fieldPolygon" type="hidden">
+
                     <label class="checkbox-row">
                         <input id="fieldIsGreenhouse" type="checkbox">
                         Bu tarla seradır
                     </label>
+
                     <button onclick="addField()">Ekle</button>
                 </div>
 
@@ -158,16 +171,28 @@
 
                 <div class="form-group">
                     <h3>Tarla Güncelle / Sil</h3>
+
                     <select id="updateFieldSelect" onchange="fillFieldFormFromSelection()"></select>
                     <input id="updateFieldName" placeholder="Yeni Tarla Adı">
                     <input id="updateFieldLocation" placeholder="Yeni Konum Açıklaması">
-                    <input id="updateFieldLatitude" type="number" step="any" placeholder="Yeni Enlem">
-                    <input id="updateFieldLongitude" type="number" step="any" placeholder="Yeni Boylam">
-                    <input id="updateFieldArea" type="number" placeholder="Yeni Alan (m²)">
+
+                    <div class="map-picker-block">
+                        <div id="updateFieldMap" class="field-map"></div>
+                        <p id="updateFieldMapSummary" class="helper-text">Seçili tarla alanı haritada gösterilir.
+                            İstersen yeniden çizebilirsin.</p>
+                        <button type="button" onclick="clearUpdateFieldMapSelection()">Seçimi Temizle</button>
+                    </div>
+
+                    <input id="updateFieldLatitude" type="hidden">
+                    <input id="updateFieldLongitude" type="hidden">
+                    <input id="updateFieldArea" type="hidden">
+                    <input id="updateFieldPolygon" type="hidden">
+
                     <label class="checkbox-row">
                         <input id="updateFieldIsGreenhouse" type="checkbox">
                         Bu tarla seradır
                     </label>
+
                     <button onclick="updateField()">Tarlayı Güncelle</button>
                     <button onclick="deleteField()">Tarlayı Sil</button>
                 </div>
@@ -236,6 +261,8 @@
 
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
     <script src="script.js"></script>
 </body>
 

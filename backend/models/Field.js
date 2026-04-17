@@ -8,6 +8,12 @@ const fieldSchema = new mongoose.Schema(
     longitude: { type: Number, required: true },
     areaM2: { type: Number, default: 0 },
     isGreenhouse: { type: Boolean, default: false },
+    polygon: [
+      {
+        lat: { type: Number, required: true },
+        lng: { type: Number, required: true }
+      }
+    ],
   },
   { timestamps: true }
 );
