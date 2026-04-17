@@ -378,6 +378,20 @@ function renderFieldCards() {
                 <span class="field-info-title">Hava Uyarısı</span>
                 <p id="alert-summary-${field._id}">Yükleniyor...</p>
             </div>
+
+            <div class="field-card-actions">
+                <button class="field-card-action-btn primary" onclick="selectFieldFromCard('${field._id}')">
+                    Bu Tarlayı Düzenle
+                </button>
+
+                <button class="field-card-action-btn" onclick="selectCropFieldFromCard('${field._id}')">
+                    Bu Tarlanın Ürününe Git
+                </button>
+
+                <button class="field-card-action-btn" onclick="selectRecommendationFieldFromCard('${field._id}')">
+                    Önerileri Gör
+                </button>
+            </div>
         `;
 
         list.appendChild(card);
@@ -934,6 +948,55 @@ function renderMiniWaterPlan(plan) {
             </div>
         `;
     }).join("");
+}
+
+function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    section.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+function selectFieldFromCard(fieldId) {
+    const select = document.getElementById("updateFieldSelect");
+    if (!select) return;
+
+    select.value = fieldId;
+    fillFieldFormFromSelection();
+    scrollToSection("fieldSection");
+}
+
+function selectCropFieldFromCard(fieldId) {
+    const cropManageSelect = document.getElementById("manageCropFieldSelect");
+    if (cropManageSelect) {
+        cropManageSelect.value = fieldId;
+        fillCropFormFromSelection();
+    }
+
+    const cropAddSelect = document.getElementById("cropFieldSelect");
+    if (cropAddSelect) {
+        cropAddSelect.value = fieldId;
+    }
+
+    scrollToSection("cropSection");
+}
+
+function selectRecommendationFieldFromCard(fieldId) {
+    const irrigationSelect = document.getElementById("irrigationFieldSelect");
+    const alertSelect = document.getElementById("alertFieldSelect");
+
+    if (irrigationSelect) {
+        irrigationSelect.value = fieldId;
+    }
+
+    if (alertSelect) {
+        alertSelect.value = fieldId;
+    }
+
+    scrollToSection("recommendationSection");
 }
 
 window.onload = () => {

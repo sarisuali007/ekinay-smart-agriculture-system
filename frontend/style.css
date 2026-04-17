@@ -841,3 +841,38 @@ li {
         grid-template-columns: 1fr;
     }
 }
+
+.field-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.field-card-action-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #eef6ed;
+    color: #234b2c;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 1px solid #d5e3d1;
+    transition: 0.2s;
+}
+
+.field-card-action-btn:hover {
+    background: #e2f0df;
+    transform: translateY(-1px);
+}
+
+.field-card-action-btn.primary {
+    background: #2f6f3e;
+    color: white;
+    border-color: #2f6f3e;
+}
+
+.field-card-action-btn.primary:hover {
+    background: #255a31;
+}
