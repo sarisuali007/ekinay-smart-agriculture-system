@@ -215,6 +215,82 @@ function getCropByFieldId(fieldId) {
     });
 }
 
+function getFieldIdFromCrop(crop) {
+    if (!crop) return "";
+    return typeof crop.fieldId === "object" ? crop.fieldId._id : crop.fieldId;
+}
+
+function getFieldFromCrop(crop) {
+    if (!crop) return null;
+
+    if (typeof crop.fieldId === "object" && crop.fieldId !== null) {
+        return crop.fieldId;
+    }
+
+    const fieldId = getFieldIdFromCrop(crop);
+    return getFieldById(fieldId) || null;
+}
+
+function selectCropFromCard(fieldId) {
+    const manageSelect = document.getElementById("manageCropFieldSelect");
+    const addSelect = document.getElementById("cropFieldSelect");
+
+    if (manageSelect) {
+        manageSelect.value = fieldId;
+        fillCropFormFromSelection();
+    }
+
+    if (addSelect) {
+        addSelect.value = fieldId;
+    }
+
+    scrollToSection("cropSection");
+}
+
+function renderCropCards() {
+    const list = document.getElementById("cropList");
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    if (!cropsCache.length) {
+        list.innerHTML = `<div class="empty-state">Henüz kayıtlı ürün bulunmuyor. Önce bir tarla seçip ürün ekleyin.</div>`;
+        return;
+    }
+
+    cropsCache.forEach(crop => {
+        const field = getFieldFromCrop(crop);
+        const fieldId = getFieldIdFromCrop(crop);
+        const fieldName = field ? field.name : "Bilinmeyen Tarla";
+        const fieldType = field ? (field.isGreenhouse ? "Sera" : "Açık Alan") : "Tarla bilgisi yok";
+        const location = field ? field.location : "Konum bilgisi yok";
+
+        const card = document.createElement("div");
+        card.className = "crop-card";
+
+        card.innerHTML = `
+            <span class="crop-badge">${crop.name}</span>
+            <h4>${crop.name.charAt(0).toUpperCase() + crop.name.slice(1)}</h4>
+            <p><strong>Bağlı Tarla:</strong> ${fieldName}</p>
+            <p><strong>Tarla Tipi:</strong> ${fieldType}</p>
+            <p><strong>Konum:</strong> ${location}</p>
+            <p><strong>Ekim Tarihi:</strong> ${formatDate(crop.sowingDate)}</p>
+
+            <div class="crop-card-actions">
+                <button class="crop-card-action-btn primary" onclick="selectCropFromCard('${fieldId}')">
+                    Bu Ürünü Düzenle
+                </button>
+
+                <button class="crop-card-action-btn" onclick="selectFieldFromCard('${fieldId}')">
+                    Bu Tarlaya Git
+                </button>
+            </div>
+        `;
+
+        list.appendChild(card);
+    });
+}
+
 function formatDate(dateValue) {
     if (!dateValue) return "Belirtilmedi";
 
@@ -542,6 +618,7 @@ async function getFields() {
         renderAlertTicker();
 
         renderFieldCards();
+        renderCropCards();
         showMessage("Tarlalar getirildi.");
 
     }
@@ -702,6 +779,7 @@ async function getCrops() {
         refreshDashboardStats();
         fillCropFormFromSelection();
         renderFieldCards();
+        renderCropCards();
     }
     catch (error) {
         showMessage(error.message, true);

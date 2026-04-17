@@ -876,3 +876,92 @@ li {
 .field-card-action-btn.primary:hover {
     background: #255a31;
 }
+
+.crop-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+}
+
+.crop-card {
+    background: #f8fbf7;
+    border: 1px solid #dce8d8;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+
+.crop-card h4 {
+    margin: 0 0 10px;
+    font-size: 20px;
+    color: #1f4d2a;
+}
+
+.crop-card p {
+    margin: 6px 0;
+    color: #4b5d4f;
+    line-height: 1.5;
+}
+
+.crop-badge {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: bold;
+    background: #eef6ed;
+    color: #2f6f3e;
+    border: 1px solid #d5e3d1;
+}
+
+.crop-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.crop-card-action-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #eef6ed;
+    color: #234b2c;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 1px solid #d5e3d1;
+    transition: 0.2s;
+}
+
+.crop-card-action-btn:hover {
+    background: #e2f0df;
+    transform: translateY(-1px);
+}
+
+.crop-card-action-btn.primary {
+    background: #2f6f3e;
+    color: white;
+    border-color: #2f6f3e;
+}
+
+.crop-card-action-btn.primary:hover {
+    background: #255a31;
+}
+
+.empty-state {
+    padding: 16px;
+    border-radius: 12px;
+    background: #f5f8f4;
+    border: 1px dashed #cfd8cc;
+    color: #5b6b5f;
+    line-height: 1.6;
+}
+
+@media (max-width: 800px) {
+    .crop-card-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -164,6 +164,12 @@
                 </div>
 
                 <div class="form-group">
+                    <h3>Kayıtlı Ürünler</h3>
+                    <button onclick="getCrops()">Ürünleri Yenile</button>
+                    <div id="cropList" class="crop-card-grid"></div>
+                </div>
+
+                <div class="form-group">
                     <h3>Ürün Güncelle / Sil</h3>
                     <select id="manageCropFieldSelect" onchange="fillCropFormFromSelection()"></select>
                     <p id="cropManageStatus" class="helper-text"></p>
