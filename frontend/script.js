@@ -488,7 +488,7 @@ async function loadFieldCardInsights(fieldId) {
     const irrigationPlanEl = document.getElementById(`irrigation-plan-${fieldId}`);
 
     try {
-        const irrigationResponse = await fetch(API_URL + "/recommendations/irrigation/" + fieldId);
+        const irrigationResponse = await fetch(API_URL + "/recommendations/irrigation/" + fieldId + "?userId=" + currentUserId);
         const irrigationData = await irrigationResponse.json();
 
         if (irrigationResponse.ok) {
@@ -548,7 +548,7 @@ async function loadFieldCardInsights(fieldId) {
 
 
     try {
-        const alertResponse = await fetch(API_URL + "/recommendations/alerts/" + fieldId);
+        const alertResponse = await fetch(API_URL + "/recommendations/alerts/" + fieldId + "?userId=" + currentUserId);
         const alertData = await alertResponse.json();
 
         if (alertResponse.ok) {
@@ -613,6 +613,7 @@ async function addField() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+                userId: currentUserId,
                 name,
                 location,
                 latitude,
@@ -639,7 +640,7 @@ async function addField() {
 
 async function getFields() {
     try {
-        const response = await fetch(API_URL + "/fields");
+        const response = await fetch(API_URL + "/fields?userId=" + currentUserId);
         const data = await response.json();
 
         if (!response.ok) {
@@ -714,6 +715,7 @@ async function updateField() {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+                userId: currentUserId,
                 name,
                 location,
                 latitude,
@@ -743,7 +745,7 @@ async function deleteField() {
     try {
         const fieldId = document.getElementById("updateFieldSelect").value;
 
-        const response = await fetch(API_URL + "/fields/" + fieldId, {
+        const response = await fetch(API_URL + "/fields/" + fieldId + "?userId=" + currentUserId, {
             method: "DELETE"
         });
 
@@ -796,7 +798,7 @@ async function addCrop() {
         const response = await fetch(API_URL + "/crops", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, fieldId, sowingDate })
+            body: JSON.stringify({ userId: currentUserId, name, fieldId, sowingDate })
         });
 
         const data = await response.json();
@@ -816,7 +818,7 @@ async function addCrop() {
 
 async function getCrops() {
     try {
-        const response = await fetch(API_URL + "/crops");
+        const response = await fetch(API_URL + "/crops?userId=" + currentUserId);
         const data = await response.json();
 
         if (!response.ok) {
@@ -853,7 +855,7 @@ async function updateCrop() {
         const response = await fetch(API_URL + "/crops/" + cropId, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, fieldId, sowingDate })
+            body: JSON.stringify({ userId: currentUserId, name, fieldId, sowingDate })
         });
 
         const data = await response.json();
@@ -878,7 +880,7 @@ async function deleteCrop() {
             throw new Error("Bu tarlaya ait ürün bulunamadı.");
         }
 
-        const response = await fetch(API_URL + "/crops/" + crop._id, {
+        const response = await fetch(API_URL + "/crops/" + crop._id + "?userId=" + currentUserId, {
             method: "DELETE"
         });
 

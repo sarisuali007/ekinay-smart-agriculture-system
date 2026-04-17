@@ -168,13 +168,18 @@ function buildAlertMessage(field, crop, weather) {
 router.get("/irrigation/:fieldId", async (req, res) => {
   try {
     const { fieldId } = req.params;
+    const { userId } = req.query;
 
-    const field = await Field.findById(fieldId);
+    if (!userId) {
+      return res.status(400).json({ message: "Kullanıcı bilgisi zorunludur." });
+    }
+
+    const field = await Field.findOne({ _id: fieldId, userId });
     if (!field) {
       return res.status(404).json({ message: "Tarla bulunamadı." });
     }
 
-    const crop = await Crop.findOne({ fieldId });
+    const crop = await Crop.findOne({ fieldId, userId });
     if (!crop) {
       return res.status(404).json({ message: "Bu tarlaya ait ürün bulunamadı." });
     }
@@ -202,13 +207,18 @@ router.get("/irrigation/:fieldId", async (req, res) => {
 router.get("/alerts/:fieldId", async (req, res) => {
   try {
     const { fieldId } = req.params;
+    const { userId } = req.query;
 
-    const field = await Field.findById(fieldId);
+    if (!userId) {
+      return res.status(400).json({ message: "Kullanıcı bilgisi zorunludur." });
+    }
+
+    const field = await Field.findOne({ _id: fieldId, userId });
     if (!field) {
       return res.status(404).json({ message: "Tarla bulunamadı." });
     }
 
-    const crop = await Crop.findOne({ fieldId });
+    const crop = await Crop.findOne({ fieldId, userId });
     if (!crop) {
       return res.status(404).json({ message: "Bu tarlaya ait ürün bulunamadı." });
     }

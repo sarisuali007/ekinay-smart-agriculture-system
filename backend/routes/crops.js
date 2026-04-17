@@ -5,39 +5,45 @@ const Field = require("../models/Field");
 const ALLOWED_CROPS = ["domates", "biber", "salatalık", "fasulye"];
 
 router.get("/", async (req, res) => {
-    try {
-        const crops = await Crop.find().populate("fieldId").sort({ createdAt: -1 });
-        res.json(crops);
-    } catch (error) {
-        res.status(500).json({ message: "Ürünler getirilemedi." });
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ message: "Kullanıcı bilgisi zorunludur." });
     }
+
+    const crops = await Crop.find({ userId }).populate("fieldId").sort({ createdAt: -1 });
+    res.json(crops);
+  } catch (error) {
+    res.status(500).json({ message: "Ürünler getirilemedi." });
+  }
 });
 
 router.post("/", async (req, res) => {
   try {
-    const { name, fieldId, sowingDate } = req.body;
+    const { userId, name, fieldId, sowingDate } = req.body;
 
-    if (!name || !fieldId || !sowingDate) {
-      return res.status(400).json({ message: "Ürün adı, tarla ID ve ekim tarihi zorunludur." });
+    if (!userId || !name || !fieldId || !sowingDate) {
+      return res.status(400).json({ message: "Kullanıcı ID, ürün adı, tarla ID ve ekim tarihi zorunludur." });
     }
 
     if (!ALLOWED_CROPS.includes(name)) {
       return res.status(400).json({ message: `Geçersiz ürün adı. İzin verilen ürünler: ${ALLOWED_CROPS.join(", ")}` });
     }
 
-    const fieldExists = await Field.findById(fieldId);
+    const fieldExists = await Field.findOne({ _id: fieldId, userId });
     if (!fieldExists) {
       return res.status(404).json({ message: "İlgili tarla bulunamadı." });
     }
 
-    const existingCrop = await Crop.findOne({ fieldId });
+    const existingCrop = await Crop.findOne({ fieldId, userId });
     if (existingCrop) {
       return res.status(400).json({
         message: "Bu tarlada zaten bir ürün kayıtlı. Önce mevcut ürünü güncelleyin veya silin."
       });
     }
 
-    const crop = await Crop.create({ name, fieldId, sowingDate });
+    const crop = await Crop.create({ userId, name, fieldId, sowingDate });
 
     res.status(201).json({
       message: "Yeni ürün bilgisi eklendi.",
@@ -51,14 +57,14 @@ router.post("/", async (req, res) => {
 router.put("/:cropId", async (req, res) => {
   try {
     const { cropId } = req.params;
-    const { name, fieldId, sowingDate } = req.body;
+    const { userId, name, fieldId, sowingDate } = req.body;
 
-    if(!ALLOWED_CROPS.includes(name)) {
+    if (!ALLOWED_CROPS.includes(name)) {
       return res.status(400).json({ message: `Geçersiz ürün adı. İzin verilen ürünler: ${ALLOWED_CROPS.join(", ")}` });
     }
 
-    const updatedCrop = await Crop.findByIdAndUpdate(
-      cropId,
+    const updatedCrop = await Crop.findOneAndUpdate(
+      { _id: cropId, userId },
       { name, fieldId, sowingDate },
       { new: true, runValidators: true }
     );
@@ -79,8 +85,9 @@ router.put("/:cropId", async (req, res) => {
 router.delete("/:cropId", async (req, res) => {
   try {
     const { cropId } = req.params;
+    const { userId } = req.query;
 
-    const deletedCrop = await Crop.findByIdAndDelete(cropId);
+    const deletedCrop = await Crop.findOneAndDelete({ _id: cropId, userId });
 
     if (!deletedCrop) {
       return res.status(404).json({ message: "Ürün bulunamadı." });
