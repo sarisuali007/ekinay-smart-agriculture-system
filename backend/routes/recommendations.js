@@ -125,13 +125,13 @@ async function fetchWeather(field) {
 }
 
 function buildIrrigationMessage(field, crop, weather) {
-  const cropRule = CROP_RULES[crop.name];
+  const profile = CROP_PROFILES[crop.name];
   const daysFromSowing = getDaysFromSowing(crop.sowingDate);
 
   let needScore = 0;
   let reasons = [];
 
-  if (cropRule.waterNeed === "yüksek") {
+  if (profile.waterNeed === "yüksek") {
     needScore += 2;
     reasons.push("ürünün su ihtiyacı yüksek");
   } else {
@@ -149,7 +149,7 @@ function buildIrrigationMessage(field, crop, weather) {
     reasons.push("yağış yeterli görünüyor");
   }
 
-  if (weather.maxTemp > cropRule.idealTempMax) {
+  if (weather.maxTemp > profile.idealTempMax) {
     needScore += 2;
     reasons.push("sıcaklık yüksek");
   }
@@ -182,14 +182,14 @@ function buildIrrigationMessage(field, crop, weather) {
 }
 
 function buildAlertMessage(field, crop, weather) {
-  const cropRule = CROP_RULES[crop.name];
+  const profile = CROP_PROFILES[crop.name];
   let alerts = [];
 
   if (weather.minTemp < 5) {
     alerts.push("don / aşırı soğuk riski");
   }
 
-  if (weather.maxTemp > cropRule.idealTempMax + 4) {
+  if (weather.maxTemp > profile.idealTempMax + 4) {
     alerts.push("yüksek sıcaklık stresi");
   }
 
