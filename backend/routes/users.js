@@ -62,4 +62,28 @@ router.get("/:userId", async (req, res) => {
   }
 });
 
+router.put("/:userId/push-token", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { expoPushToken, pushAlertsEnabled } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        expoPushToken: expoPushToken || "",
+        pushAlertsEnabled: pushAlertsEnabled !== false,
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Kullanıcı bulunamadı." });
+    }
+
+    res.json({ message: "Push token kaydedildi.", user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: "Push token kaydedilemedi." });
+  }
+});
+
 module.exports = router;

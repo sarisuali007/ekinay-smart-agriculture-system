@@ -1,3 +1,4 @@
+import { registerAndSyncPushToken } from "../lib/push";
 import { useEffect, useState } from "react";
 import {
   View,
@@ -148,6 +149,7 @@ export default function DashboardScreen() {
       );
 
       setFieldCards(cards);
+      await registerAndSyncPushToken();
     } catch (error) {
       Alert.alert("Hata", error.message);
     } finally {

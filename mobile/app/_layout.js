@@ -1,3 +1,5 @@
+import { Stack, router } from "expo-router";
+import { useEffect } from "react";
 import * as Notifications from "expo-notifications";
 import { Stack } from "expo-router";
 
@@ -11,6 +13,24 @@ Notifications.setNotificationHandler({
 });
 
 export default function RootLayout() {
+  useEffect(() => {
+    const response = Notifications.getLastNotificationResponse();
+
+    if (response?.notification?.request?.content?.data?.url) {
+      router.push(response.notification.request.content.data.url);
+    }
+
+    const subscription =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        const url = response?.notification?.request?.content?.data?.url;
+        if (typeof url === "string") {
+          router.push(url);
+        }
+      });
+
+    return () => subscription.remove();
+  }, []);
+
   return (
     <Stack screenOptions={{ headerTitleAlign: "center" }}>
       <Stack.Screen name="index" options={{ title: "Giriş Yap" }} />
