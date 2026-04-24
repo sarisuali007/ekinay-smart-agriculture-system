@@ -11,7 +11,14 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { apiRequest } from "../lib/api";
 import { getUserId } from "../lib/auth";
-import { addSeasonPlanToCalendar } from "../lib/calendar";
+import {
+  addSeasonPlanToCalendar,
+  clearEkinayCalendar,
+} from "../lib/calendar";
+import {
+  scheduleSeasonNotifications,
+  clearSeasonNotificationsForField,
+} from "../lib/notifications";
 
 const CROP_PROFILES = {
   domates: { daysToHarvest: 70 },
@@ -31,6 +38,29 @@ function formatDate(dateValue) {
     month: "2-digit",
     year: "numeric",
   }).format(date);
+}
+
+function groupSeasonCalendarByMonth(calendar) {
+  const grouped = {};
+
+  calendar.forEach((item) => {
+    const date = new Date(item.date);
+    const key = `${date.getFullYear()}-${date.getMonth()}`;
+
+    if (!grouped[key]) {
+      grouped[key] = [];
+    }
+
+    grouped[key].push(item);
+  });
+
+  return grouped;
+}
+
+function getTodayDateOnly() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
 }
 
 function estimateHarvestDate(sowingDate, cropName) {
@@ -197,6 +227,67 @@ export default function FieldDetailScreen() {
     }
   }
 
+  async function handleClearCalendar() {
+    try {
+      const removed = await clearEkinayCalendar();
+
+      if (removed) {
+        Alert.alert("Başarılı", "Ekinay Takvimi ve tüm etkinlikleri silindi.");
+      } else {
+        Alert.alert("Bilgi", "Silinecek Ekinay Takvimi bulunamadı.");
+      }
+    } catch (error) {
+      Alert.alert("Hata", error.message);
+    }
+  }
+
+  async function handleScheduleAlarms() {
+    try {
+      if (!field) {
+        throw new Error("Tarla bilgisi bulunamadı.");
+      }
+
+      if (!crop) {
+        throw new Error("Önce bu tarlaya ürün eklemelisin.");
+      }
+
+      if (!seasonCalendar.length) {
+        throw new Error("Alarm kurulacak takvim verisi bulunamadı.");
+      }
+
+      const createdCount = await scheduleSeasonNotifications({
+        fieldId: field._id,
+        fieldName: field.name,
+        cropName: crop.name,
+        seasonCalendar,
+      });
+
+      Alert.alert(
+        "Başarılı",
+        `${createdCount} adet alarm planlandı.`
+      );
+    } catch (error) {
+      Alert.alert("Hata", error.message);
+    }
+  }
+
+  async function handleClearAlarms() {
+    try {
+      if (!field?._id) {
+        throw new Error("Tarla bilgisi bulunamadı.");
+      }
+
+      const removedCount = await clearSeasonNotificationsForField(field._id);
+
+      Alert.alert(
+        "Başarılı",
+        `${removedCount} adet alarm silindi.`
+      );
+    } catch (error) {
+      Alert.alert("Hata", error.message);
+    }
+  }
+
   function getSeasonStatusStyle(irrigation) {
     if (irrigation === "Sulama gerekiyor") return styles.needWater;
     if (irrigation === "Kontrollü sulama") return styles.checkWater;
@@ -258,16 +349,58 @@ export default function FieldDetailScreen() {
           </Text>
         </View>
       ) : (
-        seasonCalendar.map((item, index) => (
-          <View
-            key={`${item.date}-${index}`}
-            style={[styles.calendarItem, getSeasonStatusStyle(item.irrigation)]}
-          >
-            <Text style={styles.calendarDate}>{formatDate(item.date)}</Text>
-            <Text style={styles.calendarStage}>{item.stage}</Text>
-            <Text style={styles.calendarStatus}>{item.irrigation}</Text>
-          </View>
-        ))
+        <View style={styles.monthsWrap}>
+          {Object.entries(groupSeasonCalendarByMonth(seasonCalendar)).map(
+            ([monthKey, items]) => {
+              const firstDate = new Date(items[0].date);
+              const monthTitle = firstDate.toLocaleDateString("tr-TR", {
+                month: "long",
+                year: "numeric",
+              });
+
+              const today = getTodayDateOnly();
+
+              return (
+                <View key={monthKey} style={styles.monthCard}>
+                  <Text style={styles.monthTitle}>{monthTitle}</Text>
+
+                  <View style={styles.mobileCalendarGrid}>
+                    {items.map((item, index) => {
+                      const itemDate = new Date(item.date);
+                      itemDate.setHours(0, 0, 0, 0);
+
+                      const isToday = itemDate.getTime() === today.getTime();
+
+                      return (
+                        <View
+                          key={`${item.date}-${index}`}
+                          style={[
+                            styles.mobileCalendarDay,
+                            getSeasonStatusStyle(item.irrigation),
+                            isToday && styles.todayBox,
+                          ]}
+                        >
+                          <Text style={styles.mobileCalendarDayNum}>
+                            {new Date(item.date).getDate()}
+                          </Text>
+                          <Text style={styles.mobileCalendarStage}>
+                            {item.stage}
+                          </Text>
+                          <Text style={styles.mobileCalendarStatus}>
+                            {item.irrigation}
+                          </Text>
+                          {isToday ? (
+                            <Text style={styles.todayLabel}>Bugün</Text>
+                          ) : null}
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+              );
+            }
+          )}
+        </View>
       )}
 
       <Pressable
@@ -288,6 +421,18 @@ export default function FieldDetailScreen() {
 
       <Pressable style={styles.secondaryButton} onPress={handleExportCalendar}>
         <Text style={styles.secondaryButtonText}>Takvime Aktar</Text>
+      </Pressable>
+
+      <Pressable style={styles.secondaryButton} onPress={handleClearCalendar}>
+        <Text style={styles.secondaryButtonText}>Takvimden Tümünü Sil</Text>
+      </Pressable>
+
+      <Pressable style={styles.secondaryButton} onPress={handleScheduleAlarms}>
+        <Text style={styles.secondaryButtonText}>Alarm Kur</Text>
+      </Pressable>
+
+      <Pressable style={styles.secondaryButton} onPress={handleClearAlarms}>
+        <Text style={styles.secondaryButtonText}>Alarmları Temizle</Text>
       </Pressable>
 
       <Pressable style={styles.primaryButton} onPress={loadFieldDetail}>
@@ -438,5 +583,62 @@ const styles = StyleSheet.create({
     color: "#234b2c",
     textAlign: "center",
     fontWeight: "700",
+  },
+
+  monthsWrap: {
+    marginBottom: 12,
+  },
+  monthCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "#e5ece1",
+    marginBottom: 14,
+  },
+  monthTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1f4d2a",
+    marginBottom: 12,
+    textTransform: "capitalize",
+  },
+  mobileCalendarGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  mobileCalendarDay: {
+    width: "31%",
+    minHeight: 110,
+    borderRadius: 12,
+    padding: 8,
+    borderWidth: 1,
+  },
+  mobileCalendarDayNum: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#1f4d2a",
+    marginBottom: 4,
+  },
+  mobileCalendarStage: {
+    fontSize: 11,
+    color: "#5b6b5f",
+    marginBottom: 6,
+  },
+  mobileCalendarStatus: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#234b2c",
+  },
+  todayBox: {
+    outlineWidth: 2,
+    outlineColor: "#2f6f3e",
+  },
+  todayLabel: {
+    marginTop: 6,
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#2f6f3e",
   },
 });
