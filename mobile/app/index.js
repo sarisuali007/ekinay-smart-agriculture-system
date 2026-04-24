@@ -25,7 +25,7 @@ export default function LoginScreen() {
     }
 
     checkSession();
-  }, []);
+  }, [router]);
 
   async function handleLogin() {
     try {
