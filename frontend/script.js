@@ -1090,34 +1090,34 @@ function updateAlertTickerItem(fieldId, message) {
 function buildMiniWaterPlan(message) {
     const text = (message || "").toLowerCase();
 
-    if (text.includes("bugün sulama önerilir")) {
+    if (text.includes("bugün sulama yapılması önerilir")) {
         return [
-            { day: "Bugün", status: "Sulama önerilir" },
-            { day: "Yarın", status: "Kontrol et" },
-            { day: "2 Gün Sonra", status: "Duruma göre tekrar değerlendir" }
+            { day: "Bugün", status: "Sulama yap" },
+            { day: "Yarın", status: "Toprak nemini kontrol et" },
+            { day: "2 Gün Sonra", status: "Gerekirse tekrar değerlendir" }
         ];
     }
 
-    if (text.includes("kontrollü sulama önerilir")) {
+    if (text.includes("kontrollü ve kısa süreli sulama planı düşünülmelidir")) {
         return [
-            { day: "Bugün", status: "Kontrollü sulama" },
-            { day: "Yarın", status: "Nem durumunu izle" },
-            { day: "2 Gün Sonra", status: "Gerekirse tekrar sulama" }
+            { day: "Bugün", status: "Kısa sulama uygula" },
+            { day: "Yarın", status: "Bitkiyi gözlemle" },
+            { day: "2 Gün Sonra", status: "Nem durumuna göre karar ver" }
         ];
     }
 
-    if (text.includes("ek sulama gerekmeyebilir")) {
+    if (text.includes("bugün ek sulama ihtiyacı düşük görünüyor")) {
         return [
             { day: "Bugün", status: "Sulama gerekmiyor" },
-            { day: "Yarın", status: "Takip et" },
-            { day: "2 Gün Sonra", status: "Toprağı kontrol et" }
+            { day: "Yarın", status: "Durumu izle" },
+            { day: "2 Gün Sonra", status: "Toprağı tekrar kontrol et" }
         ];
     }
 
     return [
-        { day: "Bugün", status: "Bilgi bekleniyor" },
-        { day: "Yarın", status: "Bilgi bekleniyor" },
-        { day: "2 Gün Sonra", status: "Bilgi bekleniyor" }
+        { day: "Bugün", status: "Plan oluşturulamadı" },
+        { day: "Yarın", status: "Veri güncelleniyor" },
+        { day: "2 Gün Sonra", status: "Tekrar kontrol et" }
     ];
 }
 
