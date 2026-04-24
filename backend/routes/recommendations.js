@@ -4,26 +4,65 @@ const router = express.Router();
 const Field = require("../models/Field");
 const Crop = require("../models/Crop");
 
-const CROP_RULES = {
+const CROP_PROFILES = {
   domates: {
+    displayName: "Domates",
+    daysToHarvest: 70,
     idealTempMin: 18,
     idealTempMax: 30,
-    waterNeed: "yüksek"
+    waterNeed: "high",
+    stages: [
+      { name: "Çimlenme ve Köklenme", start: 0, end: 10, irrigation: "medium" },
+      { name: "Vejetatif Gelişim", start: 11, end: 25, irrigation: "medium" },
+      { name: "Çiçeklenme", start: 26, end: 40, irrigation: "high" },
+      { name: "Meyve Bağlama", start: 41, end: 55, irrigation: "high" },
+      { name: "Olgunlaşma", start: 56, end: 70, irrigation: "medium" }
+    ]
   },
+
   biber: {
+    displayName: "Biber",
+    daysToHarvest: 78,
     idealTempMin: 18,
     idealTempMax: 30,
-    waterNeed: "orta"
+    waterNeed: "medium",
+    stages: [
+      { name: "Çimlenme ve Köklenme", start: 0, end: 12, irrigation: "medium" },
+      { name: "Vejetatif Gelişim", start: 13, end: 30, irrigation: "medium" },
+      { name: "Çiçeklenme", start: 31, end: 48, irrigation: "high" },
+      { name: "Meyve Gelişimi", start: 49, end: 65, irrigation: "high" },
+      { name: "Olgunlaşma", start: 66, end: 78, irrigation: "medium" }
+    ]
   },
+
   salatalık: {
+    displayName: "Salatalık",
+    daysToHarvest: 55,
     idealTempMin: 18,
     idealTempMax: 32,
-    waterNeed: "yüksek"
+    waterNeed: "high",
+    stages: [
+      { name: "Çimlenme", start: 0, end: 7, irrigation: "medium" },
+      { name: "Hızlı Vejetatif Gelişim", start: 8, end: 20, irrigation: "high" },
+      { name: "Çiçeklenme", start: 21, end: 32, irrigation: "high" },
+      { name: "Meyve Dönemi", start: 33, end: 45, irrigation: "high" },
+      { name: "Hasat Yaklaşımı", start: 46, end: 55, irrigation: "medium" }
+    ]
   },
+
   fasulye: {
+    displayName: "Fasulye",
+    daysToHarvest: 55,
     idealTempMin: 16,
     idealTempMax: 28,
-    waterNeed: "orta"
+    waterNeed: "medium",
+    stages: [
+      { name: "Çimlenme", start: 0, end: 7, irrigation: "medium" },
+      { name: "Vejetatif Gelişim", start: 8, end: 20, irrigation: "medium" },
+      { name: "Çiçeklenme", start: 21, end: 35, irrigation: "high" },
+      { name: "Bakla Bağlama", start: 36, end: 47, irrigation: "high" },
+      { name: "Olgunlaşma", start: 48, end: 55, irrigation: "low" }
+    ]
   }
 };
 
@@ -55,7 +94,7 @@ async function fetchWeather(field) {
     `&longitude=${field.longitude}` +
     `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m` +
     `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max` +
-    `&timezone=auto&forecast_days=1`;
+    `&timezone=auto&forecast_days=16`;
 
   const response = await fetch(url);
 
@@ -70,10 +109,18 @@ async function fetchWeather(field) {
     currentHumidity: data.current.relative_humidity_2m,
     currentPrecipitation: data.current.precipitation,
     currentWind: data.current.wind_speed_10m,
-    maxTemp: data.daily.temperature_2m_max[0],
-    minTemp: data.daily.temperature_2m_min[0],
-    precipitationSum: data.daily.precipitation_sum[0],
-    maxWind: data.daily.wind_speed_10m_max[0]
+    maxTemp: data.daily.temperature_2m_max?.[0],
+    minTemp: data.daily.temperature_2m_min?.[0],
+    precipitationSum: data.daily.precipitation_sum?.[0],
+    maxWind: data.daily.wind_speed_10m_max?.[0],
+    dailySeries: data.daily.time.map((day, index) => ({
+      date: day,
+      maxTemp: data.daily.temperature_2m_max?.[index],
+      minTemp: data.daily.temperature_2m_min?.[index],
+      precipitationSum: data.daily.precipitation_sum?.[index],
+      maxWind: data.daily.wind_speed_10m_max?.[index],
+      currentHumidity: data.current.relative_humidity_2m
+    }))
   };
 }
 
@@ -227,6 +274,7 @@ router.get("/alerts/:fieldId", async (req, res) => {
     const weather = adjustForGreenhouse(field, rawWeather);
 
     const message = buildAlertMessage(field, crop, weather);
+    const agronomy = buildSeasonCalendar(field, crop, weather);
 
     res.json({
       message,
@@ -234,7 +282,8 @@ router.get("/alerts/:fieldId", async (req, res) => {
         field,
         crop,
         weather
-      }
+      },
+      agronomy
     });
   } catch (error) {
     res.status(500).json({
@@ -242,5 +291,95 @@ router.get("/alerts/:fieldId", async (req, res) => {
     });
   }
 });
+
+function estimateHarvestDate(sowingDate, cropName) {
+  const profile = CROP_PROFILES[cropName];
+  const base = new Date(sowingDate);
+  const harvest = new Date(base);
+  harvest.setDate(harvest.getDate() + profile.daysToHarvest);
+  return harvest;
+}
+
+function getGrowthDay(sowingDate) {
+  const sow = new Date(sowingDate);
+  const now = new Date();
+  return Math.max(0, Math.floor((now - sow) / (1000 * 60 * 60 * 24)));
+}
+
+function getStageForDay(cropName, dayIndex) {
+  const profile = CROP_PROFILES[cropName];
+  return profile.stages.find(stage => dayIndex >= stage.start && dayIndex <= stage.end) || profile.stages.at(-1);
+}
+
+function toISODateOnly(date) {
+  return new Date(date).toISOString().split("T")[0];
+}
+
+function decideDailyIrrigation(profile, stage, field, weatherForDay, relativeDay) {
+  let score = 0;
+
+  if (stage.irrigation === "high") score += 2;
+  if (stage.irrigation === "medium") score += 1;
+
+  if (field.isGreenhouse) score += 1;
+
+  if (weatherForDay) {
+    if ((weatherForDay.maxTemp ?? 0) > profile.idealTempMax) score += 2;
+    if ((weatherForDay.minTemp ?? 0) < profile.idealTempMin - 3) score -= 1;
+    if ((weatherForDay.precipitationSum ?? 0) < 2) score += 1;
+    if ((weatherForDay.precipitationSum ?? 0) > 8) score -= 2;
+    if ((weatherForDay.currentHumidity ?? 60) < 45) score += 1;
+  } else {
+    if (stage.irrigation === "high") score += 1;
+  }
+
+  if (relativeDay <= 16) {
+    // kısa vadede daha dinamik davran
+    if (score >= 4) return "Sulama gerekiyor";
+    if (score >= 2) return "Kontrollü sulama";
+    return "Sulama gerekmiyor";
+  }
+
+  // 16 günden sonrası kural bazlı sezon planı
+  if (score >= 3) return "Sulama gerekiyor";
+  if (score >= 1) return "Kontrollü sulama";
+  return "Sulama gerekmiyor";
+}
+
+function buildSeasonCalendar(field, crop, weather) {
+  const profile = CROP_PROFILES[crop.name];
+  const sowingDate = new Date(crop.sowingDate);
+  const harvestDate = estimateHarvestDate(crop.sowingDate, crop.name);
+
+  const calendar = [];
+  const totalDays = profile.daysToHarvest;
+
+  for (let i = 0; i <= totalDays; i++) {
+    const currentDate = new Date(sowingDate);
+    currentDate.setDate(currentDate.getDate() + i);
+
+    const stage = getStageForDay(crop.name, i);
+
+    let weatherForDay = null;
+    if (weather?.dailySeries && i < weather.dailySeries.length) {
+      weatherForDay = weather.dailySeries[i];
+    }
+
+    const irrigation = decideDailyIrrigation(profile, stage, field, weatherForDay, i);
+
+    calendar.push({
+      dayIndex: i,
+      date: toISODateOnly(currentDate),
+      stage: stage.name,
+      irrigation
+    });
+  }
+
+  return {
+    harvestDate: toISODateOnly(harvestDate),
+    totalDays,
+    seasonCalendar: calendar
+  };
+}
 
 module.exports = router;

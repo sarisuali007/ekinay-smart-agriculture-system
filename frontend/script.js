@@ -483,45 +483,37 @@ function renderFieldCards() {
 
             <p><strong>Ürün:</strong> ${cropName}</p>
             <p><strong>Ekim Tarihi:</strong> ${sowingDate}</p>
+            <p><strong>Tahmini Hasat:</strong> <span id="harvest-date-${field._id}">Hesaplanıyor...</span></p>
 
             <div class="field-card-divider"></div>
 
             <div id="irrigation-box-${field._id}" class="field-info-box severity-neutral">
                 <span class="field-info-title">Sulama Özeti</span>
-                <p id="irrigation-summary-${field._id}">Yükleniyor...</p>
+                <p id="irrigation-summary-${field._id}">Sulama analizi hazırlanıyor...</p>
 
                 <div id="irrigation-plan-${field._id}" class="mini-plan-grid">
-                    <div class="mini-plan-item">
-                        <span class="mini-plan-day">Bugün</span>
-                        <span class="mini-plan-status">Yükleniyor...</span>
-                    </div>
-                    <div class="mini-plan-item">
-                        <span class="mini-plan-day">Yarın</span>
-                        <span class="mini-plan-status">Yükleniyor...</span>
-                    </div>
-                    <div class="mini-plan-item">
-                        <span class="mini-plan-day">2 Gün Sonra</span>
-                        <span class="mini-plan-status">Yükleniyor...</span>
-                    </div>
+                    <div class="mini-plan-item"><span class="mini-plan-day">Bugün</span><span class="mini-plan-status">Yükleniyor...</span></div>
+                    <div class="mini-plan-item"><span class="mini-plan-day">Yarın</span><span class="mini-plan-status">Yükleniyor...</span></div>
+                    <div class="mini-plan-item"><span class="mini-plan-day">2 Gün Sonra</span><span class="mini-plan-status">Yükleniyor...</span></div>
                 </div>
             </div>
 
             <div id="alert-box-${field._id}" class="field-info-box severity-neutral">
                 <span class="field-info-title">Hava Uyarısı</span>
-                <p id="alert-summary-${field._id}">Yükleniyor...</p>
+                <p id="alert-summary-${field._id}">Hava analizi hazırlanıyor...</p>
+            </div>
+
+            <div class="field-card-divider"></div>
+
+            <div class="season-calendar-wrap">
+                <span class="field-info-title">Ekimden Hasada Günlük Plan</span>
+                <div id="season-calendar-${field._id}" class="season-calendar-list">Takvim hazırlanıyor...</div>
             </div>
 
             <div class="field-card-actions">
-                <button class="field-card-action-btn primary" onclick="window.location.href='field-form.html?id=${field._id}'">
-                    Bu Tarlayı Düzenle
-                </button>
-
-                <button class="field-card-action-btn" onclick="window.location.href='crop-form.html?fieldId=${field._id}'">
-                    Bu Tarlanın Ürününe Git
-                </button>
-            </div>
-
-            </div>
+                <button class="field-card-action-btn primary" onclick="window.location.href='field-form.html?id=${field._id}'">Bu Tarlayı Düzenle</button>
+                <button class="field-card-action-btn" onclick="window.location.href='crop-form.html?fieldId=${field._id}'">${crop ? "Ürünü Düzenle" : "Ürün Ekle"}</button>
+            </div>  
         `;
 
         list.appendChild(card);
@@ -531,6 +523,8 @@ function renderFieldCards() {
 }
 
 async function loadFieldCardInsights(fieldId) {
+    const harvestEl = document.getElementById(`harvest-date-${fieldId}`);
+    const seasonCalendarEl = document.getElementById(`season-calendar-${fieldId}`);
     const irrigationEl = document.getElementById(`irrigation-summary-${fieldId}`);
     const alertEl = document.getElementById(`alert-summary-${fieldId}`);
     const irrigationBox = document.getElementById(`irrigation-box-${fieldId}`);
@@ -554,6 +548,14 @@ async function loadFieldCardInsights(fieldId) {
                 irrigationPlanEl.innerHTML = renderMiniWaterPlan(plan);
             }
 
+            if (harvestEl && irrigationData.agronomy?.harvestDate) {
+                harvestEl.textContent = irrigationData.agronomy.harvestDate;
+            }
+
+            if (seasonCalendarEl && irrigationData.agronomy?.seasonCalendar) {
+                seasonCalendarEl.innerHTML = renderSeasonCalendar(irrigationData.agronomy.seasonCalendar);
+            }
+
             applySeverityToBox(irrigationBox, severity);
 
             if (!fieldInsightsCache[fieldId]) fieldInsightsCache[fieldId] = {};
@@ -571,6 +573,9 @@ async function loadFieldCardInsights(fieldId) {
             if (irrigationPlanEl) {
                 irrigationPlanEl.innerHTML = renderMiniWaterPlan(buildMiniWaterPlan(""));
             }
+
+            if (harvestEl) harvestEl.textContent = "-";
+            if (seasonCalendarEl) seasonCalendarEl.innerHTML = `<div class="empty-state">Takvim bilgisi alınamadı.</div>`;
 
             applySeverityToBox(irrigationBox, "neutral");
 
@@ -1772,8 +1777,21 @@ async function deleteCropFromForm() {
 function toggleRegisterPanel() {
     const panel = document.getElementById("registerPanel");
     if (!panel) return;
-
     panel.classList.toggle("hidden");
+}
+
+function renderSeasonCalendar(calendar) {
+    if (!calendar || !calendar.length) {
+        return `<div class="empty-state">Takvim bilgisi oluşturulamadı.</div>`;
+    }
+
+    return calendar.map(item => `
+        <div class="season-day-item ${item.irrigation === "Sulama gerekiyor" ? "need-water" : item.irrigation === "Kontrollü sulama" ? "check-water" : "no-water"}">
+            <div class="season-day-date">${item.date}</div>
+            <div class="season-day-stage">${item.stage}</div>
+            <div class="season-day-irrigation">${item.irrigation}</div>
+        </div>
+    `).join("");
 }
 
 window.onload = async () => {
