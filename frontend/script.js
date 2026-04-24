@@ -257,8 +257,25 @@ function renderCropCards() {
 
     list.innerHTML = "";
 
+    const addCard = document.createElement("div");
+    addCard.className = "crop-card add-card";
+    addCard.innerHTML = `
+        <div class="add-card-inner">
+            <span class="add-card-plus">+</span>
+            <h4>Yeni Ürün Ekle</h4>
+            <p>Yeni bir ürün kaydı oluşturmak için buraya tıklayın.</p>
+        </div>
+    `;
+    addCard.onclick = () => {
+        window.location.href = "crop-form.html";
+    };
+    list.appendChild(addCard);
+
     if (!cropsCache.length) {
-        list.innerHTML = `<div class="empty-state">Henüz kayıtlı ürün bulunmuyor. Önce bir tarla seçip ürün ekleyin.</div>`;
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "Henüz kayıtlı ürün bulunmuyor. Önce bir tarla seçip ürün ekleyin.";
+        list.appendChild(empty);
         return;
     }
 
@@ -281,11 +298,11 @@ function renderCropCards() {
             <p><strong>Ekim Tarihi:</strong> ${formatDate(crop.sowingDate)}</p>
 
             <div class="crop-card-actions">
-                <button class="crop-card-action-btn primary" onclick="selectCropFromCard('${fieldId}')">
+                <button class="crop-card-action-btn primary" onclick="window.location.href='crop-form.html?fieldId=${fieldId}'">
                     Bu Ürünü Düzenle
                 </button>
 
-                <button class="crop-card-action-btn" onclick="selectFieldFromCard('${fieldId}')">
+                <button class="crop-card-action-btn" onclick="window.location.href='field-form.html?id=${fieldId}'">
                     Bu Tarlaya Git
                 </button>
             </div>
@@ -407,6 +424,24 @@ function renderFieldCards() {
 
     list.innerHTML = "";
 
+    const addCard = document.createElement("div");
+    addCard.className = "field-card add-card";
+    addCard.innerHTML = `
+
+    <div class="add-card-inner">
+        <span class="add-card-plus">+</span>
+        <h4>Yeni Tarla Ekle</h4>
+        <p>Yeni bir tarla oluşturmak için buraya tıklayın.</p>
+    </div>
+
+    `;
+
+    addCard.onclick = () => {
+        window.location.href = "field-form.html";
+    };
+
+    list.appendChild(addCard);
+
     fieldsCache.forEach(field => {
         const crop = getCropByFieldId(field._id);
 
@@ -460,17 +495,15 @@ function renderFieldCards() {
             </div>
 
             <div class="field-card-actions">
-                <button class="field-card-action-btn primary" onclick="selectFieldFromCard('${field._id}')">
+                <button class="field-card-action-btn primary" onclick="window.location.href='field-form.html?id=${field._id}'">
                     Bu Tarlayı Düzenle
                 </button>
 
-                <button class="field-card-action-btn" onclick="selectCropFieldFromCard('${field._id}')">
+                <button class="field-card-action-btn" onclick="window.location.href='crop-form.html?fieldId=${field._id}'">
                     Bu Tarlanın Ürününe Git
                 </button>
+            </div>
 
-                <button class="field-card-action-btn" onclick="selectRecommendationFieldFromCard('${field._id}')">
-                    Önerileri Gör
-                </button>
             </div>
         `;
 
@@ -1425,22 +1458,305 @@ function clearUpdateFieldMapSelection() {
     clearMapStateSelection(updateFieldMapState);
 }
 
-window.onload = () => {
-    const authSection = document.getElementById("authSection");
-    const appSection = document.getElementById("appSection");
+function getQueryParam(param) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(param);
+}
 
-    if (document.getElementById("fieldList")) {
-        getFields();
+async function initFieldFormPage() {
+    const fieldId = getQueryParam("id");
+    const deleteButton = document.getElementById("fieldDeleteButton");
+    const title = document.getElementById("fieldFormTitle");
+    const subtitle = document.getElementById("fieldFormSubtitle");
+    const heading = document.getElementById("fieldFormHeading");
+
+    initFieldMaps();
+
+    if (!fieldId) {
+        if (deleteButton) deleteButton.classList.add("hidden");
+        return;
     }
 
-    if (document.getElementById("manageCropFieldSelect") || document.getElementById("cropList")) {
-        getCrops();
+    const field = getFieldById(fieldId) || (await fetchFieldById(fieldId));
+    if (!field) return;
+
+    document.getElementById("fieldRecordId").value = field._id;
+    document.getElementById("fieldName").value = field.name || "";
+    document.getElementById("fieldLocation").value = field.location || "";
+    document.getElementById("fieldLatitude").value = field.latitude ?? "";
+    document.getElementById("fieldLongitude").value = field.longitude ?? "";
+    document.getElementById("fieldArea").value = field.areaM2 ?? "";
+    document.getElementById("fieldPolygon").value = JSON.stringify(field.polygon || []);
+    document.getElementById("fieldIsGreenhouse").checked = !!field.isGreenhouse;
+
+    if (title) title.textContent = "Tarla Düzenle";
+    if (subtitle) subtitle.textContent = "Seçili tarlayı burada güncelleyebilir veya silebilirsin.";
+    if (heading) heading.textContent = "Tarla Düzenle";
+
+    if (deleteButton) deleteButton.classList.remove("hidden");
+
+    if (addFieldMapState) {
+        loadPolygonIntoMap(addFieldMapState, field.polygon || []);
+    }
+}
+
+async function fetchFieldById(fieldId) {
+    const response = await fetch(API_URL + "/fields?userId=" + currentUserId);
+    const data = await response.json();
+    if (!response.ok || !Array.isArray(data)) return null;
+    fieldsCache = data;
+    return data.find(field => field._id === fieldId) || null;
+}
+
+async function saveFieldForm() {
+    const fieldId = document.getElementById("fieldRecordId").value;
+
+    if (fieldId) {
+        await updateFieldFromStandaloneForm(fieldId);
+    } else {
+        await addFieldFromStandaloneForm();
+    }
+}
+
+async function addFieldFromStandaloneForm() {
+    try {
+        const name = document.getElementById("fieldName").value;
+        const location = document.getElementById("fieldLocation").value;
+        const latitude = document.getElementById("fieldLatitude").value;
+        const longitude = document.getElementById("fieldLongitude").value;
+        const areaM2 = document.getElementById("fieldArea").value;
+        const isGreenhouse = document.getElementById("fieldIsGreenhouse").checked;
+        const polygonRaw = document.getElementById("fieldPolygon").value;
+        const polygon = polygonRaw ? JSON.parse(polygonRaw) : [];
+
+        const response = await fetch(API_URL + "/fields", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userId: currentUserId,
+                name,
+                location,
+                latitude,
+                longitude,
+                areaM2,
+                isGreenhouse,
+                polygon
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.message || "Tarla eklenemedi.");
+
+        showMessage(data.message || "Tarla eklendi.");
+        window.location.href = "dashboard.html";
+    } catch (error) {
+        showMessage(error.message, true);
+    }
+}
+
+async function updateFieldFromStandaloneForm(fieldId) {
+    try {
+        const name = document.getElementById("fieldName").value;
+        const location = document.getElementById("fieldLocation").value;
+        const latitude = document.getElementById("fieldLatitude").value;
+        const longitude = document.getElementById("fieldLongitude").value;
+        const areaM2 = document.getElementById("fieldArea").value;
+        const isGreenhouse = document.getElementById("fieldIsGreenhouse").checked;
+        const polygonRaw = document.getElementById("fieldPolygon").value;
+        const polygon = polygonRaw ? JSON.parse(polygonRaw) : [];
+
+        const response = await fetch(API_URL + "/fields/" + fieldId, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userId: currentUserId,
+                name,
+                location,
+                latitude,
+                longitude,
+                areaM2,
+                isGreenhouse,
+                polygon
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.message || "Tarla güncellenemedi.");
+
+        showMessage(data.message || "Tarla güncellendi.");
+        window.location.href = "dashboard.html";
+    } catch (error) {
+        showMessage(error.message, true);
+    }
+}
+
+async function deleteFieldFromForm() {
+    try {
+        const fieldId = document.getElementById("fieldRecordId").value;
+        if (!fieldId) throw new Error("Silinecek tarla bulunamadı.");
+
+        const response = await fetch(API_URL + "/fields/" + fieldId + "?userId=" + currentUserId, {
+            method: "DELETE"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.message || "Tarla silinemedi.");
+
+        showMessage(data.message || "Tarla silindi.");
+        window.location.href = "dashboard.html";
+    } catch (error) {
+        showMessage(error.message, true);
+    }
+}
+
+async function initCropFormPage() {
+    const fieldId = getQueryParam("fieldId");
+    const deleteButton = document.getElementById("cropDeleteButton");
+    const title = document.getElementById("cropFormTitle");
+    const subtitle = document.getElementById("cropFormSubtitle");
+    const heading = document.getElementById("cropFormHeading");
+
+    if (document.getElementById("cropFieldSelect")) {
+        await getFields();
     }
 
-    const isDashboardPage = window.location.pathname.includes("dashboard.html");
-    const isAuthPage = window.location.pathname.includes("auth.html");
+    if (document.getElementById("cropList") || document.getElementById("cropFieldSelect")) {
+        await getCrops();
+    }
 
-    if (isDashboardPage && !currentUserId) {
+    if (!fieldId) {
+        if (deleteButton) deleteButton.classList.add("hidden");
+        return;
+    }
+
+    const crop = getCropByFieldId(fieldId);
+
+    document.getElementById("cropFieldSelect").value = fieldId;
+
+    if (!crop) {
+        if (deleteButton) deleteButton.classList.add("hidden");
+        return;
+    }
+
+    document.getElementById("cropRecordId").value = crop._id;
+    document.getElementById("cropName").value = crop.name || "";
+    document.getElementById("cropSowingDate").value = crop.sowingDate
+        ? new Date(crop.sowingDate).toISOString().split("T")[0]
+        : "";
+
+    if (title) title.textContent = "Ürün Düzenle";
+    if (subtitle) subtitle.textContent = "Seçili tarladaki ürünü burada güncelleyebilir veya silebilirsin.";
+    if (heading) heading.textContent = "Ürün Düzenle";
+
+    if (deleteButton) deleteButton.classList.remove("hidden");
+}
+
+async function saveCropForm() {
+    const cropId = document.getElementById("cropRecordId").value;
+
+    if (cropId) {
+        await updateCropFromStandaloneForm(cropId);
+    } else {
+        await addCropFromStandaloneForm();
+    }
+}
+
+async function addCropFromStandaloneForm() {
+    try {
+        const fieldId = document.getElementById("cropFieldSelect").value;
+        const name = document.getElementById("cropName").value;
+        const sowingDate = document.getElementById("cropSowingDate").value;
+
+        const response = await fetch(API_URL + "/crops", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userId: currentUserId,
+                name,
+                fieldId,
+                sowingDate
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.message || "Ürün eklenemedi.");
+
+        showMessage(data.message || "Ürün eklendi.");
+        window.location.href = "dashboard.html";
+    } catch (error) {
+        showMessage(error.message, true);
+    }
+}
+
+async function updateCropFromStandaloneForm(cropId) {
+    try {
+        const fieldId = document.getElementById("cropFieldSelect").value;
+        const name = document.getElementById("cropName").value;
+        const sowingDate = document.getElementById("cropSowingDate").value;
+
+        const response = await fetch(API_URL + "/crops/" + cropId, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userId: currentUserId,
+                name,
+                fieldId,
+                sowingDate
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.message || "Ürün güncellenemedi.");
+
+        showMessage(data.message || "Ürün güncellendi.");
+        window.location.href = "dashboard.html";
+    } catch (error) {
+        showMessage(error.message, true);
+    }
+}
+
+async function deleteCropFromForm() {
+    try {
+        const cropId = document.getElementById("cropRecordId").value;
+        if (!cropId) throw new Error("Silinecek ürün bulunamadı.");
+
+        const response = await fetch(API_URL + "/crops/" + cropId + "?userId=" + currentUserId, {
+            method: "DELETE"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.message || "Ürün silinemedi.");
+
+        showMessage(data.message || "Ürün silindi.");
+        window.location.href = "dashboard.html";
+    } catch (error) {
+        showMessage(error.message, true);
+    }
+}
+
+function toggleRegisterPanel() {
+    const panel = document.getElementById("registerPanel");
+    if (!panel) return;
+
+    panel.classList.toggle("hidden");
+}
+
+window.onload = async () => {
+    const path = window.location.pathname;
+
+    const isDashboardPage = path.includes("dashboard.html");
+    const isAuthPage = path.includes("auth.html");
+    const isProfilePage = path.includes("profile.html");
+    const isFieldFormPage = path.includes("field-form.html");
+    const isCropFormPage = path.includes("crop-form.html");
+
+    if ((isDashboardPage || isProfilePage || isFieldFormPage || isCropFormPage) && !currentUserId) {
         window.location.href = "auth.html";
         return;
     }
@@ -1450,19 +1766,21 @@ window.onload = () => {
         return;
     }
 
-    initFieldMaps();
+    if (isDashboardPage) {
+        await getFields();
+        await getCrops();
+        await getProfile();
+    }
 
-    if (currentUserId) {
-        if (document.getElementById("updateName")) {
-            getProfile();
-        }
+    if (isProfilePage) {
+        await getProfile();
+    }
 
-        if (appSection) {
-            showAppSection();
-        }
-    } else {
-        if (authSection) {
-            showAuthSection();
-        }
+    if (isFieldFormPage) {
+        await initFieldFormPage();
+    }
+
+    if (isCropFormPage) {
+        await initCropFormPage();
     }
 };

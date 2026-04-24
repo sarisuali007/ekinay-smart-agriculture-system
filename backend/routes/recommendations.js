@@ -124,14 +124,14 @@ function buildIrrigationMessage(field, crop, weather) {
 
   let result = "";
   if (needScore >= 6) {
-    result = "Bugün sulama önerilir.";
+    result = "Bugün sulama yapılması önerilir.";
   } else if (needScore >= 4) {
-    result = "Yakın zamanda kontrollü sulama önerilir.";
+    result = "Kontrollü ve kısa süreli sulama planı düşünülmelidir.";
   } else {
-    result = "Bugün ek sulama gerekmeyebilir.";
+    result = "Bugün ek sulama ihtiyacı düşük görünüyor.";
   }
 
-  return `${field.name} tarlasında ${crop.name} için sulama analizi: ${result} Sebepler: ${reasons.join(", ")}.`;
+  return `${field.name} tarlasında ekili ${crop.name} için değerlendirme: ${result} Başlıca nedenler: ${reasons.join(", ")}.`;
 }
 
 function buildAlertMessage(field, crop, weather) {
@@ -159,10 +159,10 @@ function buildAlertMessage(field, crop, weather) {
   }
 
   if (alerts.length === 0) {
-    return `${field.name} tarlasında ${crop.name} için bugün önemli bir hava uyarısı görünmüyor.`;
+    return `${field.name} tarlasında ekili ${crop.name} için bugün dikkat gerektiren önemli bir hava riski görünmüyor.`;
   }
 
-  return `${field.name} tarlasında ${crop.name} için uyarılar: ${alerts.join(", ")}.`;
+  return `${field.name} tarlasında ekili ${crop.name} için dikkat edilmesi gereken durumlar: ${alerts.join(", ")}.`;
 }
 
 router.get("/irrigation/:fieldId", async (req, res) => {

@@ -26,7 +26,7 @@
         <section class="card" id="authSection">
             <h2><h2>Giriş Yap veya Kayıt Ol</h2></h2>
 
-            <div class="form-group">
+            <div class="form-group hidden" id="registerPanel">
                 <h3>Kullanıcı Kaydı</h3>
                 <input type="text" id="registerName" placeholder="Ad">
                 <input type="email" id="registerEmail" placeholder="Email">
@@ -40,6 +40,10 @@
                 <input type="password" id="loginPassword" placeholder="Şifre">
                 <button onclick="login()">Giriş Yap</button>
             </div>
+            <p class="auth-switch-text">
+                Üye değil misin?
+                <button type="button" class="link-like-button" onclick="toggleRegisterPanel()">Kayıt Ol</button>
+            </p>
         </section>
 
     </div>

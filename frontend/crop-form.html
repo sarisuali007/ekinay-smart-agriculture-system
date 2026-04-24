@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ürün Formu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container page-shell">
+        <header class="dashboard-topbar">
+            <div>
+                <h1 id="cropFormTitle">Ürün Ekle</h1>
+                <p id="cropFormSubtitle">Tarla ve ürün bilgilerini buradan yönetin.</p>
+            </div>
+
+            <div class="dashboard-topbar-actions">
+                <button onclick="window.location.href='dashboard.html'">Dashboard</button>
+                <button onclick="logout()">Çıkış Yap</button>
+            </div>
+        </header>
+
+        <div id="messageBox"></div>
+
+        <section class="card">
+            <h2 id="cropFormHeading">Ürün Bilgileri</h2>
+
+            <div class="form-group">
+                <input id="cropRecordId" type="hidden">
+
+                <select id="cropFieldSelect"></select>
+
+                <select id="cropName">
+                    <option value="">Ürün Seçin</option>
+                    <option value="domates">Domates</option>
+                    <option value="biber">Biber</option>
+                    <option value="salatalık">Salatalık</option>
+                    <option value="fasulye">Fasulye</option>
+                </select>
+
+                <input id="cropSowingDate" type="date">
+
+                <div class="inline-actions">
+                    <button id="cropSaveButton" onclick="saveCropForm()">Kaydet</button>
+                    <button id="cropDeleteButton" class="danger-button hidden" onclick="deleteCropFromForm()">Ürünü Sil</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tarla Formu</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+</head>
+<body>
+    <div class="container page-shell">
+        <header class="dashboard-topbar">
+            <div>
+                <h1 id="fieldFormTitle">Tarla Ekle</h1>
+                <p id="fieldFormSubtitle">Yeni tarla bilgilerini girin.</p>
+            </div>
+
+            <div class="dashboard-topbar-actions">
+                <button onclick="window.location.href='dashboard.html'">Dashboard</button>
+                <button onclick="logout()">Çıkış Yap</button>
+            </div>
+        </header>
+
+        <div id="messageBox"></div>
+
+        <section class="card">
+            <h2 id="fieldFormHeading">Tarla Bilgileri</h2>
+
+            <div class="form-group">
+                <input id="fieldRecordId" type="hidden">
+
+                <input id="fieldName" placeholder="Tarla Adı">
+                <input id="fieldLocation" placeholder="Konum Açıklaması">
+
+                <div class="map-picker-block">
+                    <div id="fieldMap" class="field-map"></div>
+                    <p id="fieldMapSummary" class="helper-text">Haritada poligon çizerek tarla alanını seçin.</p>
+                    <button type="button" onclick="clearFieldMapSelection()">Seçimi Temizle</button>
+                </div>
+
+                <input id="fieldLatitude" type="hidden">
+                <input id="fieldLongitude" type="hidden">
+                <input id="fieldArea" type="hidden">
+                <input id="fieldPolygon" type="hidden">
+
+                <label class="checkbox-row">
+                    <input id="fieldIsGreenhouse" type="checkbox">
+                    Bu tarla seradır
+                </label>
+
+                <div class="inline-actions">
+                    <button id="fieldSaveButton" onclick="saveFieldForm()">Kaydet</button>
+                    <button id="fieldDeleteButton" class="danger-button hidden" onclick="deleteFieldFromForm()">Tarlayı Sil</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
