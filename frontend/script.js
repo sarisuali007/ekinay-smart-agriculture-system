@@ -333,10 +333,13 @@ function formatDate(dateValue) {
     if (!dateValue) return "Belirtilmedi";
 
     const date = new Date(dateValue);
-
     if (isNaN(date.getTime())) return "Belirtilmedi";
 
-    return date.toLocaleDateString("tr-TR");
+    return new Intl.DateTimeFormat("tr-TR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    }).format(date);
 }
 
 function shortenText(text, maxLength = 120) {
@@ -596,7 +599,7 @@ async function loadFieldCardInsights(fieldId) {
             }
 
             if (harvestEl && irrigationData.agronomy?.harvestDate) {
-                harvestEl.textContent = irrigationData.agronomy.harvestDate;
+                harvestEl.textContent = formatDate(irrigationData.agronomy.harvestDate);
             }
 
             if (seasonCalendarEl && irrigationData.agronomy?.seasonCalendar) {
@@ -1879,19 +1882,72 @@ function renderSeasonCalendar(calendar) {
         return `<div class="empty-state">Takvim bilgisi oluşturulamadı.</div>`;
     }
 
-    return calendar.map(item => `
-        <div class="season-day-item ${
-            item.irrigation === "Sulama gerekiyor"
-                ? "need-water"
-                : item.irrigation === "Kontrollü sulama"
-                    ? "check-water"
-                    : "no-water"
-        }">
-            <div class="season-day-date">${item.date}</div>
-            <div class="season-day-stage">${item.stage}</div>
-            <div class="season-day-irrigation">${item.irrigation}</div>
-        </div>
-    `).join("");
+    const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
+
+    const grouped = {};
+
+    calendar.forEach(item => {
+        const date = new Date(item.date);
+        const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+        if (!grouped[monthKey]) {
+            grouped[monthKey] = [];
+        }
+        grouped[monthKey].push(item);
+    });
+
+    const monthCards = Object.keys(grouped).map(monthKey => {
+        const [year, monthIndex] = monthKey.split("-").map(Number);
+        const monthItems = grouped[monthKey];
+
+        const firstDate = new Date(monthItems[0].date);
+        const monthTitle = firstDate.toLocaleDateString("tr-TR", {
+            month: "long",
+            year: "numeric"
+        });
+
+        let firstDayIndex = new Date(year, monthIndex, 1).getDay();
+        firstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+
+        const dayCells = [];
+
+        for (let i = 0; i < firstDayIndex; i++) {
+            dayCells.push(`<div class="calendar-day empty"></div>`);
+        }
+
+        monthItems.forEach(item => {
+            const date = new Date(item.date);
+            const dayNumber = date.getDate();
+
+            let statusClass = "no-water";
+            if (item.irrigation === "Sulama gerekiyor") {
+                statusClass = "need-water";
+            } else if (item.irrigation === "Kontrollü sulama") {
+                statusClass = "check-water";
+            }
+
+            dayCells.push(`
+                <div class="calendar-day ${statusClass}">
+                    <div class="calendar-day-num">${dayNumber}</div>
+                    <div class="calendar-day-stage">${item.stage}</div>
+                    <div class="calendar-day-status">${item.irrigation}</div>
+                </div>
+            `);
+        });
+
+        return `
+            <div class="calendar-month-card">
+                <div class="calendar-month-title">${monthTitle}</div>
+                <div class="calendar-weekdays">
+                    ${weekDays.map(day => `<div class="calendar-weekday">${day}</div>`).join("")}
+                </div>
+                <div class="calendar-grid">
+                    ${dayCells.join("")}
+                </div>
+            </div>
+        `;
+    });
+
+    return `<div class="calendar-months-wrap">${monthCards.join("")}</div>`;
 }
 
 window.onload = async () => {
