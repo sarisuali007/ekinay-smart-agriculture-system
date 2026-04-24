@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <title>Tarla Formu</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 </head>
+
 <body>
     <div class="container page-shell">
         <header class="dashboard-topbar">
@@ -34,7 +37,9 @@
 
                 <div class="map-picker-block">
                     <div id="fieldMap" class="field-map"></div>
-                    <p id="fieldMapSummary" class="helper-text">Haritada poligon çizerek tarla alanını seçin.</p>
+                    <p id="fieldMapSummary" class="helper-text">
+                        Önce arama kutusundan tarlanızın konumunu bulun, ardından haritada poligon çizerek alanı seçin.
+                    </p>
                     <button type="button" onclick="clearFieldMapSelection()">Seçimi Temizle</button>
                 </div>
 
@@ -50,7 +55,8 @@
 
                 <div class="inline-actions">
                     <button id="fieldSaveButton" onclick="saveFieldForm()">Kaydet</button>
-                    <button id="fieldDeleteButton" class="danger-button hidden" onclick="deleteFieldFromForm()">Tarlayı Sil</button>
+                    <button id="fieldDeleteButton" class="danger-button hidden" onclick="deleteFieldFromForm()">Tarlayı
+                        Sil</button>
                 </div>
             </div>
         </section>
@@ -58,6 +64,8 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>

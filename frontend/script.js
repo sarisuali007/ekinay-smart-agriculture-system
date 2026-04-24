@@ -90,8 +90,16 @@ async function getProfile() {
 
         const user = data.user || data;;
 
-        document.getElementById("updateName").value = user.name || "";
-        document.getElementById("updateEmail").value = user.email || "";
+        const updateNameInput = document.getElementById("updateName");
+        const updateEmailInput = document.getElementById("updateEmail");
+
+        if (updateNameInput) {
+            updateNameInput.value = user.name || "";
+        }
+
+        if (updateEmailInput) {
+            updateEmailInput.value = user.email || "";
+        }
 
         const dashboardWelcome = document.getElementById("dashboardWelcome");
         const dashboardSubtext = document.getElementById("dashboardSubtext");
@@ -109,8 +117,13 @@ async function getProfile() {
             debugUserId.textContent = "Kullanıcı ID: " + (user._id || currentUserId);
         }
 
-        showMessage("Profil bilgileri getirildi.");
-        refreshAllDashboardData();
+        if (document.getElementById("messageBox")) {
+            showMessage("Profil bilgileri getirildi.");
+        }
+
+        if (document.getElementById("fieldList") || document.getElementById("cropList")) {
+            refreshAllDashboardData();
+        }
 
     } catch (error) {
         showMessage(error.message, true);
@@ -166,9 +179,13 @@ async function deleteProfile() {
         localStorage.removeItem("userId");
         currentUserId = "";
 
-        document.getElementById("updateName").value = "";
-        document.getElementById("updateEmail").value = "";
-        document.getElementById("updatePassword").value = "";
+        const updateNameInput = document.getElementById("updateName");
+        const updateEmailInput = document.getElementById("updateEmail");
+        const updatePasswordInput = document.getElementById("updatePassword");
+
+        if (updateNameInput) updateNameInput.value = "";
+        if (updateEmailInput) updateEmailInput.value = "";
+        if (updatePasswordInput) updatePasswordInput.value = "";
 
         const debugUserId = document.getElementById("debugUserId");
         if (debugUserId) {
@@ -1362,6 +1379,18 @@ function createMapPicker(config) {
         maxZoom: 19,
         attribution: "&copy; OpenStreetMap contributors"
     }).addTo(map);
+
+    if (L.Control.Geocoder) {
+        const geocoder = L.Control.geocoder({
+            defaultMarkGeocode: false
+        })
+            .on("markgeocode", function (e) {
+                const bbox = e.geocode.bbox;
+                const bounds = L.latLngBounds(bbox);
+                map.fitBounds(bounds);
+            })
+            .addTo(map);
+    }
 
     const drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
