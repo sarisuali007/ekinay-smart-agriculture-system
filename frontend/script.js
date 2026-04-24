@@ -473,23 +473,8 @@ function renderFieldCards() {
             <div class="field-card-divider"></div>
 
             <div id="irrigation-box-${field._id}" class="field-info-box severity-neutral">
-                <span class="field-info-title">Sulama Özeti</span>
+                <span class="field-info-title">Bugünün Sulama Özeti</span>
                 <p id="irrigation-summary-${field._id}">Sulama analizi hazırlanıyor...</p>
-
-                <div id="irrigation-plan-${field._id}" class="mini-plan-grid">
-                    <div class="mini-plan-item">
-                        <span class="mini-plan-day">Bugün</span>
-                        <span class="mini-plan-status">Yükleniyor...</span>
-                    </div>
-                    <div class="mini-plan-item">
-                        <span class="mini-plan-day">Yarın</span>
-                        <span class="mini-plan-status">Yükleniyor...</span>
-                    </div>
-                    <div class="mini-plan-item">
-                        <span class="mini-plan-day">2 Gün Sonra</span>
-                        <span class="mini-plan-status">Yükleniyor...</span>
-                    </div>
-                </div>
             </div>
 
             <div id="alert-box-${field._id}" class="field-info-box severity-neutral">
@@ -521,7 +506,6 @@ function renderFieldCards() {
         } else {
             const irrigationEl = document.getElementById(`irrigation-summary-${field._id}`);
             const alertEl = document.getElementById(`alert-summary-${field._id}`);
-            const irrigationPlanEl = document.getElementById(`irrigation-plan-${field._id}`);
             const seasonCalendarEl = document.getElementById(`season-calendar-${field._id}`);
             const harvestEl = document.getElementById(`harvest-date-${field._id}`);
             const irrigationBox = document.getElementById(`irrigation-box-${field._id}`);
@@ -537,10 +521,6 @@ function renderFieldCards() {
 
             if (harvestEl) {
                 harvestEl.textContent = "-";
-            }
-
-            if (irrigationPlanEl) {
-                irrigationPlanEl.innerHTML = renderMiniWaterPlan(buildMiniWaterPlan(""));
             }
 
             if (seasonCalendarEl) {
@@ -577,7 +557,6 @@ async function loadFieldCardInsights(fieldId) {
     const alertEl = document.getElementById(`alert-summary-${fieldId}`);
     const irrigationBox = document.getElementById(`irrigation-box-${fieldId}`);
     const alertBox = document.getElementById(`alert-box-${fieldId}`);
-    const irrigationPlanEl = document.getElementById(`irrigation-plan-${fieldId}`);
 
     try {
         const irrigationResponse = await fetch(
@@ -586,16 +565,10 @@ async function loadFieldCardInsights(fieldId) {
         const irrigationData = await irrigationResponse.json();
 
         if (irrigationResponse.ok) {
-            const shortened = shortenText(irrigationData.message, 140);
             const severity = getSeverityFromMessage(irrigationData.message);
-            const plan = buildMiniWaterPlan(irrigationData.message);
 
             if (irrigationEl) {
-                irrigationEl.textContent = shortened;
-            }
-
-            if (irrigationPlanEl) {
-                irrigationPlanEl.innerHTML = renderMiniWaterPlan(plan);
+                irrigationEl.textContent = irrigationData.message;
             }
 
             if (harvestEl && irrigationData.agronomy?.harvestDate) {
@@ -620,10 +593,6 @@ async function loadFieldCardInsights(fieldId) {
                 irrigationEl.textContent = errorMessage;
             }
 
-            if (irrigationPlanEl) {
-                irrigationPlanEl.innerHTML = renderMiniWaterPlan(buildMiniWaterPlan(""));
-            }
-
             if (harvestEl) {
                 harvestEl.textContent = "-";
             }
@@ -643,10 +612,6 @@ async function loadFieldCardInsights(fieldId) {
     } catch (error) {
         if (irrigationEl) {
             irrigationEl.textContent = "Sulama bilgisi alınamadı.";
-        }
-
-        if (irrigationPlanEl) {
-            irrigationPlanEl.innerHTML = renderMiniWaterPlan(buildMiniWaterPlan(""));
         }
 
         if (harvestEl) {
@@ -1882,11 +1847,23 @@ function renderSeasonCalendar(calendar) {
         return `<div class="empty-state">Takvim bilgisi oluşturulamadı.</div>`;
     }
 
-    const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
+    const futureCalendar = calendar.filter(item => {
+        const itemDate = new Date(item.date);
+        itemDate.setHours(0, 0, 0, 0);
+        return itemDate >= today;
+    });
+
+    if (!futureCalendar.length) {
+        return `<div class="empty-state">Hasat dönemi tamamlanmış görünüyor.</div>`;
+    }
+
+    const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
     const grouped = {};
 
-    calendar.forEach(item => {
+    futureCalendar.forEach(item => {
         const date = new Date(item.date);
         const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
         if (!grouped[monthKey]) {
@@ -1918,6 +1895,11 @@ function renderSeasonCalendar(calendar) {
             const date = new Date(item.date);
             const dayNumber = date.getDate();
 
+            const itemDateOnly = new Date(item.date);
+            itemDateOnly.setHours(0, 0, 0, 0);
+
+            const isToday = itemDateOnly.getTime() === today.getTime();
+
             let statusClass = "no-water";
             if (item.irrigation === "Sulama gerekiyor") {
                 statusClass = "need-water";
@@ -1926,7 +1908,7 @@ function renderSeasonCalendar(calendar) {
             }
 
             dayCells.push(`
-                <div class="calendar-day ${statusClass}">
+                <div class="calendar-day ${statusClass} ${isToday ? "today" : ""}">
                     <div class="calendar-day-num">${dayNumber}</div>
                     <div class="calendar-day-stage">${item.stage}</div>
                     <div class="calendar-day-status">${item.irrigation}</div>
