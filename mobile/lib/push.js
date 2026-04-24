@@ -1,6 +1,7 @@
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
+import { Platform } from "react-native";
 import { apiRequest } from "./api";
 import { getUserId } from "./auth";
 
@@ -10,6 +11,14 @@ export async function registerAndSyncPushToken() {
 
   if (!Device.isDevice) {
     return null;
+  }
+
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      sound: "default",
+    });
   }
 
   const { status: existingStatus } = await Notifications.getPermissionsAsync();

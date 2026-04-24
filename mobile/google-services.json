@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "278056747016",
+    "project_id": "ekinay-329dd",
+    "storage_bucket": "ekinay-329dd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:278056747016:android:17cda8d4e02090411251bd",
+        "android_client_info": {
+          "package_name": "com.ekinay.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCKBegkzw3FJmzaflzxsWoMw9tZrgvOoE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

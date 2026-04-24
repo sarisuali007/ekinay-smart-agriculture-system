@@ -1,7 +1,6 @@
 import { Stack, router } from "expo-router";
 import { useEffect } from "react";
 import * as Notifications from "expo-notifications";
-import { Stack } from "expo-router";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
