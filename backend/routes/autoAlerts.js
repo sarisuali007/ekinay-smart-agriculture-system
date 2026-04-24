@@ -101,10 +101,6 @@ router.post("/run", async (req, res) => {
         const secretFromQuery = (req.query.secret || "").trim();
         const secret = secretFromHeader || secretFromQuery;
 
-        console.log("HEADER SECRET =", JSON.stringify(secretFromHeader));
-        console.log("QUERY SECRET =", JSON.stringify(secretFromQuery));
-        console.log("ENV SECRET =", JSON.stringify(AUTO_ALERT_SECRET));
-
         if (secret !== AUTO_ALERT_SECRET) {
             return res.status(403).json({ message: "Yetkisiz istek." });
         }
@@ -117,17 +113,38 @@ router.post("/run", async (req, res) => {
         let sentCount = 0;
 
         for (const user of users) {
+            console.log("AUTO ALERT USER =", user.email, user._id);
+            console.log("AUTO ALERT PUSH TOKEN =", user.expoPushToken);
+            console.log("AUTO ALERT PUSH ENABLED =", user.pushAlertsEnabled);
+
             const fields = await Field.find({ userId: user._id });
             const crops = await Crop.find({ userId: user._id });
 
+            console.log("AUTO ALERT FIELD COUNT =", fields.length);
+            console.log("AUTO ALERT CROP COUNT =", crops.length);
+
             for (const field of fields) {
+                console.log("CHECKING FIELD =", field.name, field._id);
+
                 const crop = crops.find((item) => String(item.fieldId) === String(field._id));
-                if (!crop) continue;
+
+                if (!crop) {
+                    console.log("SKIP: NO CROP FOR FIELD =", field.name);
+                    continue;
+                }
+
+                console.log("MATCHED CROP =", crop.name, crop._id);
 
                 const weather = await fetchShortWindowWeather(field);
-                const risk = detectUpcomingRisk(field, crop, weather);
+                console.log("SHORT WEATHER =", JSON.stringify(weather?.minutely_15 || {}));
 
-                if (!risk) continue;
+                const risk = detectUpcomingRisk(field, crop, weather);
+                console.log("DETECTED RISK =", JSON.stringify(risk));
+
+                if (!risk) {
+                    console.log("SKIP: NO RISK FOR FIELD =", field.name);
+                    continue;
+                }
 
                 const alreadySent = await AutoAlertLog.findOne({
                     userId: user._id,
@@ -136,7 +153,14 @@ router.post("/run", async (req, res) => {
                     slotKey: risk.slotKey,
                 });
 
-                if (alreadySent) continue;
+                console.log("ALREADY SENT =", !!alreadySent);
+
+                if (alreadySent) {
+                    console.log("SKIP: ALREADY SENT =", field.name, risk.type, risk.slotKey);
+                    continue;
+                }
+
+                console.log("SENDING PUSH TO =", user.expoPushToken);
 
                 await sendExpoPush(user.expoPushToken, {
                     title: risk.title,
@@ -154,6 +178,8 @@ router.post("/run", async (req, res) => {
                     alertType: risk.type,
                     slotKey: risk.slotKey,
                 });
+
+                console.log("PUSH SENT =", field.name, risk.type, risk.slotKey);
 
                 sentCount += 1;
             }
