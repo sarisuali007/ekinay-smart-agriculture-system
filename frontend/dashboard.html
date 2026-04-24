@@ -1,23 +1,17 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
-
     <meta charset="UTF-8">
     <title>Ekinay Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
-
 </head>
-
 <body>
-    <div class="container">
+    <div class="container page-shell">
 
         <header class="dashboard-topbar">
             <div>
                 <h1>Ekinay Dashboard</h1>
-                <p>Tarlalarınızı, ürünlerinizi ve önerilerinizi buradan yönetin.</p>
+                <p>Tarlalarınızı ve tarımsal önerileri buradan yönetin.</p>
             </div>
 
             <div class="dashboard-topbar-actions">
@@ -37,91 +31,80 @@
 
         <div id="messageBox"></div>
 
-        <div id="appSection">
+        <section class="dashboard-overview" id="dashboardCard">
+            <div class="mini-profile-card">
+                <h2>Profil Özeti</h2>
+                <p class="mini-profile-name" id="dashboardWelcome">Hoş geldiniz</p>
+                <p class="mini-profile-email" id="dashboardSubtext">Kullanıcı bilgileri yükleniyor...</p>
 
-            <section class="dashboard-overview" id="dashboardCard">
+                <div class="mini-profile-actions">
+                    <a href="profile.html">Profili Düzenle</a>
+                    <a href="#fieldSection">Tarlalara Git</a>
+                </div>
+            </div>
 
-                <div class="mini-profile-card">
-                    <h2>Profil Özeti</h2>
-                    <p class="mini-profile-name" id="dashboardWelcome">Hoş geldiniz</p>
-                    <p class="mini-profile-email" id="dashboardSubtext">Kullanıcı bilgileri yükleniyor...</p>
-
-                    <div class="mini-profile-actions">
-                        <a href="profile.html">Profili Düzenle</a>
-                        <a href="#fieldSection">Tarlalara Git</a>
-                        <a href="#cropSection">Ürünlere Git</a>
-                    </div>
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <span class="stat-label">Toplam Tarla</span>
+                    <strong id="statFieldCount">0</strong>
                 </div>
 
-                <section class="today-summary-strip" id="todaySummarySection">
-                    <div class="today-summary-card">
-                        <span class="today-summary-label">Kritik Uyarı</span>
-                        <strong id="summaryCriticalCount">0</strong>
-                    </div>
-
-                    <div class="today-summary-card">
-                        <span class="today-summary-label">Bugün Sulanacak</span>
-                        <strong id="summaryTodayWaterCount">0</strong>
-                    </div>
-
-                    <div class="today-summary-card">
-                        <span class="today-summary-label">Ürünsüz Tarla</span>
-                        <strong id="summaryNoCropCount">0</strong>
-                    </div>
-
-                    <div class="today-summary-card">
-                        <span class="today-summary-label">Aktif Ürün</span>
-                        <strong id="summaryActiveCropCount">0</strong>
-                    </div>
-                </section>
-
-                <section class="card" id="priorityFieldsSection">
-                    <h2>Öncelikli Tarlalar</h2>
-                    <div id="priorityFieldsList" class="priority-field-grid"></div>
-                </section>
-
-                <div class="stats-panel">
-                    <div class="stat-card">
-                        <span class="stat-label">Toplam Tarla</span>
-                        <strong id="statFieldCount">0</strong>
-                    </div>
-
-                    <div class="stat-card">
-                        <span class="stat-label">Toplam Ürün</span>
-                        <strong id="statCropCount">0</strong>
-                    </div>
-
-                    <div class="stat-card">
-                        <span class="stat-label">Sera Sayısı</span>
-                        <strong id="statGreenhouseCount">0</strong>
-                    </div>
-
-                    <div class="stat-card">
-                        <span class="stat-label">Açık Alan</span>
-                        <strong id="statOpenFieldCount">0</strong>
-                    </div>
+                <div class="stat-card">
+                    <span class="stat-label">Aktif Ürün</span>
+                    <strong id="statCropCount">0</strong>
                 </div>
 
-            </section>
-
-            <section class="card" id="fieldSection">
-                <h2>Tarlalarım</h2>
-
-                <div class="form-group">
-                    <h3>Kayıtlı Tarlalar</h3>
-                    <button onclick="getFields()">Tarlaları Yenile</button>
-                    <div id="fieldList" class="field-card-grid"></div>
+                <div class="stat-card">
+                    <span class="stat-label">Sera Sayısı</span>
+                    <strong id="statGreenhouseCount">0</strong>
                 </div>
-                
-            </section>
 
-        </div>
+                <div class="stat-card">
+                    <span class="stat-label">Açık Alan</span>
+                    <strong id="statOpenFieldCount">0</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="today-summary-strip" id="todaySummarySection">
+            <div class="today-summary-card">
+                <span class="today-summary-label">Kritik Uyarı</span>
+                <strong id="summaryCriticalCount">0</strong>
+            </div>
+
+            <div class="today-summary-card">
+                <span class="today-summary-label">Bugün Sulanacak</span>
+                <strong id="summaryTodayWaterCount">0</strong>
+            </div>
+
+            <div class="today-summary-card">
+                <span class="today-summary-label">Ürünsüz Tarla</span>
+                <strong id="summaryNoCropCount">0</strong>
+            </div>
+
+            <div class="today-summary-card">
+                <span class="today-summary-label">Aktif Ürün</span>
+                <strong id="summaryActiveCropCount">0</strong>
+            </div>
+        </section>
+
+        <section class="card" id="priorityFieldsSection">
+            <h2>Öncelikli Tarlalar</h2>
+            <div id="priorityFieldsList" class="priority-field-grid"></div>
+        </section>
+
+        <section class="card" id="fieldSection">
+            <h2>Tarlalarım</h2>
+
+            <div class="form-group">
+                <h3>Kayıtlı Tarlalar</h3>
+                <button onclick="getFields()">Tarlaları Yenile</button>
+                <div id="fieldList" class="field-card-grid"></div>
+            </div>
+        </section>
 
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
     <script src="script.js"></script>
 </body>
-
 </html>

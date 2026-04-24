@@ -19,7 +19,6 @@ const CROP_PROFILES = {
       { name: "Olgunlaşma", start: 56, end: 70, irrigation: "medium" }
     ]
   },
-
   biber: {
     displayName: "Biber",
     daysToHarvest: 78,
@@ -34,7 +33,6 @@ const CROP_PROFILES = {
       { name: "Olgunlaşma", start: 66, end: 78, irrigation: "medium" }
     ]
   },
-
   salatalık: {
     displayName: "Salatalık",
     daysToHarvest: 55,
@@ -49,7 +47,6 @@ const CROP_PROFILES = {
       { name: "Hasat Yaklaşımı", start: 46, end: 55, irrigation: "medium" }
     ]
   },
-
   fasulye: {
     displayName: "Fasulye",
     daysToHarvest: 55,
@@ -73,6 +70,23 @@ function getDaysFromSowing(sowingDate) {
   return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
 }
 
+function estimateHarvestDate(sowingDate, cropName) {
+  const profile = CROP_PROFILES[cropName];
+  const base = new Date(sowingDate);
+  const harvest = new Date(base);
+  harvest.setDate(harvest.getDate() + profile.daysToHarvest);
+  return harvest;
+}
+
+function getStageForDay(cropName, dayIndex) {
+  const profile = CROP_PROFILES[cropName];
+  return profile.stages.find(stage => dayIndex >= stage.start && dayIndex <= stage.end) || profile.stages.at(-1);
+}
+
+function toISODateOnly(date) {
+  return new Date(date).toISOString().split("T")[0];
+}
+
 function adjustForGreenhouse(field, weather) {
   if (!field.isGreenhouse) {
     return weather;
@@ -84,11 +98,22 @@ function adjustForGreenhouse(field, weather) {
     currentHumidity: weather.currentHumidity + 8,
     currentWind: Math.max(0, weather.currentWind - 4),
     maxTemp: weather.maxTemp + 3,
-    minTemp: weather.minTemp + 2
+    minTemp: weather.minTemp + 2,
+    dailySeries: (weather.dailySeries || []).map(day => ({
+      ...day,
+      maxTemp: (day.maxTemp ?? 0) + 3,
+      minTemp: (day.minTemp ?? 0) + 2,
+      currentHumidity: (day.currentHumidity ?? 60) + 8,
+      maxWind: Math.max(0, (day.maxWind ?? 0) - 4)
+    }))
   };
 }
 
 async function fetchWeather(field) {
+  if (field.latitude === undefined || field.longitude === undefined) {
+    throw new Error("Tarla koordinat bilgisi eksik.");
+  }
+
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${field.latitude}` +
     `&longitude=${field.longitude}` +
@@ -113,7 +138,7 @@ async function fetchWeather(field) {
     minTemp: data.daily.temperature_2m_min?.[0],
     precipitationSum: data.daily.precipitation_sum?.[0],
     maxWind: data.daily.wind_speed_10m_max?.[0],
-    dailySeries: data.daily.time.map((day, index) => ({
+    dailySeries: (data.daily.time || []).map((day, index) => ({
       date: day,
       maxTemp: data.daily.temperature_2m_max?.[index],
       minTemp: data.daily.temperature_2m_min?.[index],
@@ -129,9 +154,9 @@ function buildIrrigationMessage(field, crop, weather) {
   const daysFromSowing = getDaysFromSowing(crop.sowingDate);
 
   let needScore = 0;
-  let reasons = [];
+  const reasons = [];
 
-  if (profile.waterNeed === "yüksek") {
+  if (profile.waterNeed === "high") {
     needScore += 2;
     reasons.push("ürünün su ihtiyacı yüksek");
   } else {
@@ -139,22 +164,22 @@ function buildIrrigationMessage(field, crop, weather) {
     reasons.push("ürünün su ihtiyacı orta seviyede");
   }
 
-  if (weather.precipitationSum < 2) {
+  if ((weather.precipitationSum ?? 0) < 2) {
     needScore += 2;
-    reasons.push("bugün beklenen yağış düşük");
-  } else if (weather.precipitationSum < 6) {
+    reasons.push("beklenen yağış düşük");
+  } else if ((weather.precipitationSum ?? 0) < 6) {
     needScore += 1;
     reasons.push("yağış sınırlı");
   } else {
     reasons.push("yağış yeterli görünüyor");
   }
 
-  if (weather.maxTemp > profile.idealTempMax) {
+  if ((weather.maxTemp ?? 0) > profile.idealTempMax) {
     needScore += 2;
     reasons.push("sıcaklık yüksek");
   }
 
-  if (weather.currentHumidity < 45) {
+  if ((weather.currentHumidity ?? 60) < 45) {
     needScore += 1;
     reasons.push("nem düşük");
   }
@@ -183,33 +208,109 @@ function buildIrrigationMessage(field, crop, weather) {
 
 function buildAlertMessage(field, crop, weather) {
   const profile = CROP_PROFILES[crop.name];
-  let alerts = [];
+  const alerts = [];
 
-  if (weather.minTemp < 5) {
+  if ((weather.minTemp ?? 99) < 5) {
     alerts.push("don / aşırı soğuk riski");
   }
 
-  if (weather.maxTemp > profile.idealTempMax + 4) {
+  if ((weather.maxTemp ?? 0) > profile.idealTempMax + 4) {
     alerts.push("yüksek sıcaklık stresi");
   }
 
-  if (weather.maxWind > 35) {
+  if ((weather.maxWind ?? 0) > 35) {
     alerts.push("kuvvetli rüzgar riski");
   }
 
-  if (weather.precipitationSum > 15) {
+  if ((weather.precipitationSum ?? 0) > 15) {
     alerts.push("şiddetli yağış riski");
   }
 
-  if (field.isGreenhouse && weather.currentHumidity > 80) {
+  if (field.isGreenhouse && (weather.currentHumidity ?? 0) > 80) {
     alerts.push("sera içinde yüksek nem riski");
   }
 
-  if (alerts.length === 0) {
+  if (!alerts.length) {
     return `${field.name} tarlasında ekili ${crop.name} için bugün dikkat gerektiren önemli bir hava riski görünmüyor.`;
   }
 
   return `${field.name} tarlasında ekili ${crop.name} için dikkat edilmesi gereken durumlar: ${alerts.join(", ")}.`;
+}
+
+function decideDailyIrrigation(profile, stage, field, weatherForDay, relativeDay) {
+  let score = 0;
+
+  if (stage.irrigation === "high") score += 2;
+  if (stage.irrigation === "medium") score += 1;
+  if (field.isGreenhouse) score += 1;
+
+  if (weatherForDay) {
+    if ((weatherForDay.maxTemp ?? 0) > profile.idealTempMax) score += 2;
+    if ((weatherForDay.minTemp ?? 0) < profile.idealTempMin - 3) score -= 1;
+    if ((weatherForDay.precipitationSum ?? 0) < 2) score += 1;
+    if ((weatherForDay.precipitationSum ?? 0) > 8) score -= 2;
+    if ((weatherForDay.currentHumidity ?? 60) < 45) score += 1;
+  } else {
+    if (stage.irrigation === "high") score += 1;
+  }
+
+  if (relativeDay <= 16) {
+    if (score >= 4) return "Sulama gerekiyor";
+    if (score >= 2) return "Kontrollü sulama";
+    return "Sulama gerekmiyor";
+  }
+
+  if (score >= 3) return "Sulama gerekiyor";
+  if (score >= 1) return "Kontrollü sulama";
+  return "Sulama gerekmiyor";
+}
+
+function buildSeasonCalendar(field, crop, weather) {
+  const profile = CROP_PROFILES[crop.name];
+  const sowingDate = new Date(crop.sowingDate);
+  const harvestDate = estimateHarvestDate(crop.sowingDate, crop.name);
+
+  const calendar = [];
+  const totalDays = profile.daysToHarvest;
+
+  for (let i = 0; i <= totalDays; i++) {
+    const currentDate = new Date(sowingDate);
+    currentDate.setDate(currentDate.getDate() + i);
+
+    const stage = getStageForDay(crop.name, i);
+    let weatherForDay = null;
+
+    if (weather?.dailySeries && i < weather.dailySeries.length) {
+      weatherForDay = weather.dailySeries[i];
+    }
+
+    const irrigation = decideDailyIrrigation(profile, stage, field, weatherForDay, i);
+
+    calendar.push({
+      dayIndex: i,
+      date: toISODateOnly(currentDate),
+      stage: stage.name,
+      irrigation
+    });
+  }
+
+  return {
+    harvestDate: toISODateOnly(harvestDate),
+    totalDays,
+    seasonCalendar: calendar
+  };
+}
+
+async function buildRecommendationPayload(field, crop) {
+  const rawWeather = await fetchWeather(field);
+  const weather = adjustForGreenhouse(field, rawWeather);
+
+  return {
+    weather,
+    irrigationMessage: buildIrrigationMessage(field, crop, weather),
+    alertMessage: buildAlertMessage(field, crop, weather),
+    agronomy: buildSeasonCalendar(field, crop, weather)
+  };
 }
 
 router.get("/irrigation/:fieldId", async (req, res) => {
@@ -231,18 +332,16 @@ router.get("/irrigation/:fieldId", async (req, res) => {
       return res.status(404).json({ message: "Bu tarlaya ait ürün bulunamadı." });
     }
 
-    const rawWeather = await fetchWeather(field);
-    const weather = adjustForGreenhouse(field, rawWeather);
-
-    const message = buildIrrigationMessage(field, crop, weather);
+    const payload = await buildRecommendationPayload(field, crop);
 
     res.json({
-      message,
+      message: payload.irrigationMessage,
       details: {
         field,
         crop,
-        weather
-      }
+        weather: payload.weather
+      },
+      agronomy: payload.agronomy
     });
   } catch (error) {
     res.status(500).json({
@@ -270,20 +369,16 @@ router.get("/alerts/:fieldId", async (req, res) => {
       return res.status(404).json({ message: "Bu tarlaya ait ürün bulunamadı." });
     }
 
-    const rawWeather = await fetchWeather(field);
-    const weather = adjustForGreenhouse(field, rawWeather);
-
-    const message = buildAlertMessage(field, crop, weather);
-    const agronomy = buildSeasonCalendar(field, crop, weather);
+    const payload = await buildRecommendationPayload(field, crop);
 
     res.json({
-      message,
+      message: payload.alertMessage,
       details: {
         field,
         crop,
-        weather
+        weather: payload.weather
       },
-      agronomy
+      agronomy: payload.agronomy
     });
   } catch (error) {
     res.status(500).json({
@@ -291,95 +386,5 @@ router.get("/alerts/:fieldId", async (req, res) => {
     });
   }
 });
-
-function estimateHarvestDate(sowingDate, cropName) {
-  const profile = CROP_PROFILES[cropName];
-  const base = new Date(sowingDate);
-  const harvest = new Date(base);
-  harvest.setDate(harvest.getDate() + profile.daysToHarvest);
-  return harvest;
-}
-
-function getGrowthDay(sowingDate) {
-  const sow = new Date(sowingDate);
-  const now = new Date();
-  return Math.max(0, Math.floor((now - sow) / (1000 * 60 * 60 * 24)));
-}
-
-function getStageForDay(cropName, dayIndex) {
-  const profile = CROP_PROFILES[cropName];
-  return profile.stages.find(stage => dayIndex >= stage.start && dayIndex <= stage.end) || profile.stages.at(-1);
-}
-
-function toISODateOnly(date) {
-  return new Date(date).toISOString().split("T")[0];
-}
-
-function decideDailyIrrigation(profile, stage, field, weatherForDay, relativeDay) {
-  let score = 0;
-
-  if (stage.irrigation === "high") score += 2;
-  if (stage.irrigation === "medium") score += 1;
-
-  if (field.isGreenhouse) score += 1;
-
-  if (weatherForDay) {
-    if ((weatherForDay.maxTemp ?? 0) > profile.idealTempMax) score += 2;
-    if ((weatherForDay.minTemp ?? 0) < profile.idealTempMin - 3) score -= 1;
-    if ((weatherForDay.precipitationSum ?? 0) < 2) score += 1;
-    if ((weatherForDay.precipitationSum ?? 0) > 8) score -= 2;
-    if ((weatherForDay.currentHumidity ?? 60) < 45) score += 1;
-  } else {
-    if (stage.irrigation === "high") score += 1;
-  }
-
-  if (relativeDay <= 16) {
-    // kısa vadede daha dinamik davran
-    if (score >= 4) return "Sulama gerekiyor";
-    if (score >= 2) return "Kontrollü sulama";
-    return "Sulama gerekmiyor";
-  }
-
-  // 16 günden sonrası kural bazlı sezon planı
-  if (score >= 3) return "Sulama gerekiyor";
-  if (score >= 1) return "Kontrollü sulama";
-  return "Sulama gerekmiyor";
-}
-
-function buildSeasonCalendar(field, crop, weather) {
-  const profile = CROP_PROFILES[crop.name];
-  const sowingDate = new Date(crop.sowingDate);
-  const harvestDate = estimateHarvestDate(crop.sowingDate, crop.name);
-
-  const calendar = [];
-  const totalDays = profile.daysToHarvest;
-
-  for (let i = 0; i <= totalDays; i++) {
-    const currentDate = new Date(sowingDate);
-    currentDate.setDate(currentDate.getDate() + i);
-
-    const stage = getStageForDay(crop.name, i);
-
-    let weatherForDay = null;
-    if (weather?.dailySeries && i < weather.dailySeries.length) {
-      weatherForDay = weather.dailySeries[i];
-    }
-
-    const irrigation = decideDailyIrrigation(profile, stage, field, weatherForDay, i);
-
-    calendar.push({
-      dayIndex: i,
-      date: toISODateOnly(currentDate),
-      stage: stage.name,
-      irrigation
-    });
-  }
-
-  return {
-    harvestDate: toISODateOnly(harvestDate),
-    totalDays,
-    seasonCalendar: calendar
-  };
-}
 
 module.exports = router;
