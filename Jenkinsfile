@@ -3,8 +3,6 @@ pipeline {
 
     environment {
         COMPOSE_PROJECT_NAME = 'ekinay-ci'
-        BACKEND_URL = 'http://localhost:3000'
-        FRONTEND_URL = 'http://localhost:8080'
     }
 
     stages {
@@ -56,21 +54,7 @@ EOF
         stage('Wait For Services') {
             steps {
                 echo 'Servislerin açılması bekleniyor...'
-                sh 'sleep 30'
-            }
-        }
-
-        stage('Backend Health Check') {
-            steps {
-                echo 'Backend health check yapılıyor...'
-                sh 'curl -f http://localhost:3000'
-            }
-        }
-
-        stage('Frontend Health Check') {
-            steps {
-                echo 'Frontend health check yapılıyor...'
-                sh 'curl -f http://localhost:8080'
+                sh 'sleep 35'
             }
         }
 
@@ -78,6 +62,45 @@ EOF
             steps {
                 echo 'Çalışan containerlar listeleniyor...'
                 sh 'docker ps'
+            }
+        }
+
+        stage('Backend Logs') {
+            steps {
+                echo 'Backend logları kontrol ediliyor...'
+                sh 'docker logs ekinay-backend --tail 50'
+            }
+        }
+
+        stage('Backend Health Check') {
+            steps {
+                echo 'Backend container içinden health check yapılıyor...'
+                sh '''
+                    docker exec ekinay-backend node -e "fetch('http://localhost:3000').then(r => { if (!r.ok) process.exit(1); return r.text(); }).then(t => console.log(t)).catch(e => { console.error(e); process.exit(1); })"
+                '''
+            }
+        }
+
+        stage('Frontend Health Check') {
+            steps {
+                echo 'Frontend container içinden health check yapılıyor...'
+                sh '''
+                    docker exec ekinay-frontend wget -qO- http://localhost | head -n 5
+                '''
+            }
+        }
+
+        stage('RabbitMQ Status') {
+            steps {
+                echo 'RabbitMQ container durumu kontrol ediliyor...'
+                sh 'docker logs ekinay-rabbitmq --tail 20'
+            }
+        }
+
+        stage('Redis Status') {
+            steps {
+                echo 'Redis container durumu kontrol ediliyor...'
+                sh 'docker logs ekinay-redis --tail 20'
             }
         }
     }
