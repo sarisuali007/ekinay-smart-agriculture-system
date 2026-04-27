@@ -1,0 +1,43 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: ekinay-backend
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      MONGO_URI: ${MONGO_URI}
+      AUTO_ALERT_SECRET: ${AUTO_ALERT_SECRET}
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      ALERT_QUEUE: ekinay.alert.notifications
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - rabbitmq
+      - redis
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: ekinay-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: ekinay-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: ekinay-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: unless-stopped

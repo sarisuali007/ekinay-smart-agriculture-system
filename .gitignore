@@ -1,7 +1,13 @@
 node_modules/
 .env
+
 # Firebase / Google private keys
 mobile/*firebase-adminsdk*.json
 mobile/*service-account*.json
 mobile/*private-key*.json
 mobile/ekinay-329dd-firebase-adminsdk-fbsvc-8a4bbe9f76.json
+
+# Environment files
+.env
+backend/.env
+mobile/.env
