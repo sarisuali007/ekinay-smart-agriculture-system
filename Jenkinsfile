@@ -32,12 +32,10 @@ EOF
             }
         }
 
-        stage('Backend Install') {
+        stage('Docker Compose Down Before Start') {
             steps {
-                echo 'Backend bağımlılıkları kuruluyor...'
-                dir('backend') {
-                    sh 'npm install'
-                }
+                echo 'Önce eski containerlar kapatılıyor...'
+                sh 'docker compose down || true'
             }
         }
 
@@ -45,13 +43,6 @@ EOF
             steps {
                 echo 'Docker image build işlemi başlatılıyor...'
                 sh 'docker compose build'
-            }
-        }
-
-        stage('Docker Compose Down Before Start') {
-            steps {
-                echo 'Önce eski containerlar kapatılıyor...'
-                sh 'docker compose down || true'
             }
         }
 
@@ -65,7 +56,7 @@ EOF
         stage('Wait For Services') {
             steps {
                 echo 'Servislerin açılması bekleniyor...'
-                sh 'sleep 25'
+                sh 'sleep 30'
             }
         }
 
