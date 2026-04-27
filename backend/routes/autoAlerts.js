@@ -16,6 +16,7 @@ async function fetchShortWindowWeather(field) {
         `&forecast_minutely_15=4&timezone=auto`;
 
     const response = await fetch(url);
+
     if (!response.ok) {
         throw new Error("Kısa pencere hava verisi alınamadı.");
     }
@@ -26,22 +27,31 @@ async function fetchShortWindowWeather(field) {
 function detectUpcomingRisk(field, crop, weatherData) {
     const times = weatherData?.minutely_15?.time || [];
     const temps = weatherData?.minutely_15?.temperature_2m || [];
-    const precs = weatherData?.minutely_15?.precipitation || [];
-    const gusts = weatherData?.minutely_15?.wind_gusts_10m || [];
+    const precipitations = weatherData?.minutely_15?.precipitation || [];
+    const windGusts = weatherData?.minutely_15?.wind_gusts_10m || [];
 
-    // İlk 2 slot = yaklaşık 30 dakika pencere
+    // İlk 2 slot yaklaşık 30 dakikalık pencere demektir.
     for (let i = 0; i < Math.min(2, times.length); i++) {
         const slotTime = times[i];
         const temp = temps[i] ?? 99;
-        const precipitation = precs[i] ?? 0;
-        const windGust = gusts[i] ?? 0;
+        const precipitation = precipitations[i] ?? 0;
+        const windGust = windGusts[i] ?? 0;
 
         if (temp <= 2) {
             return {
                 type: "freeze",
                 slotKey: slotTime,
                 title: `${field.name} için don riski`,
-                body: `${crop.name} ekili tarlada yaklaşık 30 dakika içinde don riski görünüyor.`,
+                body: `${crop.name} ekili tarlada yaklaşık 30 dakika içinde don riski görünüyor. Bitkiyi korumak için önlem almanız önerilir.`
+            };
+        }
+
+        if (windGust >= 75 && precipitation >= 3) {
+            return {
+                type: "severe_storm",
+                slotKey: slotTime,
+                title: `${field.name} için şiddetli fırtına riski`,
+                body: `${crop.name} ekili tarlada yaklaşık 30 dakika içinde çok kuvvetli rüzgar ve yağış riski görünüyor. Sera, fide ve açıkta kalan ekipmanları kontrol edin.`
             };
         }
 
@@ -49,8 +59,8 @@ function detectUpcomingRisk(field, crop, weatherData) {
             return {
                 type: "storm",
                 slotKey: slotTime,
-                title: `${field.name} için şiddetli rüzgar riski`,
-                body: `${crop.name} ekili tarlada yaklaşık 30 dakika içinde şiddetli rüzgar/fırtına riski görünüyor.`,
+                title: `${field.name} için fırtına riski`,
+                body: `${crop.name} ekili tarlada yaklaşık 30 dakika içinde kuvvetli rüzgar riski görünüyor. Tarla ve sera çevresini kontrol etmeniz önerilir.`
             };
         }
 
@@ -59,17 +69,16 @@ function detectUpcomingRisk(field, crop, weatherData) {
                 type: "heavy_rain",
                 slotKey: slotTime,
                 title: `${field.name} için ani yağış riski`,
-                body: `${crop.name} ekili tarlada yaklaşık 30 dakika içinde ani yağış riski görünüyor.`,
+                body: `${crop.name} ekili tarlada yaklaşık 30 dakika içinde yoğun yağış riski görünüyor. Su birikmesi ve drenaj durumunu kontrol edin.`
             };
         }
 
-        // Kuraklık stresi: kısa pencere + sıcaklık
         if (temp >= 32 && precipitation === 0) {
             return {
                 type: "drought_stress",
                 slotKey: slotTime,
                 title: `${field.name} için kuraklık stresi`,
-                body: `${crop.name} ekili tarlada yaklaşık 30 dakika içinde yüksek sıcaklık ve kuraklık stresi riski görünüyor.`,
+                body: `${crop.name} ekili tarlada yüksek sıcaklık ve yağışsız hava nedeniyle kuraklık stresi oluşabilir. Sulama planını kontrol edin.`
             };
         }
     }
@@ -81,25 +90,30 @@ async function sendExpoPush(expoPushToken, payload) {
     const response = await fetch("https://exp.host/--/api/v2/push/send", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
             to: expoPushToken,
             sound: "default",
             title: payload.title,
             body: payload.body,
-            data: payload.data,
-        }),
+            data: payload.data
+        })
     });
 
     return await response.json();
 }
 
+function getSecretFromRequest(req) {
+    const secretFromHeader = (req.headers["x-auto-alert-secret"] || "").trim();
+    const secretFromQuery = (req.query.secret || "").trim();
+
+    return secretFromHeader || secretFromQuery;
+}
+
 router.post("/run", async (req, res) => {
     try {
-        const secretFromHeader = (req.headers["x-auto-alert-secret"] || "").trim();
-        const secretFromQuery = (req.query.secret || "").trim();
-        const secret = secretFromHeader || secretFromQuery;
+        const secret = getSecretFromRequest(req);
 
         if (secret !== AUTO_ALERT_SECRET) {
             return res.status(403).json({ message: "Yetkisiz istek." });
@@ -107,42 +121,40 @@ router.post("/run", async (req, res) => {
 
         const users = await User.find({
             expoPushToken: { $exists: true, $ne: "" },
-            pushAlertsEnabled: true,
+            pushAlertsEnabled: true
         });
 
+        let checkedUserCount = 0;
+        let checkedFieldCount = 0;
+        let skippedNoCropCount = 0;
+        let noRiskCount = 0;
+        let alreadySentCount = 0;
         let sentCount = 0;
+        let failedPushCount = 0;
 
         for (const user of users) {
-            console.log("AUTO ALERT USER =", user.email, user._id);
-            console.log("AUTO ALERT PUSH TOKEN =", user.expoPushToken);
-            console.log("AUTO ALERT PUSH ENABLED =", user.pushAlertsEnabled);
+            checkedUserCount += 1;
 
             const fields = await Field.find({ userId: user._id });
             const crops = await Crop.find({ userId: user._id });
 
-            console.log("AUTO ALERT FIELD COUNT =", fields.length);
-            console.log("AUTO ALERT CROP COUNT =", crops.length);
-
             for (const field of fields) {
-                console.log("CHECKING FIELD =", field.name, field._id);
+                checkedFieldCount += 1;
 
-                const crop = crops.find((item) => String(item.fieldId) === String(field._id));
+                const crop = crops.find(
+                    (item) => String(item.fieldId) === String(field._id)
+                );
 
                 if (!crop) {
-                    console.log("SKIP: NO CROP FOR FIELD =", field.name);
+                    skippedNoCropCount += 1;
                     continue;
                 }
 
-                console.log("MATCHED CROP =", crop.name, crop._id);
-
                 const weather = await fetchShortWindowWeather(field);
-                console.log("SHORT WEATHER =", JSON.stringify(weather?.minutely_15 || {}));
-
                 const risk = detectUpcomingRisk(field, crop, weather);
-                console.log("DETECTED RISK =", JSON.stringify(risk));
 
                 if (!risk) {
-                    console.log("SKIP: NO RISK FOR FIELD =", field.name);
+                    noRiskCount += 1;
                     continue;
                 }
 
@@ -150,45 +162,57 @@ router.post("/run", async (req, res) => {
                     userId: user._id,
                     fieldId: field._id,
                     alertType: risk.type,
-                    slotKey: risk.slotKey,
+                    slotKey: risk.slotKey
                 });
 
-                console.log("ALREADY SENT =", !!alreadySent);
-
                 if (alreadySent) {
-                    console.log("SKIP: ALREADY SENT =", field.name, risk.type, risk.slotKey);
+                    alreadySentCount += 1;
                     continue;
                 }
 
-                console.log("SENDING PUSH TO =", user.expoPushToken);
-
-                await sendExpoPush(user.expoPushToken, {
+                const expoResponse = await sendExpoPush(user.expoPushToken, {
                     title: risk.title,
                     body: risk.body,
                     data: {
                         url: `/field-detail?id=${field._id}`,
                         fieldId: field._id,
-                        alertType: risk.type,
-                    },
+                        alertType: risk.type
+                    }
                 });
+
+                const expoStatus = expoResponse?.data?.status;
+
+                if (expoStatus === "error") {
+                    failedPushCount += 1;
+                    continue;
+                }
 
                 await AutoAlertLog.create({
                     userId: user._id,
                     fieldId: field._id,
                     alertType: risk.type,
-                    slotKey: risk.slotKey,
+                    slotKey: risk.slotKey
                 });
-
-                console.log("PUSH SENT =", field.name, risk.type, risk.slotKey);
 
                 sentCount += 1;
             }
         }
 
-        res.json({ message: "Otomatik tarama tamamlandı.", sentCount });
+        res.json({
+            message: "Otomatik tarama tamamlandı.",
+            summary: {
+                checkedUserCount,
+                checkedFieldCount,
+                skippedNoCropCount,
+                noRiskCount,
+                alreadySentCount,
+                failedPushCount,
+                sentCount
+            }
+        });
     } catch (error) {
         res.status(500).json({
-            message: error.message || "Otomatik uyarı taraması başarısız.",
+            message: error.message || "Otomatik uyarı taraması başarısız."
         });
     }
 });
