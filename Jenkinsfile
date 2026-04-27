@@ -15,11 +15,28 @@ pipeline {
             }
         }
 
+        stage('Prepare Environment') {
+            steps {
+                echo 'Jenkins credentials ile .env dosyası oluşturuluyor...'
+                withCredentials([
+                    string(credentialsId: 'ekinay-mongo-uri', variable: 'MONGO_URI_VALUE'),
+                    string(credentialsId: 'ekinay-auto-alert-secret', variable: 'AUTO_ALERT_SECRET_VALUE')
+                ]) {
+                    sh '''
+                        cat > .env <<EOF
+MONGO_URI=$MONGO_URI_VALUE
+AUTO_ALERT_SECRET=$AUTO_ALERT_SECRET_VALUE
+EOF
+                    '''
+                }
+            }
+        }
+
         stage('Backend Install') {
             steps {
                 echo 'Backend bağımlılıkları kuruluyor...'
                 dir('backend') {
-                    bat 'npm install'
+                    sh 'npm install'
                 }
             }
         }
@@ -27,42 +44,49 @@ pipeline {
         stage('Docker Build') {
             steps {
                 echo 'Docker image build işlemi başlatılıyor...'
-                bat 'docker compose build'
+                sh 'docker compose build'
+            }
+        }
+
+        stage('Docker Compose Down Before Start') {
+            steps {
+                echo 'Önce eski containerlar kapatılıyor...'
+                sh 'docker compose down || true'
             }
         }
 
         stage('Docker Compose Up') {
             steps {
                 echo 'Docker Compose ile servisler ayağa kaldırılıyor...'
-                bat 'docker compose up -d'
+                sh 'docker compose up -d'
             }
         }
 
         stage('Wait For Services') {
             steps {
                 echo 'Servislerin açılması bekleniyor...'
-                bat 'timeout /t 20 /nobreak'
+                sh 'sleep 25'
             }
         }
 
         stage('Backend Health Check') {
             steps {
                 echo 'Backend health check yapılıyor...'
-                bat 'curl -f http://localhost:3000'
+                sh 'curl -f http://localhost:3000'
             }
         }
 
         stage('Frontend Health Check') {
             steps {
                 echo 'Frontend health check yapılıyor...'
-                bat 'curl -f http://localhost:8080'
+                sh 'curl -f http://localhost:8080'
             }
         }
 
         stage('Docker Status') {
             steps {
                 echo 'Çalışan containerlar listeleniyor...'
-                bat 'docker ps'
+                sh 'docker ps'
             }
         }
     }
@@ -70,7 +94,8 @@ pipeline {
     post {
         always {
             echo 'Pipeline tamamlandı. Containerlar kapatılıyor...'
-            bat 'docker compose down'
+            sh 'docker compose down || true'
+            sh 'rm -f .env || true'
         }
 
         success {
