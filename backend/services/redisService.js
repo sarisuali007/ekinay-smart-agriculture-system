@@ -4,15 +4,24 @@ const REDIS_URL = process.env.REDIS_URL || "";
 
 let redisClient = null;
 let isConnecting = false;
+let redisDisabled = false;
 let redisDisabledLogged = false;
+
+function logRedisDisabledOnce(message) {
+    if (!redisDisabledLogged) {
+        console.log(message);
+        redisDisabledLogged = true;
+    }
+}
 
 async function getRedisClient() {
     if (!REDIS_URL) {
-        if (!redisDisabledLogged) {
-            console.log("REDIS_URL tanımlı değil. Redis cache devre dışı çalışıyor.");
-            redisDisabledLogged = true;
-        }
+        redisDisabled = true;
+        logRedisDisabledOnce("REDIS_URL tanımlı değil. Redis cache devre dışı çalışıyor.");
+        return null;
+    }
 
+    if (redisDisabled) {
         return null;
     }
 
@@ -28,11 +37,23 @@ async function getRedisClient() {
     isConnecting = true;
 
     redisClient = createClient({
-        url: REDIS_URL
+        url: REDIS_URL,
+        socket: {
+            reconnectStrategy: false
+        }
     });
 
     redisClient.on("error", (error) => {
-        console.error("Redis bağlantı hatası:", error.message);
+        console.error("Redis bağlantı hatası. Cache devre dışı bırakıldı:", error.message || "Bağlantı kurulamadı.");
+        redisDisabled = true;
+
+        try {
+            redisClient?.destroy();
+        } catch (_) {
+            // Redis destroy hatası yutulur.
+        }
+
+        redisClient = null;
     });
 
     redisClient.on("connect", () => {
@@ -51,7 +72,17 @@ async function getRedisClient() {
         await redisClient.connect();
         return redisClient;
     } catch (error) {
-        console.error("Redis bağlantısı kurulamadı. Cache pas geçilecek:", error.message);
+        console.error("Redis bağlantısı kurulamadı. Cache pas geçilecek:", error.message || "Bağlantı kurulamadı.");
+
+        redisDisabled = true;
+
+        try {
+            redisClient?.destroy();
+        } catch (_) {
+            // Redis destroy hatası yutulur.
+        }
+
+        redisClient = null;
         return null;
     } finally {
         isConnecting = false;
@@ -76,7 +107,7 @@ async function getCache(key) {
         console.log("Redis cache HIT:", key);
         return JSON.parse(value);
     } catch (error) {
-        console.error("Redis getCache hatası:", error.message);
+        console.error("Redis getCache hatası. Cache pas geçilecek:", error.message || "Bilinmeyen hata.");
         return null;
     }
 }
@@ -95,7 +126,7 @@ async function setCache(key, value, ttlSeconds = 900) {
 
         console.log("Redis cache SET:", key, "TTL:", ttlSeconds);
     } catch (error) {
-        console.error("Redis setCache hatası:", error.message);
+        console.error("Redis setCache hatası. Cache yazılamadı:", error.message || "Bilinmeyen hata.");
     }
 }
 
