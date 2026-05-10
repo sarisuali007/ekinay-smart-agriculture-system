@@ -8,6 +8,7 @@ const AutoAlertLog = require("../models/AutoAlertLog");
 
 const { getCache, setCache } = require("../services/redisService");
 const { publishAlertMessage } = require("../services/rabbitmqService");
+const { sendExpoPush } = require("../services/pushService");
 
 const AUTO_ALERT_SECRET = (process.env.AUTO_ALERT_SECRET || "ekinay-secret").trim();
 
@@ -107,6 +108,68 @@ function getSecretFromRequest(req) {
     return secretFromHeader || secretFromQuery;
 }
 
+function buildAlertMessage(user, field, risk) {
+    return {
+        expoPushToken: user.expoPushToken,
+        title: risk.title,
+        body: risk.body,
+        data: {
+            url: `/field-detail?id=${field._id}`,
+            fieldId: String(field._id),
+            alertType: risk.type
+        }
+    };
+}
+
+async function sendDirectPush(alertMessage) {
+    const expoResponse = await sendExpoPush(alertMessage.expoPushToken, {
+        title: alertMessage.title,
+        body: alertMessage.body,
+        data: alertMessage.data
+    });
+
+    if (expoResponse?.data?.status === "error") {
+        return {
+            success: false,
+            deliveryMethod: "direct",
+            error: expoResponse.data.message || "Expo push gönderilemedi."
+        };
+    }
+
+    return {
+        success: true,
+        deliveryMethod: "direct",
+        expoResponse
+    };
+}
+
+async function sendAlertWithFallback(alertMessage) {
+    const rabbitMqEnabled = Boolean(process.env.RABBITMQ_URL);
+
+    if (!rabbitMqEnabled) {
+        console.log("RabbitMQ URL tanımlı değil. Bildirim direkt Expo Push ile gönderilecek.");
+        return await sendDirectPush(alertMessage);
+    }
+
+    try {
+        const publishResult = await publishAlertMessage(alertMessage);
+
+        if (publishResult.published) {
+            return {
+                success: true,
+                deliveryMethod: "rabbitmq",
+                queue: publishResult.queue
+            };
+        }
+
+        console.log("RabbitMQ kuyruğa yazma başarısız. Direkt push deneniyor.");
+        return await sendDirectPush(alertMessage);
+    } catch (error) {
+        console.error("RabbitMQ kullanılamadı. Direkt push deneniyor:", error.message);
+        return await sendDirectPush(alertMessage);
+    }
+}
+
 router.post("/run", async (req, res) => {
     try {
         const secret = getSecretFromRequest(req);
@@ -125,8 +188,10 @@ router.post("/run", async (req, res) => {
         let skippedNoCropCount = 0;
         let noRiskCount = 0;
         let alreadySentCount = 0;
-        let sentCount = 0;
         let failedPushCount = 0;
+        let sentCount = 0;
+        let queuedToRabbitMqCount = 0;
+        let directPushCount = 0;
 
         for (const user of users) {
             checkedUserCount += 1;
@@ -166,27 +231,28 @@ router.post("/run", async (req, res) => {
                     continue;
                 }
 
-                const publishResult = await publishAlertMessage({
-                    expoPushToken: user.expoPushToken,
-                    title: risk.title,
-                    body: risk.body,
-                    data: {
-                        url: `/field-detail?id=${field._id}`,
-                        fieldId: field._id,
-                        alertType: risk.type
-                    }
-                });
+                const alertMessage = buildAlertMessage(user, field, risk);
+                const deliveryResult = await sendAlertWithFallback(alertMessage);
 
-                if (!publishResult.published) {
+                if (!deliveryResult.success) {
                     failedPushCount += 1;
                     continue;
+                }
+
+                if (deliveryResult.deliveryMethod === "rabbitmq") {
+                    queuedToRabbitMqCount += 1;
+                }
+
+                if (deliveryResult.deliveryMethod === "direct") {
+                    directPushCount += 1;
                 }
 
                 await AutoAlertLog.create({
                     userId: user._id,
                     fieldId: field._id,
                     alertType: risk.type,
-                    slotKey: risk.slotKey
+                    slotKey: risk.slotKey,
+                    deliveryMethod: deliveryResult.deliveryMethod
                 });
 
                 sentCount += 1;
@@ -202,7 +268,9 @@ router.post("/run", async (req, res) => {
                 noRiskCount,
                 alreadySentCount,
                 failedPushCount,
-                sentCount
+                sentCount,
+                queuedToRabbitMqCount,
+                directPushCount
             }
         });
     } catch (error) {

@@ -1,11 +1,21 @@
 const { createClient } = require("redis");
 
-const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
+const REDIS_URL = process.env.REDIS_URL || "";
 
 let redisClient = null;
 let isConnecting = false;
+let redisDisabledLogged = false;
 
 async function getRedisClient() {
+    if (!REDIS_URL) {
+        if (!redisDisabledLogged) {
+            console.log("REDIS_URL tanımlı değil. Redis cache devre dışı çalışıyor.");
+            redisDisabledLogged = true;
+        }
+
+        return null;
+    }
+
     if (redisClient?.isOpen) {
         return redisClient;
     }
@@ -40,6 +50,9 @@ async function getRedisClient() {
     try {
         await redisClient.connect();
         return redisClient;
+    } catch (error) {
+        console.error("Redis bağlantısı kurulamadı. Cache pas geçilecek:", error.message);
+        return null;
     } finally {
         isConnecting = false;
     }
@@ -48,6 +61,11 @@ async function getRedisClient() {
 async function getCache(key) {
     try {
         const client = await getRedisClient();
+
+        if (!client) {
+            return null;
+        }
+
         const value = await client.get(key);
 
         if (!value) {
@@ -66,6 +84,10 @@ async function getCache(key) {
 async function setCache(key, value, ttlSeconds = 900) {
     try {
         const client = await getRedisClient();
+
+        if (!client) {
+            return;
+        }
 
         await client.set(key, JSON.stringify(value), {
             EX: ttlSeconds
