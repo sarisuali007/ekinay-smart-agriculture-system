@@ -17,6 +17,7 @@ const cropsRouter = require("./routes/crops");
 const recommendationsRouter = require("./routes/recommendations");
 const autoAlertsRoutes = require("./routes/autoAlerts");
 const testPushRoutes = require("./routes/testPush");
+const rabbitTestRoutes = require("./routes/rabbitTest");
 
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
@@ -25,6 +26,7 @@ app.use("/crops", cropsRouter);
 app.use("/recommendations", recommendationsRouter);
 app.use("/auto-alerts", autoAlertsRoutes);
 app.use("/test-push", testPushRoutes);
+app.use("/rabbit-test", rabbitTestRoutes);
 
 app.get("/", (req, res) => {
   res.send("Ekinay API is running");

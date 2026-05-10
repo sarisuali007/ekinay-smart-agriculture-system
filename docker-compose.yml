@@ -17,6 +17,20 @@ services:
       - redis
     restart: unless-stopped
 
+  alert-worker:
+    build:
+      context: ./backend
+    container_name: ekinay-alert-worker
+    command: npm run worker:alerts
+    environment:
+      MONGO_URI: ${MONGO_URI}
+      AUTO_ALERT_SECRET: ${AUTO_ALERT_SECRET}
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      ALERT_QUEUE: ekinay.alert.notifications
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+
   frontend:
     build:
       context: ./frontend

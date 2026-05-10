@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "worker:alerts": "node workers/alertWorker.js"
   },
   "keywords": [],
   "author": "",
