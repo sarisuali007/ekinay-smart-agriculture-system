@@ -30,10 +30,13 @@ EOF
             }
         }
 
-        stage('Docker Compose Down Before Start') {
+        stage('Docker Cleanup Before Start') {
             steps {
-                echo 'Önce eski containerlar kapatılıyor...'
+                echo 'Önce eski Ekinay containerları temizleniyor...'
                 sh 'docker compose down || true'
+                sh '''
+                    docker rm -f ekinay-rabbitmq ekinay-redis ekinay-backend ekinay-frontend ekinay-alert-worker || true
+                '''
             }
         }
 
