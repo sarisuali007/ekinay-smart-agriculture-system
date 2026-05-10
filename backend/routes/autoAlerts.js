@@ -6,9 +6,19 @@ const Field = require("../models/Field");
 const Crop = require("../models/Crop");
 const AutoAlertLog = require("../models/AutoAlertLog");
 
+const { getCache, setCache } = require("../services/redisService");
+const { publishAlertMessage } = require("../services/rabbitmqService");
+
 const AUTO_ALERT_SECRET = (process.env.AUTO_ALERT_SECRET || "ekinay-secret").trim();
 
 async function fetchShortWindowWeather(field) {
+    const cacheKey = `weather:short:${field.latitude}:${field.longitude}`;
+    const cachedWeather = await getCache(cacheKey);
+
+    if (cachedWeather) {
+        return cachedWeather;
+    }
+
     const url =
         `https://api.open-meteo.com/v1/forecast?latitude=${field.latitude}` +
         `&longitude=${field.longitude}` +
@@ -21,7 +31,11 @@ async function fetchShortWindowWeather(field) {
         throw new Error("Kısa pencere hava verisi alınamadı.");
     }
 
-    return await response.json();
+    const data = await response.json();
+
+    await setCache(cacheKey, data, 600);
+
+    return data;
 }
 
 function detectUpcomingRisk(field, crop, weatherData) {
@@ -84,24 +98,6 @@ function detectUpcomingRisk(field, crop, weatherData) {
     }
 
     return null;
-}
-
-async function sendExpoPush(expoPushToken, payload) {
-    const response = await fetch("https://exp.host/--/api/v2/push/send", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            to: expoPushToken,
-            sound: "default",
-            title: payload.title,
-            body: payload.body,
-            data: payload.data
-        })
-    });
-
-    return await response.json();
 }
 
 function getSecretFromRequest(req) {
@@ -170,7 +166,8 @@ router.post("/run", async (req, res) => {
                     continue;
                 }
 
-                const expoResponse = await sendExpoPush(user.expoPushToken, {
+                const publishResult = await publishAlertMessage({
+                    expoPushToken: user.expoPushToken,
                     title: risk.title,
                     body: risk.body,
                     data: {
@@ -180,9 +177,7 @@ router.post("/run", async (req, res) => {
                     }
                 });
 
-                const expoStatus = expoResponse?.data?.status;
-
-                if (expoStatus === "error") {
+                if (!publishResult.published) {
                     failedPushCount += 1;
                     continue;
                 }
