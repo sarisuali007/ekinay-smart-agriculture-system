@@ -10,13 +10,12 @@ import {
   ScrollView,
 } from "react-native";
 import MapView, { Marker, Polygon } from "react-native-maps";
-import * as Location from "expo-location";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { apiRequest } from "../lib/api";
 import { getUserId } from "../lib/auth";
 
 function calculatePolygonCenter(points) {
-  if (!points.length) return { latitude: 37.0, longitude: 35.0 };
+  if (!points.length) return { latitude: 36.8969, longitude: 30.7133 };
 
   let totalLat = 0;
   let totalLng = 0;
@@ -47,7 +46,6 @@ function backendToMapPoints(polygon) {
   }));
 }
 
-// Basit yaklaşık alan hesabı (m²)
 function calculatePolygonArea(points) {
   if (!points || points.length < 3) return 0;
 
@@ -84,8 +82,8 @@ export default function FieldFormScreen() {
 
   const [points, setPoints] = useState([]);
   const [region, setRegion] = useState({
-    latitude: 38.9637,
-    longitude: 35.2433,
+    latitude: 36.8969,
+    longitude: 30.7133,
     latitudeDelta: 0.08,
     longitudeDelta: 0.08,
   });
@@ -143,45 +141,50 @@ export default function FieldFormScreen() {
             longitudeDelta: 0.02,
           });
         }
-      } else {
-        await goToCurrentLocation();
       }
     } catch (error) {
-      Alert.alert("Hata", error.message);
+      Alert.alert("Hata", error.message || "Tarla formu yüklenemedi.");
     } finally {
       setLoading(false);
     }
   }
 
-  async function goToCurrentLocation() {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        return;
-      }
+  function focusAntalya() {
+    setRegion({
+      latitude: 36.8969,
+      longitude: 30.7133,
+      latitudeDelta: 0.05,
+      longitudeDelta: 0.05,
+    });
 
-      const location = await Location.getCurrentPositionAsync({});
-      setRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.02,
-      });
+    if (!fieldLocation.trim()) {
+      setFieldLocation("Antalya");
+    }
+  }
 
-      const reverse = await Location.reverseGeocodeAsync({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
+  function focusKonya() {
+    setRegion({
+      latitude: 37.8714,
+      longitude: 32.4846,
+      latitudeDelta: 0.08,
+      longitudeDelta: 0.08,
+    });
 
-      if (reverse.length && !fieldLocation) {
-        const place = reverse[0];
-        const text = [place.city, place.district, place.region]
-          .filter(Boolean)
-          .join(" / ");
-        if (text) setFieldLocation(text);
-      }
-    } catch {
-      // burada sessiz geçiyoruz
+    if (!fieldLocation.trim()) {
+      setFieldLocation("Konya");
+    }
+  }
+
+  function focusTurkeyCenter() {
+    setRegion({
+      latitude: 38.9637,
+      longitude: 35.2433,
+      latitudeDelta: 2.5,
+      longitudeDelta: 2.5,
+    });
+
+    if (!fieldLocation.trim()) {
+      setFieldLocation("Türkiye");
     }
   }
 
@@ -216,8 +219,8 @@ export default function FieldFormScreen() {
 
       const payload = {
         userId,
-        name: fieldName,
-        location: fieldLocation,
+        name: fieldName.trim(),
+        location: fieldLocation.trim(),
         latitude: center.latitude,
         longitude: center.longitude,
         areaM2: Math.round(areaM2),
@@ -247,7 +250,7 @@ export default function FieldFormScreen() {
 
       router.replace("/dashboard");
     } catch (error) {
-      Alert.alert("Hata", error.message);
+      Alert.alert("Hata", error.message || "Tarla kaydedilemedi.");
     } finally {
       setSaving(false);
     }
@@ -268,7 +271,7 @@ export default function FieldFormScreen() {
 
       router.replace("/dashboard");
     } catch (error) {
-      Alert.alert("Hata", error.message);
+      Alert.alert("Hata", error.message || "Tarla silinemedi.");
     }
   }
 
@@ -285,7 +288,7 @@ export default function FieldFormScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>{fieldId ? "Tarlayı Düzenle" : "Yeni Tarla Ekle"}</Text>
       <Text style={styles.subtitle}>
-        Haritaya dokunarak köşeleri seç. En az 3 nokta gerekli.
+        Haritaya dokunarak tarla köşelerini seç. En az 3 nokta gerekli.
       </Text>
 
       <TextInput
@@ -308,6 +311,7 @@ export default function FieldFormScreen() {
         <MapView
           style={styles.map}
           region={region}
+          onRegionChangeComplete={setRegion}
           onPress={handleMapPress}
         >
           {points.map((point, index) => (
@@ -332,8 +336,16 @@ export default function FieldFormScreen() {
       </Text>
 
       <View style={styles.actionRow}>
-        <Pressable style={styles.smallButton} onPress={goToCurrentLocation}>
-          <Text style={styles.smallButtonText}>Konumuma Git</Text>
+        <Pressable style={styles.smallButton} onPress={focusAntalya}>
+          <Text style={styles.smallButtonText}>Antalya</Text>
+        </Pressable>
+
+        <Pressable style={styles.smallButton} onPress={focusKonya}>
+          <Text style={styles.smallButtonText}>Konya</Text>
+        </Pressable>
+
+        <Pressable style={styles.smallButton} onPress={focusTurkeyCenter}>
+          <Text style={styles.smallButtonText}>Türkiye</Text>
         </Pressable>
 
         <Pressable style={styles.smallButton} onPress={handleUndoLastPoint}>
@@ -481,6 +493,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 4,
+  },
+  primaryButtonDisabled: {
+    opacity: 0.7,
   },
   primaryButtonText: {
     color: "#ffffff",
