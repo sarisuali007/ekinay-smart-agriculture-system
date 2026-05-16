@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   ScrollView,
 } from "react-native";
-import MapView, { Marker, Polygon } from "react-native-maps";
+import MapView, { Marker, Polygon, PROVIDER_GOOGLE } from "react-native-maps";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { apiRequest } from "../lib/api";
 import { getUserId } from "../lib/auth";
@@ -309,6 +309,7 @@ export default function FieldFormScreen() {
 
       <View style={styles.mapWrap}>
         <MapView
+          provider={PROVIDER_GOOGLE}
           style={styles.map}
           region={region}
           onRegionChangeComplete={setRegion}
