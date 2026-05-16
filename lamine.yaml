@@ -1,36 +1,56 @@
 openapi: 3.0.3
+
 info:
   title: Ekinay Smart Agriculture API
   version: 1.0.0
   description: |
-    Ekinay sistemi kullanıcıların tarla ve ürün yönetimi yapmasını sağlar.
-    Sistem ayrıca sulama önerileri ve hava uyarıları sunar.
+    Ekinay, kullanıcıların tarla ve ürün yönetimi yapmasını, sulama önerileri almasını,
+    hava riski uyarılarını takip etmesini ve mobil push bildirimleri almasını sağlayan
+    akıllı tarım destek sistemidir.
   contact:
     name: Ali Sarısu
     email: alisarisu007@gmail.com
 
 servers:
   - url: http://localhost:3000
-    description: Development server
-  - url: https://ekinay-smart-agriculture-system.vercel.app
-    description: Frontend domain
+    description: Local development server
   - url: https://ekinay-smart-agriculture-system.onrender.com
-    description: Api domain  
-
+    description: Render production REST API
 
 tags:
   - name: Authentication
     description: Kullanıcı kayıt ve giriş işlemleri
   - name: Users
-    description: Kullanıcı profil işlemleri
+    description: Kullanıcı profil, silme ve mobil push token işlemleri
   - name: Fields
     description: Tarla yönetimi
   - name: Crops
     description: Ürün yönetimi
   - name: Recommendations
     description: Sulama önerileri ve hava uyarıları
+  - name: Push
+    description: Mobil push bildirim test işlemleri
+  - name: Auto Alerts
+    description: Otomatik hava riski taraması ve bildirim sistemi
+  - name: RabbitMQ
+    description: RabbitMQ kuyruğu üzerinden bildirim testi
 
 paths:
+  /:
+    get:
+      tags:
+        - System
+      summary: API çalışma kontrolü
+      operationId: getApiHealth
+      responses:
+        "200":
+          description: API çalışıyor
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Ekinay API is running
+
   /auth/register:
     post:
       tags:
@@ -42,20 +62,33 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterRequest'
+              $ref: "#/components/schemas/RegisterRequest"
             example:
-              name: Ahmet Yılmaz
-              email: ahmet@example.com
+              name: Ali Sarısu
+              email: ali@test.com
               password: "123456"
       responses:
-        "200":
+        "201":
           description: Kayıt işlemi başarılı
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: "#/components/schemas/AuthResponse"
               example:
                 message: Kayıt işlemi başarılı!
+                user:
+                  _id: "USER_ID"
+                  name: Ali Sarısu
+                  email: ali@test.com
+                  password: "123456"
+                  expoPushToken: ""
+                  pushAlertsEnabled: true
+        "400":
+          description: Eksik alan veya tekrar eden email
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
   /auth/login:
     post:
@@ -68,9 +101,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: "#/components/schemas/LoginRequest"
             example:
-              email: ahmet@example.com
+              email: ali@test.com
               password: "123456"
       responses:
         "200":
@@ -78,32 +111,61 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: "#/components/schemas/AuthResponse"
               example:
                 message: Giriş işlemi başarılı!
+                user:
+                  _id: "USER_ID"
+                  name: Ali Sarısu
+                  email: ali@test.com
+                  password: "123456"
+                  expoPushToken: "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]"
+                  pushAlertsEnabled: true
+        "401":
+          description: Email veya şifre hatalı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
   /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Kullanıcı profil bilgisi getirme
+      operationId: getUserById
+      parameters:
+        - $ref: "#/components/parameters/UserIdPath"
+      responses:
+        "200":
+          description: Kullanıcı bilgileri getirildi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGetResponse"
+        "404":
+          description: Kullanıcı bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
     put:
       tags:
         - Users
-      summary: Kullanıcı profili güncelleme
+      summary: Kullanıcı profil bilgisi güncelleme
       operationId: updateUser
       parameters:
-        - name: userId
-          in: path
-          required: true
-          description: Güncellenecek kullanıcının ID bilgisi
-          schema:
-            type: string
+        - $ref: "#/components/parameters/UserIdPath"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserUpdateRequest'
+              $ref: "#/components/schemas/UserUpdateRequest"
             example:
-              name: Ahmet Yılmaz
-              email: ahmet@example.com
+              name: Ali Güncel
+              email: aliguncel@test.com
               password: "654321"
       responses:
         "200":
@@ -111,21 +173,74 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserUpdateResponse'
-              example:
-                message: Kullanıcı 1 bilgileri güncellendi.
-                updatedUser:
-                  id: "1"
-                  name: Ahmet Yılmaz
-                  email: ahmet@example.com
-                  password: "654321"
+                $ref: "#/components/schemas/UserUpdateResponse"
+        "404":
+          description: Kullanıcı bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+    delete:
+      tags:
+        - Users
+      summary: Kullanıcı silme
+      operationId: deleteUser
+      parameters:
+        - $ref: "#/components/parameters/UserIdPath"
+      responses:
+        "200":
+          description: Kullanıcı silindi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDeleteResponse"
+        "404":
+          description: Kullanıcı bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /users/{userId}/push-token:
+    put:
+      tags:
+        - Users
+      summary: Mobil Expo push token kaydetme
+      operationId: updateUserPushToken
+      parameters:
+        - $ref: "#/components/parameters/UserIdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PushTokenRequest"
+            example:
+              expoPushToken: "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]"
+              pushAlertsEnabled: true
+      responses:
+        "200":
+          description: Push token kaydedildi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGetResponse"
+        "404":
+          description: Kullanıcı bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
   /fields:
     get:
       tags:
         - Fields
-      summary: Tarlaları listeleme
+      summary: Kullanıcıya ait tarlaları listeleme
       operationId: getFields
+      parameters:
+        - $ref: "#/components/parameters/UserIdQuery"
       responses:
         "200":
           description: Tarla listesi başarıyla getirildi
@@ -134,14 +249,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Field'
-              example:
-                - id: 1
-                  name: Tarla 1
-                  location: Isparta
-                - id: 2
-                  name: Tarla 2
-                  location: Antalya
+                  $ref: "#/components/schemas/Field"
+        "400":
+          description: Kullanıcı bilgisi zorunludur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
     post:
       tags:
@@ -153,22 +267,35 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FieldRequest'
+              $ref: "#/components/schemas/FieldRequest"
             example:
-              name: Tarla 3
-              location: Konya
+              userId: "USER_ID"
+              name: Domates Tarlası
+              location: Antalya
+              latitude: 36.8969
+              longitude: 30.7133
+              areaM2: 1200
+              isGreenhouse: false
+              polygon:
+                - lat: 36.8969
+                  lng: 30.7133
+                - lat: 36.8971
+                  lng: 30.7135
+                - lat: 36.8968
+                  lng: 30.7138
       responses:
-        "200":
+        "201":
           description: Yeni tarla bilgisi eklendi
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FieldCreateResponse'
-              example:
-                message: Yeni tarla bilgisi eklendi.
-                field:
-                  name: Tarla 3
-                  location: Konya
+                $ref: "#/components/schemas/FieldCreateResponse"
+        "400":
+          description: Eksik veya hatalı tarla bilgisi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
   /fields/{fieldId}:
     put:
@@ -177,34 +304,26 @@ paths:
       summary: Tarla bilgisi güncelleme
       operationId: updateField
       parameters:
-        - name: fieldId
-          in: path
-          required: true
-          description: Güncellenecek tarlanın ID bilgisi
-          schema:
-            type: string
+        - $ref: "#/components/parameters/FieldIdPath"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FieldRequest'
-            example:
-              name: Tarla 1 Güncel
-              location: Burdur
+              $ref: "#/components/schemas/FieldRequest"
       responses:
         "200":
           description: Tarla bilgisi güncellendi
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FieldUpdateResponse'
-              example:
-                message: Tarla bilgisi güncellendi.
-                updatedField:
-                  id: "1"
-                  name: Tarla 1 Güncel
-                  location: Burdur
+                $ref: "#/components/schemas/FieldUpdateResponse"
+        "404":
+          description: Tarla bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
     delete:
       tags:
@@ -212,23 +331,48 @@ paths:
       summary: Tarla silme
       operationId: deleteField
       parameters:
-        - name: fieldId
-          in: path
-          required: true
-          description: Silinecek tarlanın ID bilgisi
-          schema:
-            type: string
+        - $ref: "#/components/parameters/FieldIdPath"
+        - $ref: "#/components/parameters/UserIdQuery"
       responses:
         "200":
           description: Tarla silindi
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: "#/components/schemas/MessageResponse"
               example:
-                message: Tarla 1 silindi.
+                message: Tarla silindi.
+        "404":
+          description: Tarla bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
   /crops:
+    get:
+      tags:
+        - Crops
+      summary: Kullanıcıya ait ürünleri listeleme
+      operationId: getCrops
+      parameters:
+        - $ref: "#/components/parameters/UserIdQuery"
+      responses:
+        "200":
+          description: Ürün listesi başarıyla getirildi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Crop"
+        "400":
+          description: Kullanıcı bilgisi zorunludur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
     post:
       tags:
         - Crops
@@ -239,22 +383,31 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CropRequest'
+              $ref: "#/components/schemas/CropRequest"
             example:
-              name: Domates
-              fieldId: "1"
+              userId: "USER_ID"
+              name: domates
+              fieldId: "FIELD_ID"
+              sowingDate: "2026-05-01"
       responses:
-        "200":
+        "201":
           description: Yeni ürün bilgisi eklendi
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CropCreateResponse'
-              example:
-                message: Yeni ürün bilgisi eklendi.
-                crop:
-                  name: Domates
-                  fieldId: "1"
+                $ref: "#/components/schemas/CropCreateResponse"
+        "400":
+          description: Eksik ürün bilgisi veya geçersiz ürün adı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "404":
+          description: İlgili tarla bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
   /crops/{cropId}:
     put:
@@ -263,34 +416,26 @@ paths:
       summary: Ürün bilgisi güncelleme
       operationId: updateCrop
       parameters:
-        - name: cropId
-          in: path
-          required: true
-          description: Güncellenecek ürünün ID bilgisi
-          schema:
-            type: string
+        - $ref: "#/components/parameters/CropIdPath"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CropRequest'
-            example:
-              name: Biber
-              fieldId: "1"
+              $ref: "#/components/schemas/CropRequest"
       responses:
         "200":
           description: Ürün bilgisi güncellendi
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CropUpdateResponse'
-              example:
-                message: Ürün bilgisi güncellendi.
-                updatedCrop:
-                  id: "1"
-                  name: Biber
-                  fieldId: "1"
+                $ref: "#/components/schemas/CropUpdateResponse"
+        "404":
+          description: Ürün bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
     delete:
       tags:
@@ -298,21 +443,23 @@ paths:
       summary: Ürün silme
       operationId: deleteCrop
       parameters:
-        - name: cropId
-          in: path
-          required: true
-          description: Silinecek ürünün ID bilgisi
-          schema:
-            type: string
+        - $ref: "#/components/parameters/CropIdPath"
+        - $ref: "#/components/parameters/UserIdQuery"
       responses:
         "200":
           description: Ürün silindi
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: "#/components/schemas/MessageResponse"
               example:
-                message: Ürün 1 silindi.
+                message: Ürün silindi.
+        "404":
+          description: Ürün bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
   /recommendations/irrigation/{fieldId}:
     get:
@@ -321,21 +468,20 @@ paths:
       summary: Sulama önerisi alma
       operationId: getIrrigationRecommendation
       parameters:
-        - name: fieldId
-          in: path
-          required: true
-          description: Sulama önerisi alınacak tarlanın ID bilgisi
-          schema:
-            type: string
+        - $ref: "#/components/parameters/FieldIdPath"
       responses:
         "200":
           description: Sulama önerisi başarıyla getirildi
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
-              example:
-                message: "Tarla 1 için sulama önerisi: Yarın sabah sulama yapın."
+                $ref: "#/components/schemas/IrrigationRecommendationResponse"
+        "404":
+          description: Tarla veya ürün bilgisi bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
   /recommendations/alerts/{fieldId}:
     get:
@@ -344,23 +490,159 @@ paths:
       summary: Hava uyarısı alma
       operationId: getWeatherAlert
       parameters:
-        - name: fieldId
-          in: path
-          required: true
-          description: Hava uyarısı alınacak tarlanın ID bilgisi
-          schema:
-            type: string
+        - $ref: "#/components/parameters/FieldIdPath"
       responses:
         "200":
           description: Hava uyarısı başarıyla getirildi
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: "#/components/schemas/WeatherAlertResponse"
+        "404":
+          description: Tarla veya ürün bilgisi bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /test-push/run:
+    post:
+      tags:
+        - Push
+      summary: Gerçek telefona test push bildirimi gönderme
+      operationId: runTestPush
+      parameters:
+        - $ref: "#/components/parameters/SecretQuery"
+      responses:
+        "200":
+          description: Test bildirimi gönderildi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TestPushResponse"
+        "403":
+          description: Yetkisiz istek
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "404":
+          description: Push token kayıtlı kullanıcı veya tarla bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auto-alerts/run:
+    post:
+      tags:
+        - Auto Alerts
+      summary: Otomatik hava riski taraması çalıştırma
+      operationId: runAutoAlerts
+      parameters:
+        - $ref: "#/components/parameters/SecretQuery"
+      responses:
+        "200":
+          description: Otomatik tarama tamamlandı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutoAlertRunResponse"
               example:
-                message: "Tarla 1 için hava uyarısı: Gece don riski var."
+                message: Otomatik tarama tamamlandı.
+                summary:
+                  checkedUserCount: 1
+                  checkedFieldCount: 3
+                  skippedNoCropCount: 0
+                  noRiskCount: 3
+                  alreadySentCount: 0
+                  failedPushCount: 0
+                  sentCount: 0
+                  queuedToRabbitMqCount: 0
+                  directPushCount: 0
+        "403":
+          description: Yetkisiz istek
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /rabbit-test/push:
+    post:
+      tags:
+        - RabbitMQ
+      summary: RabbitMQ kuyruğuna test bildirimi gönderme
+      operationId: runRabbitMqPushTest
+      parameters:
+        - $ref: "#/components/parameters/SecretQuery"
+        - name: userId
+          in: query
+          required: false
+          description: Belirli bir kullanıcıya test bildirimi göndermek için opsiyonel kullanıcı ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Bildirim mesajı RabbitMQ kuyruğuna gönderildi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RabbitTestResponse"
+        "403":
+          description: Yetkisiz istek
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "404":
+          description: Push token kayıtlı kullanıcı bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
 components:
+  parameters:
+    UserIdPath:
+      name: userId
+      in: path
+      required: true
+      description: Kullanıcının MongoDB ObjectId bilgisi
+      schema:
+        type: string
+
+    FieldIdPath:
+      name: fieldId
+      in: path
+      required: true
+      description: Tarlanın MongoDB ObjectId bilgisi
+      schema:
+        type: string
+
+    CropIdPath:
+      name: cropId
+      in: path
+      required: true
+      description: Ürünün MongoDB ObjectId bilgisi
+      schema:
+        type: string
+
+    UserIdQuery:
+      name: userId
+      in: query
+      required: true
+      description: Kullanıcının MongoDB ObjectId bilgisi
+      schema:
+        type: string
+
+    SecretQuery:
+      name: secret
+      in: query
+      required: true
+      description: Otomatik alarm ve bildirim test endpointleri için gizli anahtar
+      schema:
+        type: string
+
   schemas:
     MessageResponse:
       type: object
@@ -395,9 +677,19 @@ components:
         password:
           type: string
 
-    UserUpdateRequest:
+    AuthResponse:
       type: object
       properties:
+        message:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
         name:
           type: string
         email:
@@ -405,12 +697,28 @@ components:
           format: email
         password:
           type: string
+        expoPushToken:
+          type: string
+        pushAlertsEnabled:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
 
-    User:
+    UserGetResponse:
       type: object
       properties:
-        id:
+        message:
           type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    UserUpdateRequest:
+      type: object
+      properties:
         name:
           type: string
         email:
@@ -425,28 +733,95 @@ components:
         message:
           type: string
         updatedUser:
-          $ref: '#/components/schemas/User'
+          $ref: "#/components/schemas/User"
+
+    UserDeleteResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        deletedUser:
+          $ref: "#/components/schemas/User"
+
+    PushTokenRequest:
+      type: object
+      required:
+        - expoPushToken
+      properties:
+        expoPushToken:
+          type: string
+        pushAlertsEnabled:
+          type: boolean
+
+    PolygonPoint:
+      type: object
+      required:
+        - lat
+        - lng
+      properties:
+        lat:
+          type: number
+        lng:
+          type: number
 
     Field:
       type: object
       properties:
-        id:
-          type: integer
+        _id:
+          type: string
+        userId:
+          type: string
         name:
           type: string
         location:
           type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        areaM2:
+          type: number
+        isGreenhouse:
+          type: boolean
+        polygon:
+          type: array
+          items:
+            $ref: "#/components/schemas/PolygonPoint"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
 
     FieldRequest:
       type: object
       required:
+        - userId
         - name
         - location
+        - latitude
+        - longitude
+        - polygon
       properties:
+        userId:
+          type: string
         name:
           type: string
         location:
           type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        areaM2:
+          type: number
+        isGreenhouse:
+          type: boolean
+        polygon:
+          type: array
+          items:
+            $ref: "#/components/schemas/PolygonPoint"
 
     FieldCreateResponse:
       type: object
@@ -454,12 +829,7 @@ components:
         message:
           type: string
         field:
-          type: object
-          properties:
-            name:
-              type: string
-            location:
-              type: string
+          $ref: "#/components/schemas/Field"
 
     FieldUpdateResponse:
       type: object
@@ -467,35 +837,56 @@ components:
         message:
           type: string
         updatedField:
-          type: object
-          properties:
-            id:
-              type: string
-            name:
-              type: string
-            location:
-              type: string
+          $ref: "#/components/schemas/Field"
 
     Crop:
       type: object
       properties:
-        id:
+        _id:
+          type: string
+        userId:
           type: string
         name:
           type: string
+          enum:
+            - domates
+            - biber
+            - salatalık
+            - fasulye
         fieldId:
           type: string
+        sowingDate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
 
     CropRequest:
       type: object
       required:
+        - userId
         - name
         - fieldId
+        - sowingDate
       properties:
+        userId:
+          type: string
         name:
           type: string
+          enum:
+            - domates
+            - biber
+            - salatalık
+            - fasulye
         fieldId:
           type: string
+        sowingDate:
+          type: string
+          format: date
 
     CropCreateResponse:
       type: object
@@ -503,12 +894,7 @@ components:
         message:
           type: string
         crop:
-          type: object
-          properties:
-            name:
-              type: string
-            fieldId:
-              type: string
+          $ref: "#/components/schemas/Crop"
 
     CropUpdateResponse:
       type: object
@@ -516,4 +902,100 @@ components:
         message:
           type: string
         updatedCrop:
-          $ref: '#/components/schemas/Crop'
+          $ref: "#/components/schemas/Crop"
+
+    IrrigationRecommendationResponse:
+      type: object
+      properties:
+        field:
+          $ref: "#/components/schemas/Field"
+        crop:
+          $ref: "#/components/schemas/Crop"
+        weather:
+          type: object
+        daysFromSowing:
+          type: integer
+        stage:
+          type: object
+        estimatedHarvestDate:
+          type: string
+          format: date
+        irrigation:
+          type: object
+        calendar:
+          type: array
+          items:
+            type: object
+        message:
+          type: string
+
+    WeatherAlertResponse:
+      type: object
+      properties:
+        field:
+          $ref: "#/components/schemas/Field"
+        crop:
+          $ref: "#/components/schemas/Crop"
+        weather:
+          type: object
+        alert:
+          type: string
+        message:
+          type: string
+
+    TestPushResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        userId:
+          type: string
+        fieldId:
+          type: string
+        expoResponse:
+          type: object
+
+    AutoAlertSummary:
+      type: object
+      properties:
+        checkedUserCount:
+          type: integer
+        checkedFieldCount:
+          type: integer
+        skippedNoCropCount:
+          type: integer
+        noRiskCount:
+          type: integer
+        alreadySentCount:
+          type: integer
+        failedPushCount:
+          type: integer
+        sentCount:
+          type: integer
+        queuedToRabbitMqCount:
+          type: integer
+        directPushCount:
+          type: integer
+
+    AutoAlertRunResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        summary:
+          $ref: "#/components/schemas/AutoAlertSummary"
+
+    RabbitTestResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        userId:
+          type: string
+        fieldId:
+          type: string
+          nullable: true
+        queue:
+          type: string
+        published:
+          type: boolean

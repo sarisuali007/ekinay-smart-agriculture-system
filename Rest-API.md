@@ -15,7 +15,7 @@ https://ekinay-smart-agriculture-system.onrender.com
 
 Proje tek kişi tarafından geliştirilmiştir.
 
-1. [Ali Sarısu REST API Görevleri](Ali-Sarısu/Ali-Sarısu-Rest-API-Gorevleri.md)
+1. [Ali SARISU REST API Görevleri](Ali-SARISU/Ali-SARISU-Rest-API-Gorevleri.md)
 
 ---
 

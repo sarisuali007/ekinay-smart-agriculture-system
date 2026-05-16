@@ -15,7 +15,7 @@ https://ekinay-smart-agriculture-system.vercel.app
 
 Proje tek kişi tarafından geliştirilmiştir.
 
-1. [Ali Sarısu Web Frontend Görevleri](Ali-Sarısu/Ali-Sarısu-Web-Frontend-Gorevleri.md)
+1. [Ali SARISU Web Frontend Görevleri](Ali-SARISU/Ali-SARISU-Web-Frontend-Gorevleri.md)
 
 ---
 

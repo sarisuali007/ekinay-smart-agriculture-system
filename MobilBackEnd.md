@@ -23,11 +23,11 @@ https://ekinay-smart-agriculture-system.onrender.com
 
 ## Sorumlu Öğrenci
 
-- Ali Sarısu
+- Ali SARISU
 
 Ayrıntılı görev listesi:
 
-- [Ali Sarısu Mobil Backend Görevleri](Ali-Sarısu/Ali-Sarısu-Mobil-Backend-Gorevleri.md)
+- [Ali SARISU Mobil Backend Görevleri](Ali-SARISU/Ali-SARISU-Mobil-Backend-Gorevleri.md)
 
 ---
 

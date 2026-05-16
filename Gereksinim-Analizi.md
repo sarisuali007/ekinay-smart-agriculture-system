@@ -10,7 +10,7 @@ Ekinay, tarımsal üretim yapan kullanıcıların tarlalarını, ürünlerini, s
 
 - **Proje Adı:** Ekinay
 - **Grup Adı:** TENGYAMİ
-- **Öğrenci:** Ali Sarısu
+- **Öğrenci:** Ali SARISU
 - **Proje Kategorisi:** Tarım / Akıllı Tarım
 - **Platformlar:** Web Frontend, Mobil Uygulama, REST API
 - **Veritabanı:** MongoDB Atlas
@@ -95,6 +95,6 @@ Ekinay, tarımsal üretim yapan kullanıcıların tarlalarını, ürünlerini, s
 
 ## Gereksinim Dağılımları
 
-Proje tek kişi tarafından geliştirildiği için tüm gereksinimlerden Ali Sarısu sorumludur.
+Proje tek kişi tarafından geliştirildiği için tüm gereksinimlerden Ali SARISU sorumludur.
 
-1. [Ali Sarısu Gereksinimleri](Ali-Sarısu/Ali-Sarısu-Gereksinimler.md)
+1. [Ali SARISU Gereksinimleri](Ali-SARISU/Ali-SARISU-Gereksinimler.md)

@@ -15,11 +15,11 @@ Mobil uygulama React Native ve Expo kullanılarak geliştirilmiştir. Uygulama g
 
 ## Sorumlu Öğrenci
 
-- Ali Sarısu
+- Ali SARISU
 
 Ayrıntılı görev listesi:
 
-- [Ali Sarısu Mobil Frontend Görevleri](Ali-Sarısu/Ali-Sarısu-Mobil-Frontend-Gorevleri.md)
+- [Ali SARISU Mobil Frontend Görevleri](Ali-SARISU/Ali-SARISU-Mobil-Frontend-Gorevleri.md)
 
 ---
 
