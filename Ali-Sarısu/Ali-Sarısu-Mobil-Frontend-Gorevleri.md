@@ -1,14 +1,12 @@
+# Ali Sarısu'nun Mobil Frontend Görevleri
 
----
+Bu dosyada Ekinay mobil uygulamasının frontend tarafında yapılan işler açıklanmaktadır.
 
-# 3) `MobilFrontEnd.md` dosyasını komple değiştir
-
-```markdown
-# Mobil Frontend
-
-Bu dokümanda Ekinay mobil uygulamasının kullanıcı arayüzü ve kullanıcı deneyimi tarafında yapılan işler açıklanmaktadır.
-
-Mobil uygulama React Native ve Expo kullanılarak geliştirilmiştir. Uygulama gerçek Android telefon üzerinde test edilmiştir.
+- **Öğrenci:** Ali Sarısu
+- **Grup:** TENGYAMİ
+- **Proje:** Ekinay
+- **Mobil Teknoloji:** React Native + Expo
+- **Test Ortamı:** Gerçek Android telefon
 
 ---
 
@@ -19,123 +17,318 @@ Mobil uygulama React Native ve Expo kullanılarak geliştirilmiştir. Uygulama g
 
 ---
 
-## Mobil Uygulama Teknolojileri
+## 1. Mobil Uygulama Projesinin Kurulması
 
-- React Native
-- Expo
-- EAS Build
-- Expo Router
-- Expo Notifications
-- Android gerçek cihaz testi
-- Firebase Cloud Messaging yapılandırması
+Mobil uygulama, React Native ve Expo altyapısı ile geliştirilmiştir.
 
----
+**Yapılan işler:**
 
-## Mobil Frontend Kapsamı
+- `mobile` klasörü oluşturuldu.
+- Expo tabanlı mobil proje hazırlandı.
+- Gerekli bağımlılıklar kuruldu.
+- Mobil uygulama Android cihaz üzerinde çalıştırıldı.
+- EAS Build kullanılarak Android APK/build süreci test edildi.
 
-Mobil uygulamada aşağıdaki ekranlar ve kullanıcı akışları geliştirilmiştir:
+**Kullanılan teknolojiler:**
 
-### 1. Giriş Ekranı
-
-Kullanıcının email ve şifre bilgileriyle sisteme giriş yapmasını sağlar.
-
-**Özellikler:**
-
-- Email alanı
-- Şifre alanı
-- Giriş yap butonu
-- Hata ve başarı mesajları
-- REST API ile bağlantı
+```txt
+React Native
+Expo
+Expo Router
+EAS Build
+JavaScript
+```
 
 ---
 
-### 2. Kayıt Ekranı
+## 2. Mobil Giriş Ekranı
 
-Yeni kullanıcıların sisteme kayıt olmasını sağlar.
+Kullanıcının mobil uygulamadan sisteme giriş yapabilmesi için giriş ekranı hazırlanmıştır.
 
-**Özellikler:**
+**Yapılan işler:**
 
-- Ad alanı
-- Email alanı
-- Şifre alanı
-- Kayıt işlemi
-- Backend’e kullanıcı oluşturma isteği gönderme
+- Email input alanı eklendi.
+- Şifre input alanı eklendi.
+- Giriş yap butonu eklendi.
+- Başarılı girişte kullanıcı dashboard ekranına yönlendirildi.
+- Hatalı girişte kullanıcıya hata mesajı gösterildi.
+- Backend `POST /auth/login` endpointi ile bağlantı kuruldu.
 
----
+**İlgili dosyalar:**
 
-### 3. Dashboard Ekranı
+```txt
+mobile/app/index.js
+mobile/lib/api.js
+mobile/lib/auth.js
+```
 
-Kullanıcının kayıtlı tarlalarını ve tarla kartlarını görüntülediği ana ekrandır.
+**Kullanılan endpoint:**
 
-**Özellikler:**
-
-- Kullanıcının tarlalarını listeleme
-- Tarla kartlarını mobil uyumlu gösterme
-- Tarla detayına geçiş
-- Sulama özeti gösterimi
-- Hasat ve ürün bilgilerini gösterme
-
----
-
-### 4. Tarla Detay Ekranı
-
-Seçilen tarlaya ait detayları gösterir.
-
-**Özellikler:**
-
-- Tarla adı
-- Ürün bilgisi
-- Ekim tarihi
-- Tahmini hasat tarihi
-- Sulama bilgisi
-- Hava riski bilgisi
-- Tarla takvimi
+```txt
+POST /auth/login
+```
 
 ---
 
-### 5. Takvim Görünümü
+## 3. Mobil Kayıt Ekranı
 
-Tarlanın bugünden tahmini hasat tarihine kadar olan sürecini gösterir.
+Yeni kullanıcıların mobil uygulama üzerinden sisteme kayıt olabilmesi için kayıt ekranı hazırlanmıştır.
 
-**Özellikler:**
+**Yapılan işler:**
 
-- Gün bazlı tarla takvimi
-- Sulama gerekliliği bilgisi
-- Hasat tarihine kadar takip
-- Web tarafındaki takvim mantığına uyumlu mobil görünüm
+- Ad input alanı eklendi.
+- Email input alanı eklendi.
+- Şifre input alanı eklendi.
+- Kayıt ol butonu eklendi.
+- Başarılı kayıt sonrası kullanıcı bilgilendirildi.
+- Backend `POST /auth/register` endpointi ile bağlantı kuruldu.
 
----
+**İlgili dosyalar:**
 
-### 6. Bildirim İzni ve Push Bildirim
+```txt
+mobile/app/register.js
+mobile/lib/api.js
+```
 
-Mobil uygulama kullanıcıdan bildirim izni alır ve Expo push token bilgisini backend’e kaydeder.
+**Kullanılan endpoint:**
 
-**Özellikler:**
-
-- Bildirim izni isteme
-- Expo push token alma
-- Push token bilgisini MongoDB üzerindeki kullanıcı kaydına yazma
-- Hava riski durumunda telefona bildirim gönderme
-- Bildirime tıklanınca uygulama içinde ilgili ekrana yönlendirme
-
----
-
-## Kullanıcı Deneyimi
-
-Mobil uygulamada sade, anlaşılır ve tarımsal kullanım senaryosuna uygun bir kullanıcı deneyimi hedeflenmiştir.
-
-- Ekranlar gerçek telefonda kullanılabilir şekilde düzenlenmiştir.
-- Formlar mobil kullanıma uygundur.
-- Tarla kartları okunabilir şekilde tasarlanmıştır.
-- Kullanıcıya anlaşılır hata ve başarı mesajları verilir.
-- Bildirim sistemi gerçek cihazda test edilmiştir.
+```txt
+POST /auth/register
+```
 
 ---
 
-## Sorumlu Öğrenci
+## 4. Mobil Dashboard Ekranı
 
-- Ali Sarısu
+Kullanıcının tarlalarını mobil uygulamada görebilmesi için dashboard ekranı hazırlanmıştır.
 
-Ayrıntılı görev listesi için:
+**Yapılan işler:**
 
-[Ali Sarısu Mobil Frontend Görevleri](Ali-Sarısu/Ali-Sarısu-Mobil-Frontend-Gorevleri.md)
+- Kullanıcıya ait tarlalar listelendi.
+- Her tarla için mobil uyumlu kart görünümü hazırlandı.
+- Tarla adı, konum, ürün ve hasat bilgileri gösterildi.
+- Bugünün sulama özeti gösterildi.
+- Tarla detay ekranına geçiş sağlandı.
+- Tarla ekleme ekranına geçiş sağlandı.
+- Profil ekranına geçiş sağlandı.
+
+**İlgili dosyalar:**
+
+```txt
+mobile/app/dashboard.js
+mobile/lib/api.js
+```
+
+**Kullanılan endpointler:**
+
+```txt
+GET /fields?userId={userId}
+GET /crops?userId={userId}
+GET /recommendations/irrigation/{fieldId}
+GET /recommendations/alerts/{fieldId}
+```
+
+---
+
+## 5. Mobil Tarla Ekleme Ekranı
+
+Kullanıcının mobil uygulama üzerinden yeni tarla ekleyebilmesi için tarla formu hazırlanmıştır.
+
+**Yapılan işler:**
+
+- Tarla adı alanı eklendi.
+- Konum bilgisi alanı eklendi.
+- Enlem ve boylam alanları eklendi.
+- Alan bilgisi eklendi.
+- Sera / açık alan bilgisi eklendi.
+- Form verileri backend’e gönderildi.
+- Kayıt sonrası dashboard ekranı güncellendi.
+
+**İlgili dosyalar:**
+
+```txt
+mobile/app/field-form.js
+mobile/lib/api.js
+```
+
+**Kullanılan endpoint:**
+
+```txt
+POST /fields
+```
+
+---
+
+## 6. Mobil Tarla Güncelleme Ekranı
+
+Kullanıcının mevcut tarla bilgilerini mobil uygulama üzerinden güncelleyebilmesi sağlanmıştır.
+
+**Yapılan işler:**
+
+- Mevcut tarla bilgileri forma dolduruldu.
+- Kullanıcı tarla bilgilerini güncelleyebildi.
+- Güncelleme isteği backend’e gönderildi.
+- Güncelleme sonrası tarla detayları yenilendi.
+
+**İlgili dosyalar:**
+
+```txt
+mobile/app/field-form.js
+mobile/app/field-detail.js
+mobile/lib/api.js
+```
+
+**Kullanılan endpoint:**
+
+```txt
+PUT /fields/{fieldId}
+```
+
+---
+
+## 7. Mobil Tarla Detay Ekranı
+
+Kullanıcı seçtiği tarlanın detaylarını mobil uygulamada görüntüleyebilmektedir.
+
+**Yapılan işler:**
+
+- Tarla adı gösterildi.
+- Ürün bilgisi gösterildi.
+- Ekim tarihi gösterildi.
+- Tahmini hasat tarihi gösterildi.
+- Sulama önerisi gösterildi.
+- Hava riski uyarısı gösterildi.
+- Tarla takvimi gösterildi.
+- Takvim kayıtlarını telefona aktarma ve silme akışı hazırlandı.
+
+**İlgili dosyalar:**
+
+```txt
+mobile/app/field-detail.js
+mobile/lib/api.js
+mobile/lib/calendar.js
+```
+
+---
+
+## 8. Mobil Ürün Formu
+
+Tarlaya bağlı ürün bilgilerinin mobil uygulama üzerinden yönetilebilmesi için ürün formu hazırlanmıştır.
+
+**Yapılan işler:**
+
+- Ürün seçimi yapıldı.
+- Ekim tarihi bilgisi alındı.
+- Ürün bilgisi tarlaya bağlandı.
+- Ürün bilgisi backend’e gönderildi.
+- Ürün değiştiğinde tarla kartı ve detay ekranı güncellendi.
+
+**İlgili dosyalar:**
+
+```txt
+mobile/app/crop-form.js
+mobile/lib/api.js
+```
+
+**Kullanılan endpointler:**
+
+```txt
+POST /crops
+PUT /crops/{cropId}
+DELETE /crops/{cropId}
+```
+
+---
+
+## 9. Mobil Takvim Görünümü
+
+Web tarafındaki takvim mantığı mobil uygulamaya da taşınmıştır.
+
+**Yapılan işler:**
+
+- Takvim bugünden başlatıldı.
+- Ekim tarihinden bugüne kadar olan gereksiz bölüm gösterilmedi.
+- Tahmini hasat tarihine kadar olan günler gösterildi.
+- Günlük sulama ve tarımsal takip bilgileri kullanıcıya sunuldu.
+- Takvim bilgilerinin telefon takvimine aktarılması için mobil taraf hazırlandı.
+- Aktarılan takvim kayıtlarının tek seferde silinebilmesi için işlem eklendi.
+
+**İlgili dosyalar:**
+
+```txt
+mobile/app/field-detail.js
+mobile/lib/calendar.js
+```
+
+---
+
+## 10. Profil Ekranı
+
+Kullanıcının mobil uygulama üzerinden profil bilgilerini görüntüleyip güncelleyebilmesi sağlanmıştır.
+
+**Yapılan işler:**
+
+- Kullanıcı adı gösterildi.
+- Email bilgisi gösterildi.
+- Profil güncelleme formu hazırlandı.
+- Güncelleme isteği backend’e gönderildi.
+- İşlem sonucu kullanıcıya gösterildi.
+
+**İlgili dosyalar:**
+
+```txt
+mobile/app/profile.js
+mobile/lib/api.js
+```
+
+**Kullanılan endpointler:**
+
+```txt
+GET /users/{userId}
+PUT /users/{userId}
+```
+
+---
+
+## 11. Mobil Push Bildirim Arayüzü
+
+Mobil uygulamada kullanıcıdan bildirim izni alınmış ve push bildirim sistemi için gerekli arayüz akışı hazırlanmıştır.
+
+**Yapılan işler:**
+
+- Bildirim izni istendi.
+- Expo push token alındı.
+- Push token backend’e gönderildi.
+- Bildirim ayarı kullanıcı hesabına bağlandı.
+- Gelen bildirime tıklandığında uygulama içi yönlendirme desteklendi.
+
+**İlgili dosyalar:**
+
+```txt
+mobile/lib/notifications.js
+mobile/lib/push.js
+mobile/app/_layout.js
+```
+
+---
+
+## 12. Gerçek Telefon Testi
+
+Mobil uygulama gerçek Android telefon üzerinde test edilmiştir.
+
+**Gösterilecekler:**
+
+- Uygulamanın telefonda açılması
+- Giriş yapılması
+- Dashboard ekranının açılması
+- Tarla kartlarının görüntülenmesi
+- Tarla detay ekranına girilmesi
+- Takvim ekranının görüntülenmesi
+- Push bildirim izninin verilmesi
+- Test veya gerçek hava alarmı bildiriminin telefona gelmesi
+
+---
+
+## Sonuç
+
+Mobil frontend tarafında kullanıcı giriş/kayıt işlemleri, dashboard, tarla yönetimi, ürün yönetimi, takvim, profil ve push bildirim arayüzleri geliştirilmiştir. Uygulama gerçek Android telefon üzerinde çalıştırılmış ve final tesliminde video ile kanıtlanacaktır.
