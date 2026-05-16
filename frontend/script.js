@@ -136,14 +136,36 @@ async function updateProfile() {
         if (!currentUserId) {
             throw new Error("Güncelleme için giriş yapmalısınız.");
         }
-        const name = document.getElementById("updateName").value;
-        const email = document.getElementById("updateEmail").value;
-        const password = document.getElementById("updatePassword").value;
+
+        const nameInput = document.getElementById("updateName");
+        const emailInput = document.getElementById("updateEmail");
+        const passwordInput = document.getElementById("updatePassword");
+
+        const name = nameInput ? nameInput.value.trim() : "";
+        const email = emailInput ? emailInput.value.trim().toLowerCase() : "";
+        const password = passwordInput ? passwordInput.value.trim() : "";
+
+        if (!name) {
+            throw new Error("Ad alanı boş bırakılamaz.");
+        }
+
+        if (!email) {
+            throw new Error("E-posta alanı boş bırakılamaz.");
+        }
+
+        const payload = {
+            name,
+            email
+        };
+
+        if (password) {
+            payload.password = password;
+        }
 
         const response = await fetch(API_URL + "/users/" + currentUserId, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, password })
+            body: JSON.stringify(payload)
         });
 
         const data = await response.json();
@@ -152,12 +174,30 @@ async function updateProfile() {
             throw new Error(data.message || "Profil güncellenemedi.");
         }
 
-        showMessage(data.message);
+        if (passwordInput) {
+            passwordInput.value = "";
+        }
+
+        showMessage(data.message || "Profil güncellendi.");
+
+        const updatedUser = data.updatedUser || data.user || null;
+
+        if (updatedUser) {
+            const dashboardWelcome = document.getElementById("dashboardWelcome");
+            const dashboardSubtext = document.getElementById("dashboardSubtext");
+
+            if (dashboardWelcome) {
+                dashboardWelcome.textContent = `Hoş geldin, ${updatedUser.name || "Kullanıcı"}`;
+            }
+
+            if (dashboardSubtext) {
+                dashboardSubtext.textContent = `${updatedUser.email || "E-posta bilgisi yok"} hesabıyla giriş yaptınız. Tarlalarınızı ve ürünlerinizi aşağıdan yönetebilirsiniz.`;
+            }
+        }
     }
     catch (error) {
         showMessage(error.message, true);
     }
-
 }
 
 async function deleteProfile() {

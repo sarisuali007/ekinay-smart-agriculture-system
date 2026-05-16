@@ -1,0 +1,760 @@
+{
+  "info": {
+    "_postman_id": "90f3d3a3-d781-4ea9-b00b-d0e60d0a963d",
+    "name": "Ekinay Final Backend Test Collection",
+    "description": "Ekinay final teslim öncesi Postman test collection. Secret değerleri environment içinde placeholder olarak bırakılmıştır.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50523952",
+    "_collection_link": "https://go.postman.co/collection/50523952-90f3d3a3-d781-4ea9-b00b-d0e60d0a963d?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "01 Health Check",
+      "item": [
+        {
+          "name": "GET API Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"API çalışıyor\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 304]); });",
+                  "pm.test(\"Response boş değil\", function () { pm.expect(pm.response.text().length).to.be.greaterThan(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 Auth",
+      "item": [
+        {
+          "name": "POST Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Register başarılı\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+                  "const json = pm.response.json();",
+                  "if (json.user && json.user._id) { pm.environment.set(\"userId\", json.user._id); }",
+                  "if (json._id) { pm.environment.set(\"userId\", json._id); }",
+                  "pm.test(\"userId environment içine yazıldı\", function () { pm.expect(pm.environment.get(\"userId\")).to.not.be.undefined; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{name}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login başarılı\", function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "if (json.user && json.user._id) { pm.environment.set(\"userId\", json.user._id); }",
+                  "if (json._id) { pm.environment.set(\"userId\", json._id); }",
+                  "pm.test(\"userId environment içinde var\", function () { pm.expect(pm.environment.get(\"userId\")).to.not.be.undefined; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 Users",
+      "item": [
+        {
+          "name": "GET User By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Kullanıcı getirildi\", function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test(\"Kullanıcı email doğru\", function () { pm.expect(JSON.stringify(json)).to.include(pm.environment.get(\"email\")); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Update User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Kullanıcı güncellendi\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"FinalPostmanTest2\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 Fields",
+      "item": [
+        {
+          "name": "POST Create Field",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Tarla eklendi\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+                  "const json = pm.response.json();",
+                  "if (json.field && json.field._id) { pm.environment.set(\"fieldId\", json.field._id); }",
+                  "if (json._id) { pm.environment.set(\"fieldId\", json._id); }",
+                  "pm.test(\"fieldId environment içine yazıldı\", function () { pm.expect(pm.environment.get(\"fieldId\")).to.not.be.undefined; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"name\": \"Postman Final Tarlası\",\n  \"location\": \"Antalya\",\n  \"latitude\": 36.8969,\n  \"longitude\": 30.7133,\n  \"areaM2\": 1200,\n  \"isGreenhouse\": false,\n  \"polygon\": [\n    {\n      \"lat\": 36.8969,\n      \"lng\": 30.7133\n    },\n    {\n      \"lat\": 36.8972,\n      \"lng\": 30.7137\n    },\n    {\n      \"lat\": 36.8967,\n      \"lng\": 30.7141\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/fields",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fields"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET List Fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Tarlalar listelendi\", function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test(\"Response array\", function () { pm.expect(json).to.be.an(\"array\"); });",
+                  "pm.test(\"Eklenen tarla listede var\", function () { const fieldId = pm.environment.get(\"fieldId\"); const found = json.some(field => field._id === fieldId); pm.expect(found).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/fields?userId={{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fields"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Update Field",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Tarla güncellendi\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"name\": \"Postman Final Tarlası Güncel\",\n  \"location\": \"Antalya Güncel\",\n  \"latitude\": 36.8969,\n  \"longitude\": 30.7133,\n  \"areaM2\": 1500,\n  \"isGreenhouse\": true,\n  \"polygon\": [\n    {\n      \"lat\": 36.8969,\n      \"lng\": 30.7133\n    },\n    {\n      \"lat\": 36.8972,\n      \"lng\": 30.7137\n    },\n    {\n      \"lat\": 36.8967,\n      \"lng\": 30.7141\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/fields/{{fieldId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fields",
+                "{{fieldId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 Crops",
+      "item": [
+        {
+          "name": "POST Create Crop",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Ürün eklendi\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+                  "const json = pm.response.json();",
+                  "if (json.crop && json.crop._id) { pm.environment.set(\"cropId\", json.crop._id); }",
+                  "if (json._id) { pm.environment.set(\"cropId\", json._id); }",
+                  "pm.test(\"cropId environment içine yazıldı\", function () { pm.expect(pm.environment.get(\"cropId\")).to.not.be.undefined; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"name\": \"biber\",\n  \"fieldId\": \"{{fieldId}}\",\n  \"sowingDate\": \"2026-05-16\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/crops",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "crops"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET List Crops",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Ürünler listelendi\", function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test(\"Response array\", function () { pm.expect(json).to.be.an(\"array\"); });",
+                  "pm.test(\"fieldId null olan ürün yok\", function () { const hasNullField = json.some(crop => crop.fieldId === null); pm.expect(hasNullField).to.eql(false); });",
+                  "pm.test(\"Eklenen ürün listede var\", function () { const cropId = pm.environment.get(\"cropId\"); const found = json.some(crop => crop._id === cropId); pm.expect(found).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crops?userId={{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "crops"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Update Crop",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Ürün güncellendi\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"name\": \"domates\",\n  \"fieldId\": \"{{fieldId}}\",\n  \"sowingDate\": \"2026-05-16\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/crops/{{cropId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "crops",
+                "{{cropId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 Recommendations",
+      "item": [
+        {
+          "name": "GET Irrigation Recommendation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Sulama önerisi endpoint çalışıyor\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response boş değil\", function () { pm.expect(pm.response.text().length).to.be.greaterThan(2); });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/recommendations/irrigation/{{fieldId}}?userId={{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recommendations",
+                "irrigation",
+                "{{fieldId}}"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Weather Alert Recommendation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Hava uyarısı endpoint çalışıyor\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response boş değil\", function () { pm.expect(pm.response.text().length).to.be.greaterThan(2); });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/recommendations/alerts/{{fieldId}}?userId={{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recommendations",
+                "alerts",
+                "{{fieldId}}"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07 Alerts and Push",
+      "item": [
+        {
+          "name": "POST Auto Alerts Run",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Auto alerts çalıştı\", function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test(\"Otomatik tarama mesajı var\", function () { pm.expect(JSON.stringify(json)).to.include(\"Otomatik tarama\"); });",
+                  "pm.test(\"Summary dönüyor\", function () { pm.expect(json.summary).to.be.an(\"object\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-auto-alert-secret",
+                "value": "{{autoSecret}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auto-alerts/run",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auto-alerts",
+                "run"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Test Push",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Test push endpoint cevap verdi\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response boş değil\", function () { pm.expect(pm.response.text().length).to.be.greaterThan(2); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-auto-alert-secret",
+                "value": "{{autoSecret}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/test-push/run",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "test-push",
+                "run"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "08 Cleanup and Final Integrity",
+      "item": [
+        {
+          "name": "DELETE Crop",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Ürün silindi\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crops/{{cropId}}?userId={{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "crops",
+                "{{cropId}}"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Field",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Tarla silindi\", function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test(\"Bağlı ürün silme bilgisi döndü\", function () { pm.expect(JSON.stringify(json)).to.include(\"deletedCropCount\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/fields/{{fieldId}}?userId={{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fields",
+                "{{fieldId}}"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Fields After Delete",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Silinen tarla listede yok\", function () { pm.response.to.have.status(200); const json = pm.response.json(); const fieldId = pm.environment.get(\"fieldId\"); const found = json.some(field => field._id === fieldId); pm.expect(found).to.eql(false); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/fields?userId={{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fields"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Crops After Delete Integrity Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Crops endpoint çalışıyor\", function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test(\"fieldId null olan ürün yok\", function () { const hasNullField = json.some(crop => crop.fieldId === null); pm.expect(hasNullField).to.eql(false); });",
+                  "pm.test(\"Silinen tarlaya bağlı ürün yok\", function () { const fieldId = pm.environment.get(\"fieldId\"); const found = json.some(crop => { if (!crop.fieldId) return false; if (typeof crop.fieldId === \"string\") { return crop.fieldId === fieldId; } return crop.fieldId._id === fieldId; }); pm.expect(found).to.eql(false); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crops?userId={{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "crops"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
