@@ -1,8 +1,6 @@
-# Ekinay Mobile
+# Ekinay Mobil Uygulama
 
-Bu klasör Ekinay projesinin mobil uygulama kodlarını içerir.
-
-Mobil uygulama React Native ve Expo kullanılarak geliştirilmiştir. Uygulama gerçek Android telefon üzerinde test edilmiştir.
+Bu klasör Ekinay projesinin React Native + Expo ile geliştirilmiş mobil uygulamasını içerir.
 
 ---
 
@@ -12,15 +10,17 @@ Mobil uygulama React Native ve Expo kullanılarak geliştirilmiştir. Uygulama g
 - Expo
 - Expo Router
 - EAS Build
+- JavaScript
+- React Native Maps
+- Google Maps SDK for Android
 - Expo Notifications
 - Firebase Cloud Messaging
-- JavaScript
 
 ---
 
 ## Canlı Backend API
 
-Mobil uygulama canlı Render backend servisine bağlanır.
+Mobil uygulama Render üzerinde çalışan canlı REST API servisine bağlanır.
 
 ```txt
 https://ekinay-smart-agriculture-system.onrender.com
@@ -28,118 +28,111 @@ https://ekinay-smart-agriculture-system.onrender.com
 
 ---
 
-## Kurulum
+## Android Package
 
-```bash
-cd mobile
-npm install
+```txt
+com.ekinay.mobile
 ```
 
 ---
 
-## Geliştirme Ortamında Çalıştırma
+## Google Maps Yapılandırması
 
-```bash
-npx expo start
+Mobil harita özelliği için Google Maps API key değeri EAS üzerinde environment variable olarak tutulur. API key repoya yazılmaz.
+
+```txt
+GOOGLE_MAPS_API_KEY=google-maps-api-key-degeri
 ```
 
-Expo geliştirme ekranından Android cihaz veya development build ile uygulama açılabilir.
+Google Cloud tarafında Android apps restriction kullanılmalıdır.
 
----
-
-## Android Build
-
-EAS Build ile Android build alınabilir.
-
-```bash
-eas build -p android --profile preview
-```
-
-veya production build için:
-
-```bash
-eas build -p android --profile production
+```txt
+Package name: com.ekinay.mobile
 ```
 
 ---
 
-## Mobil Uygulama Özellikleri
+## EAS Preview APK Build
+
+Final videosunda kullanılacak APK için preview profile kullanılır.
+
+```txt
+eas build -p android --profile preview --clear-cache
+```
+
+`preview` build APK üretir ve gerçek Android telefona kurulabilir.
+
+---
+
+## Temel Mobil Özellikler
 
 - Kullanıcı girişi
 - Kullanıcı kaydı
 - Dashboard
+- Profil görüntüleme ve güncelleme
 - Tarla listeleme
-- Tarla ekleme
-- Tarla güncelleme
-- Tarla detay görüntüleme
+- Google Maps haritası üzerinden tarla alanı seçme
+- Haritada en az 3 nokta ile poligon oluşturma
+- Tarla ekleme, güncelleme ve silme
 - Ürün yönetimi
-- Sulama önerisi görüntüleme
-- Hava riski uyarısı görüntüleme
+- Otomatik formatlanan ekim tarihi girişi
+- Hızlı tarih seçenekleri ile hasat takvimi oluşturma
+- Sulama önerisi
+- Hava riski uyarısı
 - Tarla takvimi
-- Telefon takvimine aktarma
-- Takvim kayıtlarını tek seferde silme
-- Push bildirim izni alma
-- Expo push token kaydı
-- Gerçek telefona bildirim alma
+- Expo push bildirim token kaydı
+- Gerçek telefona test bildirimi alma
 
 ---
 
-## Push Bildirim Sistemi
-
-Mobil uygulama kullanıcıdan bildirim izni alır. İzin verildiğinde Expo push token alınır ve backend’e gönderilir.
-
-Backend tarafında kullanıcı kaydına şu alanlar eklenir:
+## Mobil Tarla Ekleme Akışı
 
 ```txt
-expoPushToken
-pushAlertsEnabled
+1. Dashboard ekranından Yeni Tarla Ekle seçilir.
+2. Google Maps haritası açılır.
+3. Antalya / Konya / Türkiye hazır konum butonlarından biri seçilebilir.
+4. Haritada en az 3 nokta seçilir.
+5. Uygulama seçilen noktalardan poligon oluşturur.
+6. Merkez koordinat ve alan bilgisi hesaplanır.
+7. Tarla adı ve konum açıklaması girilir.
+8. Tarla backend'e kaydedilir.
 ```
 
-Bu sayede otomatik hava riski uyarıları gerçek Android telefona gönderilebilir.
+---
+
+## Mobil Ürün ve Takvim Akışı
+
+```txt
+1. Tarla detayından Ürün Ekle seçilir.
+2. Ürün olarak domates, biber, salatalık veya fasulye seçilir.
+3. Ekim tarihi girilir.
+4. Kullanıcı sadece rakam yazarsa tarih otomatik yyyy-aa-gg formatına çevrilir.
+5. Hızlı tarih butonları kullanılabilir.
+6. Hasat tarihi bugünden önceyse kullanıcı uyarılır.
+7. Geçerli tarih seçilirse takvim verisi oluşturulur.
+```
 
 ---
 
-## Mobil Backend Bağlantısı
+## Push Bildirim
 
-Mobil uygulama aşağıdaki işlemleri REST API üzerinden gerçekleştirir:
+Mobil uygulama gerçek cihazda bildirim izni alır ve Expo push token değerini backend'e gönderir.
 
 ```txt
-POST /auth/register
-POST /auth/login
-GET /users/{userId}
-PUT /users/{userId}
-GET /fields?userId={userId}
-POST /fields
-PUT /fields/{fieldId}
-DELETE /fields/{fieldId}
-GET /crops?userId={userId}
-POST /crops
-PUT /crops/{cropId}
-DELETE /crops/{cropId}
-GET /recommendations/irrigation/{fieldId}
-GET /recommendations/alerts/{fieldId}
 PUT /users/{userId}/push-token
 ```
 
----
+Test bildirimi için backend endpointi:
 
-## Final Kanıt Videosunda Gösterilecekler
-
-- Uygulamanın gerçek Android telefonda açılması
-- Kullanıcı girişi
-- Dashboard ekranı
-- Tarla kartları
-- Tarla detay ekranı
-- Takvim ekranı
-- Push bildirim izni
-- Test veya gerçek hava riski bildirimi
-- Bildirime tıklayınca uygulama içi yönlendirme
+```txt
+POST /test-push/run
+```
 
 ---
 
 ## Notlar
 
-- Firebase Admin SDK private key dosyaları repoya eklenmemelidir.
-- `.env` dosyaları repoya eklenmemelidir.
-- `google-services.json` Android bildirim yapılandırması için kullanılabilir.
-- Gerçek bildirim testi için EAS build alınmış uygulama kullanılmalıdır.
+- Development build final demo için kullanılmaz.
+- Final demo için preview APK kullanılır.
+- Uygulama açıldığında Development Servers ekranı çıkmamalıdır.
+- Google Maps API key ve Firebase Admin SDK secret dosyaları repoya eklenmez.

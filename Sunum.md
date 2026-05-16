@@ -1,17 +1,16 @@
-# Video Sunum ve Kanıt Videoları
+# Ekinay Sunum ve Kanıt Videoları
 
-Bu dosyada Ekinay projesinin final teslimi için hazırlanacak kanıt videoları listelenmektedir.
+Bu dokümanda Ekinay projesi için hazırlanacak final kanıt videoları ve gösterilecek akışlar listelenmektedir.
 
-Proje tek kişi tarafından geliştirilmiştir.
-
-- **Grup Adı:** TENGYAMİ
-- **Öğrenci:** Ali Sarısu
-- **Proje Adı:** Ekinay
-- **Proje Kategorisi:** Tarım / Akıllı Tarım
+- **Öğrenci:** Ali SARISU
+- **Grup:** TENGYAMİ
+- **Proje:** Ekinay
+- **Canlı API:** https://ekinay-smart-agriculture-system.onrender.com
+- **Canlı Web:** https://ekinay-smart-agriculture-system.vercel.app
 
 ---
 
-## 1. Backend Kanıt Videosu
+## 1. Backend / REST API Kanıt Videosu
 
 **Video Linki:**  
 > Eklenecek
@@ -20,15 +19,17 @@ Proje tek kişi tarafından geliştirilmiştir.
 
 - Render üzerinde canlı REST API servisinin çalışması
 - MongoDB Atlas bağlantısı
-- Postman ile temel endpoint testleri
+- Postman final test collection kullanımı
 - Kullanıcı kayıt ve giriş işlemleri
-- Kullanıcı profil işlemleri
+- Profil güncelleme işlemi
 - Tarla CRUD işlemleri
+- Tarla silindiğinde bağlı ürünlerin de silinmesi
 - Ürün CRUD işlemleri
+- `GET /crops?userId={userId}` içinde `fieldId: null` ürün dönmediğinin gösterilmesi
 - Sulama önerisi endpointi
 - Hava riski uyarısı endpointi
 - Otomatik alarm endpointi
-- MongoDB üzerinde kayıtların oluşması
+- Test push endpointi
 
 **Örnek endpointler:**
 
@@ -40,14 +41,15 @@ PUT /users/{userId}
 GET /fields?userId={userId}
 POST /fields
 PUT /fields/{fieldId}
-DELETE /fields/{fieldId}
+DELETE /fields/{fieldId}?userId={userId}
 GET /crops?userId={userId}
 POST /crops
 PUT /crops/{cropId}
-DELETE /crops/{cropId}
-GET /recommendations/irrigation/{fieldId}
-GET /recommendations/alerts/{fieldId}
+DELETE /crops/{cropId}?userId={userId}
+GET /recommendations/irrigation/{fieldId}?userId={userId}
+GET /recommendations/alerts/{fieldId}?userId={userId}
 POST /auto-alerts/run
+POST /test-push/run
 ```
 
 ---
@@ -63,8 +65,9 @@ POST /auto-alerts/run
 - Kullanıcı kayıt ve giriş ekranları
 - Dashboard ekranı
 - Profil düzenleme sayfası
+- Şifre boş bırakıldığında eski şifrenin korunması
 - Tarla ekleme sayfası
-- Harita üzerinden tarla konumu seçme
+- Harita üzerinden tarla alanı seçme
 - Tarla kartlarının listelenmesi
 - Tarla düzenleme ve silme işlemleri
 - Tarla kartlarında ürün, hasat ve sulama bilgileri
@@ -81,10 +84,16 @@ POST /auto-alerts/run
 **Gösterilecekler:**
 
 - Mobil uygulamanın gerçek Android telefonda açılması
+- Ekinay ikonunun ve splash ekranının görünmesi
+- Development Servers ekranının çıkmaması
 - Giriş ekranı
 - Kayıt ekranı
 - Dashboard ekranı
 - Tarla kartlarının mobilde görüntülenmesi
+- Google Maps haritası üzerinden yeni tarla ekleme
+- Harita üzerinde en az 3 nokta seçerek tarla alanı oluşturma
+- Ürün ekleme ekranında hızlı tarih seçeneklerinin kullanılması
+- Hasat tarihi geçmiş ürünlerde uyarı verilmesi
 - Tarla detay ekranı
 - Takvim görüntüleme
 - Bildirim izin ekranı
@@ -99,134 +108,102 @@ POST /auto-alerts/run
 
 **Gösterilecekler:**
 
-- Mobil uygulamadan giriş isteğinin REST API’ye gitmesi
-- Mobil uygulamadan tarla verilerinin REST API üzerinden çekilmesi
-- Mobil uygulamadan tarla ekleme veya güncelleme işlemi
-- MongoDB Atlas üzerinde mobil uygulamadan gelen verinin oluşması
-- Mobil uygulamada backend verilerinin güncellenmesi
-- Mobil uygulamada Expo push token kaydının oluşması
-- MongoDB kullanıcı kaydında `expoPushToken` ve `pushAlertsEnabled` alanlarının görüntülenmesi
+- Mobil uygulamanın canlı Render API ile çalışması
+- Mobil login isteğinin backend'e gitmesi
+- Mobilde eklenen tarlanın MongoDB'de görünmesi
+- Mobil harita ekranından seçilen tarla poligon bilgisinin backend'e gönderilmesi
+- Mobilde eklenen ürünün MongoDB'de görünmesi
+- Mobil uygulamadan sulama önerisi alınması
+- Mobil uygulamadan hava riski uyarısı alınması
+- Push token bilgisinin kullanıcı kaydına yazılması
+- Test bildiriminin gerçek telefona gelmesi
 
 ---
 
-## 5. RabbitMQ / Kafka Kanıt Videosu
+## 5. Docker Kanıt Videosu
 
 **Video Linki:**  
 > Eklenecek
 
-**Kullanılan Teknoloji:** RabbitMQ
-
 **Gösterilecekler:**
 
-- Docker Compose ile RabbitMQ containerının çalışması
-- RabbitMQ Management Panelinin açılması
-- Backend’in producer olarak RabbitMQ kuyruğuna mesaj göndermesi
-- `ekinay.alert.notifications` kuyruğunun görüntülenmesi
-- Alert worker’ın consumer olarak kuyruğu dinlemesi
-- Worker’ın mesajı alıp Expo push bildirimi göndermesi
-- Telefona RabbitMQ test bildiriminin gelmesi
-
-**Test endpointi:**
-
-```txt
-POST /rabbit-test/push
-```
+- Docker Desktop'ın çalışması
+- `docker compose up --build` komutu
+- Backend container
+- Frontend container
+- Redis container
+- RabbitMQ container
+- Container portlarının görünmesi
+- Local backend ve frontend servislerinin çalışması
 
 ---
 
-## 6. Redis / Memcached Kanıt Videosu
+## 6. Jenkins / CI-CD Kanıt Videosu
 
 **Video Linki:**  
 > Eklenecek
 
-**Kullanılan Teknoloji:** Redis
-
 **Gösterilecekler:**
 
-- Docker Compose ile Redis containerının çalışması
-- Backend’in Redis’e bağlanması
-- İlk `auto-alerts` isteğinde hava verisi için cache MISS alınması
-- Hava verisinin Redis’e SET edilmesi
-- Aynı istek tekrarlandığında cache HIT alınması
-- Hava durumu verilerinin gereksiz tekrar isteklerden korunması
-
-**Test endpointi:**
-
-```txt
-POST /auto-alerts/run
-```
-
----
-
-## 7. Docker + CI/CD Kanıt Videosu
-
-**Video Linki:**  
-> Eklenecek
-
-**Kullanılan Teknolojiler:**
-
-- Docker
-- Docker Compose
-- Jenkins
-- Jenkinsfile
-
-**Gösterilecekler:**
-
-- `backend/Dockerfile` dosyası
-- `frontend/Dockerfile` dosyası
-- `docker-compose.yml` dosyası
-- `Jenkinsfile` dosyası
+- Jenkins container'ın çalışması
 - Jenkins pipeline ekranı
-- GitHub reposundan kod çekilmesi
-- Docker image build aşaması
-- Docker Compose ile servislerin ayağa kaldırılması
-- Backend health check
-- Frontend health check
-- Redis container kontrolü
-- RabbitMQ container kontrolü
-- Alert worker container kontrolü
-- Pipeline sonunda `Finished: SUCCESS` sonucu
+- GitHub repository bağlantısı
+- Jenkinsfile içeriği
+- Pipeline stage'leri
+- Docker build/test adımlarının başarılı olması
 
 ---
 
-## 8. Cep Telefonu / Final Demo Kanıt Videosu
+## 7. RabbitMQ Kanıt Videosu
 
 **Video Linki:**  
 > Eklenecek
 
 **Gösterilecekler:**
 
-- Uygulamanın gerçek Android telefona kurulmuş olması
-- Uygulamanın telefonda açılması
-- Kullanıcı girişi yapılması
-- Dashboard ekranının açılması
-- Tarla kartlarının görüntülenmesi
-- Tarla detay ekranının görüntülenmesi
-- Takvim ekranının görüntülenmesi
-- Push bildirim izninin gösterilmesi
-- Test veya gerçek hava alarmı bildiriminin telefona gelmesi
-- Bildirime basıldığında uygulamanın ilgili ekrana yönlenmesi
-- Uygulamanın gerçek cihazda kullanılabilir olduğunun gösterilmesi
+- RabbitMQ management paneli
+- Queue bilgisinin görünmesi
+- `POST /rabbit-test/push` isteği
+- Mesajın kuyruğa gönderilmesi
+- Worker logunda mesajın işlendiğinin görünmesi
+- Bildirim gönderim akışı
 
 ---
 
-## Final Video Kontrol Listesi
+## 8. Redis Kanıt Videosu
 
-- [ ] Backend kanıt videosu çekildi
-- [ ] Web frontend kanıt videosu çekildi
-- [ ] Mobil frontend kanıt videosu çekildi
-- [ ] Mobil backend / REST API bağlantısı videosu çekildi
-- [ ] RabbitMQ kanıt videosu çekildi
-- [ ] Redis kanıt videosu çekildi
-- [ ] Docker + CI/CD kanıt videosu çekildi
-- [ ] Cep telefonu / final demo videosu çekildi
-- [ ] Video linkleri bu dosyaya eklendi
-- [ ] GitHub üzerinde linklerin açıldığı kontrol edildi
+**Video Linki:**  
+> Eklenecek
+
+**Gösterilecekler:**
+
+- Redis container'ın çalışması
+- İlk istekte cache MISS / SET akışı
+- İkinci istekte cache HIT akışı
+- Redis bağlantısı yoksa fallback davranışının loglarda görünmesi
 
 ---
 
-## Sunumda Kullanılacak Kısa Açıklama
+## 9. İkinci Android Cihaz / Hedef Kullanıcı Test Videosu
 
-Merhaba, ben Ali Sarısu. TENGYAMİ grubu adına Ekinay projesini geliştirdim. Ekinay, tarımsal üretim yapan kullanıcıların tarlalarını, ürünlerini, sulama planlarını, hasat dönemlerini ve hava riski uyarılarını takip edebilmelerini sağlayan akıllı tarım destek sistemidir.
+**Video Linki:**  
+> Eklenecek
 
-Projede web frontend, mobil uygulama, REST API, MongoDB Atlas, Redis cache, RabbitMQ bildirim kuyruğu, Docker Compose ve Jenkins CI/CD pipeline kullanılmıştır. Uygulama gerçek Android telefonda test edilmiş ve push bildirim sistemi çalıştırılmıştır.
+Bu video, uygulamanın yalnızca geliştiricinin telefonunda değil, başka bir Android cihazda da çalıştığını göstermek için kullanılacaktır.
+
+**Gösterilecekler:**
+
+- APK'nın ikinci Android cihaza kurulması
+- Ekinay ikonunun görünmesi
+- Yeni kullanıcı kaydı
+- Giriş işlemi
+- Harita üzerinden en az 3 nokta ile tarla ekleme
+- Ürün ekleme
+- Hasada 30 Gün hızlı tarih butonu
+- Tarla detayında takvim görünümü
+
+---
+
+## Sonuç
+
+Bu kanıt videoları birlikte Ekinay projesinin web, mobil, backend, veritabanı, bildirim, Docker, Jenkins, RabbitMQ ve Redis taraflarının çalıştığını göstermeyi amaçlar.

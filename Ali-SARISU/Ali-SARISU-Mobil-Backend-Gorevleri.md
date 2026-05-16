@@ -1,21 +1,14 @@
-# Ali Sarısu'nun Mobil Backend Görevleri
+# Ali SARISU Mobil Backend Görevleri
 
 Bu dosyada Ekinay mobil uygulamasının backend ve REST API bağlantısı tarafında yapılan işler açıklanmaktadır.
 
-- **Öğrenci:** Ali Sarısu
+- **Öğrenci:** Ali SARISU
 - **Grup:** TENGYAMİ
 - **Proje:** Ekinay
-- **Backend Teknolojisi:** Node.js + Express.js
-- **Veritabanı:** MongoDB Atlas
-- **Mobil Uygulama:** React Native + Expo
-- **Canlı API:** Render
+- **Backend:** Node.js + Express.js
+- **Mobil:** React Native + Expo
 
----
-
-## Mobil Backend Kanıt Videosu
-
-**Video Linki:**  
-> Eklenecek
+Mobil uygulama, canlı Render backend servisine bağlanarak kullanıcı, tarla, ürün, öneri, takvim ve bildirim işlemlerini REST API üzerinden gerçekleştirmektedir.
 
 ---
 
@@ -27,390 +20,135 @@ https://ekinay-smart-agriculture-system.onrender.com
 
 ---
 
-## 1. Mobil Giriş İsteği
+## Mobil Backend Kanıt Videosu
 
-Mobil uygulama, kullanıcının email ve şifre bilgilerini REST API’ye göndererek giriş yapmasını sağlar.
+**Video Linki:**  
+> Eklenecek
 
-**Endpoint:**
+---
+
+## Sorumlu Öğrenci
+
+- Ali SARISU
+
+Ayrıntılı görev listesi:
+
+- [Ali SARISU Mobil Backend Görevleri](Ali-SARISU/Ali-SARISU-Mobil-Backend-Gorevleri.md)
+
+---
+
+## Mobil Backend Kapsamı
+
+### 1. Kullanıcı Girişi
 
 ```txt
 POST /auth/login
 ```
 
-**Mobil tarafta yapılan işlem:**
-
-- Kullanıcı email ve şifre bilgilerini girer.
-- Mobil uygulama backend’e login isteği gönderir.
-- Backend kullanıcıyı MongoDB üzerinden kontrol eder.
-- Başarılı girişte kullanıcı bilgileri mobil uygulamada tutulur.
-- Dashboard ekranı kullanıcıya özel verilerle açılır.
-
-**İlgili mobil dosyalar:**
-
-```txt
-mobile/app/index.js
-mobile/lib/api.js
-mobile/lib/auth.js
-```
-
----
-
-## 2. Mobil Kayıt İsteği
-
-Yeni kullanıcılar mobil uygulama üzerinden sisteme kayıt olabilir.
-
-**Endpoint:**
+### 2. Kullanıcı Kaydı
 
 ```txt
 POST /auth/register
 ```
 
-**Mobil tarafta yapılan işlem:**
-
-- Kullanıcı ad, email ve şifre bilgilerini girer.
-- Mobil uygulama kayıt isteğini backend’e gönderir.
-- Backend MongoDB üzerinde yeni kullanıcı oluşturur.
-- Kullanıcı kayıt sonucu hakkında bilgilendirilir.
-
-**İlgili mobil dosyalar:**
-
-```txt
-mobile/app/register.js
-mobile/lib/api.js
-```
-
----
-
-## 3. Mobil Profil Bilgisi Alma ve Güncelleme
-
-Mobil uygulama, kullanıcının profil bilgilerini backend’den alabilir ve güncelleyebilir.
-
-**Endpointler:**
+### 3. Profil Bilgisi ve Profil Güncelleme
 
 ```txt
 GET /users/{userId}
 PUT /users/{userId}
 ```
 
-**Mobil tarafta yapılan işlem:**
+Profil güncellemede şifre alanı opsiyoneldir. Şifre boş bırakılırsa mevcut şifre korunur.
 
-- Kullanıcının mevcut profil bilgileri backend’den alınır.
-- Kullanıcı ad, email veya şifre bilgisini günceller.
-- Güncelleme isteği backend’e gönderilir.
-- MongoDB üzerindeki kullanıcı kaydı güncellenir.
-- Kullanıcıya işlem sonucu gösterilir.
-
-**İlgili mobil dosyalar:**
-
-```txt
-mobile/app/profile.js
-mobile/lib/api.js
-```
-
----
-
-## 4. Mobil Tarla Listeleme
-
-Mobil uygulama, kullanıcının tarlalarını backend’den çeker ve dashboard ekranında gösterir.
-
-**Endpoint:**
+### 4. Tarla Listeleme
 
 ```txt
 GET /fields?userId={userId}
 ```
 
-**Mobil tarafta yapılan işlem:**
-
-- Giriş yapan kullanıcının `userId` bilgisi alınır.
-- Mobil uygulama backend’e tarla listeleme isteği gönderir.
-- Backend MongoDB’den kullanıcıya ait tarlaları getirir.
-- Mobil uygulama bu tarlaları dashboard ekranında listeler.
-
-**İlgili mobil dosyalar:**
-
-```txt
-mobile/app/dashboard.js
-mobile/lib/api.js
-```
-
----
-
-## 5. Mobil Tarla Ekleme
-
-Mobil uygulama üzerinden yeni tarla eklenebilir.
-
-**Endpoint:**
+### 5. Tarla Ekleme, Güncelleme ve Silme
 
 ```txt
 POST /fields
-```
-
-**Mobil tarafta yapılan işlem:**
-
-- Kullanıcı tarla bilgilerini girer.
-- Tarla adı, konum, koordinat, alan ve sera/açık alan bilgisi alınır.
-- Mobil uygulama bu bilgileri backend’e gönderir.
-- Backend MongoDB üzerinde yeni tarla kaydı oluşturur.
-- Dashboard ekranı güncellenir.
-
-**İlgili mobil dosyalar:**
-
-```txt
-mobile/app/field-form.js
-mobile/lib/api.js
-```
-
----
-
-## 6. Mobil Tarla Güncelleme
-
-Mobil uygulama üzerinden mevcut tarla bilgileri güncellenebilir.
-
-**Endpoint:**
-
-```txt
 PUT /fields/{fieldId}
+DELETE /fields/{fieldId}?userId={userId}
 ```
 
-**Mobil tarafta yapılan işlem:**
+Mobil uygulama Google Maps üzerinden seçilen tarla alanını `polygon` olarak backend'e gönderir. Tarla silindiğinde backend, tarlaya bağlı ürünleri de siler.
 
-- Kullanıcı mevcut tarla bilgilerini düzenler.
-- Mobil uygulama güncelleme isteğini backend’e gönderir.
-- Backend MongoDB üzerindeki ilgili tarla kaydını günceller.
-- Güncel bilgiler mobil uygulamada gösterilir.
-
-**İlgili mobil dosyalar:**
-
-```txt
-mobile/app/field-form.js
-mobile/app/field-detail.js
-mobile/lib/api.js
-```
-
----
-
-## 7. Mobil Tarla Silme
-
-Mobil uygulama üzerinden kullanıcı tarlasını silebilir.
-
-**Endpoint:**
-
-```txt
-DELETE /fields/{fieldId}
-```
-
-**Mobil tarafta yapılan işlem:**
-
-- Kullanıcı silme işlemini başlatır.
-- Mobil uygulama backend’e silme isteği gönderir.
-- Backend ilgili tarla kaydını siler.
-- Dashboard ekranı güncellenir.
-
----
-
-## 8. Mobil Ürün Bilgisi Yönetimi
-
-Mobil uygulama, tarlaya bağlı ürün bilgilerini backend üzerinden yönetir.
-
-**Endpointler:**
+### 6. Ürün Bilgisi Yönetimi
 
 ```txt
 GET /crops?userId={userId}
 POST /crops
 PUT /crops/{cropId}
-DELETE /crops/{cropId}
+DELETE /crops/{cropId}?userId={userId}
 ```
 
-**Mobil tarafta yapılan işlem:**
+`GET /crops` endpointi `fieldId: null` olan bozuk kayıtları istemciye döndürmez.
 
-- Kullanıcı tarlaya ürün ekler.
-- Ürün adı ve ekim tarihi bilgisi backend’e gönderilir.
-- Backend ürün bilgisini MongoDB üzerinde saklar.
-- Ürün bilgisi tarla kartı ve tarla detay ekranında gösterilir.
-- Ürün güncelleme ve silme işlemleri backend üzerinden yapılır.
-
-**İlgili mobil dosyalar:**
+### 7. Sulama Önerisi
 
 ```txt
-mobile/app/crop-form.js
-mobile/app/dashboard.js
-mobile/app/field-detail.js
-mobile/lib/api.js
+GET /recommendations/irrigation/{fieldId}?userId={userId}
 ```
 
----
-
-## 9. Mobil Sulama Önerisi Bağlantısı
-
-Mobil uygulama, seçilen tarla için backend’den sulama önerisi alır.
-
-**Endpoint:**
+### 8. Hava Riski Uyarısı
 
 ```txt
-GET /recommendations/irrigation/{fieldId}
+GET /recommendations/alerts/{fieldId}?userId={userId}
 ```
 
-**Mobil tarafta yapılan işlem:**
-
-- Mobil uygulama seçilen tarla için backend’e istek gönderir.
-- Backend tarla, ürün ve hava bilgilerine göre sulama önerisi üretir.
-- Mobil uygulama bu öneriyi tarla kartında veya tarla detay ekranında gösterir.
-
----
-
-## 10. Mobil Hava Riski Uyarısı Bağlantısı
-
-Mobil uygulama, seçilen tarla için backend’den hava riski bilgisi alır.
-
-**Endpoint:**
-
-```txt
-GET /recommendations/alerts/{fieldId}
-```
-
-**Mobil tarafta yapılan işlem:**
-
-- Mobil uygulama tarla bilgisi ile backend’e risk isteği gönderir.
-- Backend hava durumuna göre don, fırtına, yağış veya sıcaklık stresi değerlendirmesi yapar.
-- Mobil uygulama bu bilgiyi kullanıcıya anlaşılır mesaj olarak gösterir.
-
----
-
-## 11. Push Token Kaydı
-
-Mobil uygulama, gerçek Android cihazdan aldığı Expo push token bilgisini backend’e gönderir.
-
-**Endpoint:**
+### 9. Push Token Kaydı
 
 ```txt
 PUT /users/{userId}/push-token
 ```
 
-**Backend tarafında MongoDB’ye kaydedilen alanlar:**
+MongoDB kullanıcı kaydında tutulan alanlar:
 
 ```txt
 expoPushToken
 pushAlertsEnabled
 ```
 
-**Mobil tarafta yapılan işlem:**
-
-- Kullanıcıdan bildirim izni alınır.
-- Expo push token alınır.
-- Token backend’e gönderilir.
-- Backend kullanıcı kaydına token bilgisini yazar.
-- Bu sayede kullanıcıya hava riski bildirimi gönderilebilir.
-
-**İlgili mobil dosyalar:**
-
-```txt
-mobile/lib/notifications.js
-mobile/lib/push.js
-```
-
----
-
-## 12. Test Push Bildirimi
-
-Backend, kayıtlı push token üzerinden gerçek telefona test bildirimi gönderebilir.
-
-**Endpoint:**
+### 10. Test Push Bildirimi
 
 ```txt
 POST /test-push/run
 ```
 
-**Çalışma mantığı:**
+Secret header kullanımı:
 
-- Backend push token kayıtlı kullanıcıyı bulur.
-- Expo push servisine bildirim isteği gönderir.
-- Bildirim gerçek Android telefona ulaşır.
-- Bu işlem mobil backend bağlantısının ve push altyapısının çalıştığını kanıtlar.
+```txt
+x-auto-alert-secret: {AUTO_ALERT_SECRET}
+```
 
----
-
-## 13. Otomatik Hava Riski Bildirimi
-
-Otomatik hava riski sistemi mobil bildirim altyapısı ile entegre edilmiştir.
-
-**Endpoint:**
+### 11. Otomatik Hava Riski Bildirimi
 
 ```txt
 POST /auto-alerts/run
 ```
 
-**Çalışma mantığı:**
+Backend belirli aralıklarla hava verilerini kontrol eder. Don, fırtına, yoğun yağış veya kuraklık stresi gibi riskler algılandığında kullanıcıya bildirim gönderir.
 
-- Backend push bildirimi açık olan kullanıcıları bulur.
-- Kullanıcının tarlaları ve ürünleri alınır.
-- Tarla koordinatlarına göre hava durumu verisi çekilir.
-- Don, fırtına, yoğun yağış veya kuraklık stresi kontrol edilir.
-- Risk varsa kullanıcıya push bildirim gönderilir.
-- Docker ortamında bildirim RabbitMQ kuyruğuna gönderilir.
-- Alert worker bildirimi tüketip Expo Push üzerinden telefona iletir.
-- Render ortamında RabbitMQ yoksa sistem direkt Expo Push fallback ile çalışır.
+Docker ortamında RabbitMQ/Redis kullanılır. Render ortamında bu servisler yoksa fallback mekanizmasıyla sistem çalışmaya devam eder.
 
 ---
 
-## 14. Mobil REST API Veri Akışı
+## Mobil Backend Kanıtında Gösterilecekler
 
-Mobil uygulama ve backend arasındaki genel veri akışı:
-
-```txt
-Mobil Uygulama
-      ↓
-Render REST API
-      ↓
-MongoDB Atlas
-      ↓
-Mobil Uygulama Güncel Veri Gösterimi
-```
-
-Push bildirim veri akışı:
-
-```txt
-Mobil Uygulama
-      ↓
-Expo Push Token
-      ↓
-Render Backend
-      ↓
-MongoDB Kullanıcı Kaydı
-      ↓
-Expo / FCM
-      ↓
-Gerçek Android Telefon Bildirimi
-```
-
-Docker ortamındaki asenkron bildirim akışı:
-
-```txt
-Auto Alert Endpoint
-      ↓
-RabbitMQ Queue
-      ↓
-Alert Worker
-      ↓
-Expo Push Notification
-      ↓
-Gerçek Android Telefon
-```
-
----
-
-## Finalde Gösterilecek Mobil Backend Kanıtları
-
-- Mobil uygulamadan giriş yapılması
-- Mobil uygulamada dashboard verilerinin backend’den gelmesi
-- MongoDB Atlas üzerinde kullanıcı, tarla ve ürün kayıtlarının gösterilmesi
-- Mobil uygulamada push bildirim izni verilmesi
-- MongoDB kullanıcı kaydında `expoPushToken` alanının gösterilmesi
-- Backend üzerinden test bildirimi gönderilmesi
-- Bildirimin gerçek Android telefona ulaşması
-- Otomatik hava riski bildirim sisteminin çalıştığının gösterilmesi
+- Mobil uygulamadan login isteği
+- Mobil uygulamadan tarla listeleme
+- Mobil uygulamadan harita üzerinden tarla ekleme
+- Mobil uygulamadan ürün ekleme
+- Mobil uygulamadan sulama ve hava uyarısı endpointlerinin çağrılması
+- Push token bilgisinin kullanıcı kaydına yazılması
+- Test push bildiriminin gerçek telefona gelmesi
+- Tarla silindiğinde bağlı ürünlerin temizlenmesi
 
 ---
 
 ## Sonuç
 
-Mobil backend tarafında mobil uygulamanın canlı REST API ile bağlantısı kurulmuştur. Kullanıcı, tarla, ürün, öneri, takvim ve push bildirim işlemleri backend üzerinden çalışmaktadır. Uygulama gerçek Android telefon üzerinde test edilmiş ve push bildirim sistemi başarılı şekilde çalıştırılmıştır.
+Mobil uygulama canlı Render backend servisiyle entegre çalışmaktadır. Kullanıcı, tarla, ürün, öneri, takvim ve push bildirim işlemleri REST API üzerinden yönetilmektedir.

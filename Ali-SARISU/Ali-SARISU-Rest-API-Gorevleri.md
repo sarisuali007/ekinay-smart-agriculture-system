@@ -1,455 +1,232 @@
-# Ali Sarısu REST API Görevleri
+# Ali SARISU REST API Görevleri
 
-Bu dosyada Ekinay projesinde geliştirilen REST API endpointleri ve görev açıklamaları yer almaktadır.
+Bu dosyada Ekinay projesinde geliştirilen REST API endpointleri ve Ali SARISU tarafından yapılan REST API görevleri açıklanmaktadır.
 
-- **Öğrenci:** Ali Sarısu
+- **Öğrenci:** Ali SARISU
 - **Grup:** TENGYAMİ
 - **Proje:** Ekinay
 - **Canlı API:** https://ekinay-smart-agriculture-system.onrender.com
 
 ---
 
-## REST API Kanıt Videosu
+## Ali SARISU REST API Görevleri Adresi
 
-**Video Linki:**  
-> Eklenecek
+**Canlı API Adresi:**  
+https://ekinay-smart-agriculture-system.onrender.com
 
 ---
 
-## 1. Kullanıcı Kaydı Oluşturma
+## Sorumlu Öğrenci
 
-**Endpoint:**
+Proje tek kişi tarafından geliştirilmiştir.
+
+1. [Ali SARISU REST API Görevleri](Ali-SARISU/Ali-SARISU-Rest-API-Gorevleri.md)
+
+---
+
+## Ali SARISU REST API Görevleri Genel Yapısı
+
+Backend tarafı Node.js ve Express.js kullanılarak geliştirilmiştir. Veritabanı olarak MongoDB Atlas kullanılmıştır. API istekleri JSON formatında veri alır ve JSON formatında cevap döndürür.
+
+Kullanılan ana teknolojiler:
+
+- Node.js
+- Express.js
+- MongoDB Atlas
+- Mongoose
+- CORS
+- dotenv
+- RabbitMQ
+- Redis
+- Expo Push Notification API
+
+---
+
+## Ana API Grupları
+
+### 1. Authentication
 
 ```txt
 POST /auth/register
-```
-
-**Request Body:**
-
-```json
-{
-  "name": "Ali",
-  "email": "ali@test.com",
-  "password": "123456"
-}
-```
-
-**Açıklama:**  
-Yeni kullanıcının MongoDB üzerinde oluşturulmasını sağlar.
-
-**Başarılı cevap:**  
-`201 Created`
-
----
-
-## 2. Kullanıcı Girişi Yapma
-
-**Endpoint:**
-
-```txt
 POST /auth/login
 ```
 
-**Request Body:**
-
-```json
-{
-  "email": "ali@test.com",
-  "password": "123456"
-}
-```
-
-**Açıklama:**  
-Kullanıcının email ve şifre bilgileriyle sisteme giriş yapmasını sağlar.
-
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 3. Kullanıcı Profil Bilgisini Getirme
-
-**Endpoint:**
+### 2. Users
 
 ```txt
 GET /users/{userId}
-```
-
-**Açıklama:**  
-Belirli kullanıcıya ait profil bilgisini getirir.
-
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 4. Kullanıcı Profil Bilgisini Güncelleme
-
-**Endpoint:**
-
-```txt
 PUT /users/{userId}
-```
-
-**Request Body:**
-
-```json
-{
-  "name": "Ali Güncel",
-  "email": "aliguncel@test.com",
-  "password": "654321"
-}
-```
-
-**Açıklama:**  
-Kullanıcının profil bilgilerini günceller.
-
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 5. Kullanıcı Silme
-
-**Endpoint:**
-
-```txt
 DELETE /users/{userId}
-```
-
-**Açıklama:**  
-Belirli kullanıcı kaydını MongoDB üzerinden siler.
-
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 6. Mobil Push Token Kaydetme
-
-**Endpoint:**
-
-```txt
 PUT /users/{userId}/push-token
 ```
 
-**Request Body:**
+**Notlar:**
 
-```json
-{
-  "expoPushToken": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
-  "pushAlertsEnabled": true
-}
-```
+- Profil güncelleme işleminde `name` ve `email` zorunludur.
+- `password` alanı opsiyoneldir.
+- `password` boş gönderilirse veya hiç gönderilmezse mevcut şifre korunur.
+- Kullanıcı silindiğinde kullanıcıya bağlı tarla ve ürün kayıtları da temizlenir.
+- Mobil uygulama Expo push token değerini `PUT /users/{userId}/push-token` endpointi ile backend'e kaydeder.
 
-**Açıklama:**  
-Mobil uygulamadan gelen Expo push token bilgisini kullanıcı kaydına işler.
-
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 7. Tarlaları Listeleme
-
-**Endpoint:**
+### 3. Fields
 
 ```txt
 GET /fields?userId={userId}
-```
-
-**Açıklama:**  
-Kullanıcıya ait tarlaları listeler.
-
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 8. Tarla Ekleme
-
-**Endpoint:**
-
-```txt
 POST /fields
-```
-
-**Request Body:**
-
-```json
-{
-  "userId": "USER_ID",
-  "name": "Domates Tarlası",
-  "location": "Antalya",
-  "latitude": 36.8969,
-  "longitude": 30.7133,
-  "areaM2": 1200,
-  "isGreenhouse": false,
-  "polygon": [
-    { "lat": 36.8969, "lng": 30.7133 },
-    { "lat": 36.8971, "lng": 30.7135 },
-    { "lat": 36.8968, "lng": 30.7138 }
-  ]
-}
-```
-
-**Açıklama:**  
-Kullanıcıya ait yeni tarla oluşturur.
-
-**Başarılı cevap:**  
-`201 Created`
-
----
-
-## 9. Tarla Güncelleme
-
-**Endpoint:**
-
-```txt
 PUT /fields/{fieldId}
+DELETE /fields/{fieldId}?userId={userId}
 ```
 
-**Request Body:**
+**Notlar:**
 
-```json
-{
-  "userId": "USER_ID",
-  "name": "Güncel Tarla",
-  "location": "Antalya",
-  "latitude": 36.8969,
-  "longitude": 30.7133,
-  "areaM2": 1500,
-  "isGreenhouse": true,
-  "polygon": [
-    { "lat": 36.8969, "lng": 30.7133 },
-    { "lat": 36.8971, "lng": 30.7135 },
-    { "lat": 36.8968, "lng": 30.7138 }
-  ]
-}
-```
+- Tarla listeleme işleminde `userId` query parametresi zorunludur.
+- Tarla ekleme ve güncelleme işlemlerinde `userId`, tarla adı, konum, koordinat ve poligon bilgisi kullanılır.
+- Web ve mobil uygulama harita üzerinden seçilen alanı `polygon` dizisi olarak gönderir.
+- Tarla silme işleminde `userId` query parametresi zorunludur.
+- Tarla silindiğinde tarlaya bağlı ürün kayıtları da silinir.
+- Bu işlem, silinmiş tarlaya bağlı `fieldId: null` ürünlerin oluşmasını engeller.
 
-**Açıklama:**  
-Mevcut tarla bilgisini günceller.
-
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 10. Tarla Silme
-
-**Endpoint:**
-
-```txt
-DELETE /fields/{fieldId}
-```
-
-**Açıklama:**  
-Belirli tarla kaydını siler.
-
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 11. Ürünleri Listeleme
-
-**Endpoint:**
+### 4. Crops
 
 ```txt
 GET /crops?userId={userId}
-```
-
-**Açıklama:**  
-Kullanıcıya ait ürün kayıtlarını listeler.
-
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 12. Ürün Ekleme
-
-**Endpoint:**
-
-```txt
 POST /crops
-```
-
-**Request Body:**
-
-```json
-{
-  "userId": "USER_ID",
-  "name": "domates",
-  "fieldId": "FIELD_ID",
-  "sowingDate": "2026-05-01"
-}
-```
-
-**Açıklama:**  
-Bir tarlaya ürün ve ekim tarihi bilgisi ekler.
-
-**Desteklenen ürünler:**
-
-```txt
-domates
-biber
-salatalık
-fasulye
-```
-
-**Başarılı cevap:**  
-`201 Created`
-
----
-
-## 13. Ürün Güncelleme
-
-**Endpoint:**
-
-```txt
 PUT /crops/{cropId}
+DELETE /crops/{cropId}?userId={userId}
 ```
 
-**Request Body:**
+**Notlar:**
 
-```json
-{
-  "userId": "USER_ID",
-  "name": "biber",
-  "fieldId": "FIELD_ID",
-  "sowingDate": "2026-05-03"
-}
-```
+- Ürün listeleme işleminde `userId` query parametresi zorunludur.
+- Ürün ekleme ve güncelleme işlemlerinde `userId`, `fieldId`, ürün adı ve ekim tarihi gönderilir.
+- Desteklenen ürünler: `domates`, `biber`, `salatalık`, `fasulye`
+- Ürün listeleme endpointi, silinmiş tarlaya bağlı bozuk kayıtları istemciye döndürmez.
+- Ürün silme işleminde `userId` query parametresi zorunludur.
 
-**Açıklama:**  
-Mevcut ürün bilgisini günceller.
-
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 14. Ürün Silme
-
-**Endpoint:**
+### 5. Recommendations
 
 ```txt
-DELETE /crops/{cropId}
+GET /recommendations/irrigation/{fieldId}?userId={userId}
+GET /recommendations/alerts/{fieldId}?userId={userId}
 ```
 
-**Açıklama:**  
-Belirli ürün kaydını siler.
+**Notlar:**
 
-**Başarılı cevap:**  
-`200 OK`
+- `fieldId` path parametresi zorunludur.
+- `userId` query parametresi zorunludur.
+- Sulama önerisi tarla, ürün, ekim tarihi ve hava durumu verilerine göre oluşturulur.
+- Hava riski uyarısı tarla konumuna göre oluşturulur.
+- Mobil ve web frontend bu endpointleri kullanıcıya ait tarlalar için çağırır.
 
----
-
-## 15. Sulama Önerisi Alma
-
-**Endpoint:**
+### 6. Push Notification
 
 ```txt
-GET /recommendations/irrigation/{fieldId}
+POST /test-push/run
 ```
 
-**Açıklama:**  
-Tarla, ürün, ekim tarihi ve hava durumu verilerine göre sulama önerisi üretir.
+Bu endpoint gizli anahtar ile korunur.
 
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 16. Hava Riski Uyarısı Alma
-
-**Endpoint:**
+Önerilen kullanım:
 
 ```txt
-GET /recommendations/alerts/{fieldId}
+x-auto-alert-secret: {AUTO_ALERT_SECRET}
 ```
 
-**Açıklama:**  
-Tarla konumuna göre hava riski uyarısı üretir.
-
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 17. Test Push Bildirimi Gönderme
-
-**Endpoint:**
+Alternatif kullanım:
 
 ```txt
 POST /test-push/run?secret={AUTO_ALERT_SECRET}
 ```
 
-**Açıklama:**  
-Push token kayıtlı kullanıcıya gerçek telefon bildirimi gönderir.
-
-**Başarılı cevap:**  
-`200 OK`
-
----
-
-## 18. Otomatik Hava Riski Taraması
-
-**Endpoint:**
+### 7. Auto Alerts
 
 ```txt
-POST /auto-alerts/run?secret={AUTO_ALERT_SECRET}
+POST /auto-alerts/run
 ```
 
-**Açıklama:**  
-Tüm push bildirimi açık kullanıcıların tarlalarını kontrol eder. Risk varsa bildirim oluşturur.
+Bu endpoint push bildirimi açık kullanıcıların tarlalarını kontrol eder. Hava riski varsa bildirim oluşturur. Docker ortamında RabbitMQ varsa mesaj kuyruğuna gönderim yapılır. RabbitMQ yoksa sistem doğrudan Expo Push Notification API üzerinden fallback gönderim yapar.
 
-**Örnek Response:**
-
-```json
-{
-  "message": "Otomatik tarama tamamlandı.",
-  "summary": {
-    "checkedUserCount": 1,
-    "checkedFieldCount": 3,
-    "skippedNoCropCount": 0,
-    "noRiskCount": 3,
-    "alreadySentCount": 0,
-    "failedPushCount": 0,
-    "sentCount": 0,
-    "queuedToRabbitMqCount": 0,
-    "directPushCount": 0
-  }
-}
-```
-
----
-
-## 19. RabbitMQ Test Bildirimi
-
-**Endpoint:**
+### 8. RabbitMQ Test
 
 ```txt
-POST /rabbit-test/push?secret={AUTO_ALERT_SECRET}
+POST /rabbit-test/push
 ```
 
-**Açıklama:**  
-Backend’in RabbitMQ kuyruğuna bildirim mesajı göndermesini test eder.
-
-**Başarılı cevap:**
-
-```json
-{
-  "message": "Bildirim mesajı RabbitMQ kuyruğuna gönderildi.",
-  "queue": "ekinay.alert.notifications",
-  "published": true
-}
-```
+RabbitMQ kuyruğu üzerinden test bildirimi göndermek için kullanılır.
 
 ---
 
-## Sonuç
+## Veri Tutarlılığı
 
-REST API tarafında kullanıcı, profil, tarla, ürün, öneri, bildirim, RabbitMQ ve Redis destekli otomatik uyarı sistemleri geliştirilmiştir. API canlı olarak Render üzerinde çalışmaktadır ve web/mobil uygulamalar bu API ile haberleşmektedir.
+Ekinay backend tarafında kullanıcı, tarla ve ürün ilişkilerinin tutarlı kalması için ek kontroller yapılmıştır.
+
+- Kullanıcı silindiğinde kullanıcıya bağlı tarla ve ürünler silinir.
+- Tarla silindiğinde o tarlaya bağlı ürünler de silinir.
+- Ürün listeleme işleminde `fieldId` değeri boşa düşmüş ürünler istemciye döndürülmez.
+- Ürün ekleme/güncelleme sırasında ürünün bağlandığı tarlanın kullanıcıya ait olup olmadığı kontrol edilir.
+- Profil güncellemede başka kullanıcıya ait e-posta adresi kullanılamaz.
+- Profil güncellemede boş şifre gönderilirse eski şifre korunur.
+
+---
+
+## Postman Final Testleri
+
+Final teslimi öncesi Postman üzerinde aşağıdaki kontroller yapılmıştır:
+
+```txt
+GET /
+POST /auth/register
+POST /auth/login
+GET /users/{userId}
+PUT /users/{userId}
+POST /fields
+GET /fields?userId={userId}
+PUT /fields/{fieldId}
+POST /crops
+GET /crops?userId={userId}
+PUT /crops/{cropId}
+GET /recommendations/irrigation/{fieldId}?userId={userId}
+GET /recommendations/alerts/{fieldId}?userId={userId}
+POST /auto-alerts/run
+POST /test-push/run
+DELETE /crops/{cropId}?userId={userId}
+DELETE /fields/{fieldId}?userId={userId}
+GET /crops?userId={userId}
+```
+
+Özellikle `GET /crops?userId={userId}` testinde `fieldId: null` olan ürün dönmediği kontrol edilmiştir.
+
+---
+
+## API Test Kanıtı
+
+**Backend / REST API Kanıt Videosu:**  
+> Eklenecek
+
+Bu videoda Postman üzerinden API endpointleri test edilecek, MongoDB Atlas kayıtları gösterilecek ve Render üzerinde canlı backend servisinin çalıştığı kanıtlanacaktır.
+
+Videoda özellikle şu noktalar gösterilecektir:
+
+- Render canlı backend servisinin çalışması
+- Kullanıcı kayıt/giriş işlemleri
+- Profil güncelleme işlemi
+- Tarla ekleme, listeleme, güncelleme ve silme
+- Ürün ekleme, listeleme, güncelleme ve silme
+- Tarla silindiğinde bağlı ürün kayıtlarının da temizlenmesi
+- Sulama önerisi endpointinin çalışması
+- Hava riski uyarısı endpointinin çalışması
+- Otomatik hava riski tarama endpointinin çalışması
+- Push bildirim test endpointinin çalışması
+- MongoDB Atlas üzerinde verilerin oluşması ve temizlenmesi
+
+---
+
+## Ek Notlar
+
+- API canlı olarak Render üzerinde çalışmaktadır.
+- Frontend ve mobil uygulama canlı API adresiyle haberleşmektedir.
+- MongoDB Atlas üzerinde kullanıcı, tarla, ürün ve otomatik alarm kayıtları tutulmaktadır.
+- Docker ortamında RabbitMQ ve Redis destekli çalışmaktadır.
+- Render ortamında RabbitMQ/Redis bulunmadığında sistem fallback yapısı ile çalışmaya devam etmektedir.
+- Secret değerleri repoya yazılmaz; Render environment variable olarak saklanır.
+- Google Maps API key backend tarafında kullanılmaz; mobil uygulama için EAS environment variable olarak yönetilir.

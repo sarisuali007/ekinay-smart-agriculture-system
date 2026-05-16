@@ -26,6 +26,7 @@ Proje tek kişi tarafından geliştirilmiştir.
 - JavaScript
 - Fetch API
 - Vercel
+- Harita üzerinden tarla alanı seçimi
 
 ---
 
@@ -43,42 +44,19 @@ Frontend, canlı Render backend servisine `fetch` API ile bağlanmaktadır.
 
 Kullanıcıya Ekinay sisteminin ne işe yaradığını anlatan giriş sayfasıdır.
 
-**Özellikler:**
-
-- Proje tanıtımı
-- Ürün amacı
-- Dashboard’a geçiş bağlantısı
-- Login/Register akışına yönlendirme
-
----
-
 ### 2. Kullanıcı Kayıt Ekranı
-
-Yeni kullanıcıların sisteme kayıt olmasını sağlar.
-
-**Bağlı endpoint:**
 
 ```txt
 POST /auth/register
 ```
 
----
-
 ### 3. Kullanıcı Giriş Ekranı
-
-Kayıtlı kullanıcıların sisteme giriş yapmasını sağlar.
-
-**Bağlı endpoint:**
 
 ```txt
 POST /auth/login
 ```
 
----
-
 ### 4. Dashboard Ekranı
-
-Kullanıcının kayıtlı tarlalarını listelediği ana ekrandır.
 
 **Özellikler:**
 
@@ -95,15 +73,11 @@ Kullanıcının kayıtlı tarlalarını listelediği ana ekrandır.
 ```txt
 GET /fields?userId={userId}
 GET /crops?userId={userId}
-GET /recommendations/irrigation/{fieldId}
-GET /recommendations/alerts/{fieldId}
+GET /recommendations/irrigation/{fieldId}?userId={userId}
+GET /recommendations/alerts/{fieldId}?userId={userId}
 ```
 
----
-
 ### 5. Tarla Ekleme ve Güncelleme
-
-Kullanıcı web arayüzünden tarla ekleyebilir ve mevcut tarlasını güncelleyebilir.
 
 **Özellikler:**
 
@@ -113,20 +87,19 @@ Kullanıcı web arayüzünden tarla ekleyebilir ve mevcut tarlasını güncelley
 - Enlem ve boylam bilgisi
 - Alan bilgisi
 - Sera / açık alan seçimi
+- Poligon bilgisini backend'e gönderme
 
 **Bağlı endpointler:**
 
 ```txt
 POST /fields
 PUT /fields/{fieldId}
-DELETE /fields/{fieldId}
+DELETE /fields/{fieldId}?userId={userId}
 ```
 
----
+Tarla silindiğinde backend tarafında tarlaya bağlı ürün kayıtları da temizlenir.
 
 ### 6. Ürün Yönetimi
-
-Kullanıcı tarlaya bağlı ürün bilgisini yönetebilir.
 
 **Desteklenen ürünler:**
 
@@ -141,23 +114,12 @@ Kullanıcı tarlaya bağlı ürün bilgisini yönetebilir.
 GET /crops?userId={userId}
 POST /crops
 PUT /crops/{cropId}
-DELETE /crops/{cropId}
+DELETE /crops/{cropId}?userId={userId}
 ```
-
----
 
 ### 7. Takvim Görünümü
 
-Web tarafında tarlaya ait ekim ve hasat süreci takvim görünümü ile gösterilir.
-
-**Özellikler:**
-
-- Takvim bugünden başlar.
-- Ekim tarihinden bugüne kadar olan geçmiş kısım gösterilmez.
-- Tahmini hasat tarihine kadar olan süreç gösterilir.
-- Sulama ve tarımsal takip bilgileri gün bazlı sunulur.
-
----
+Web tarafında tarlaya ait ekim ve hasat süreci takvim görünümü ile gösterilir. Takvim bugünden başlar ve tahmini hasat tarihine kadar olan süreci gösterir.
 
 ### 8. Profil Düzenleme
 
@@ -169,6 +131,13 @@ Kullanıcı profil bilgilerini ayrı bir profil sayfasında düzenleyebilir.
 GET /users/{userId}
 PUT /users/{userId}
 ```
+
+**Davranış:**
+
+- Ad ve e-posta güncellenebilir.
+- Şifre alanı boş bırakılırsa eski şifre korunur.
+- Şifre yazılırsa yeni şifre kaydedilir.
+- Başka kullanıcıya ait e-posta girilirse backend hata mesajı döndürür.
 
 ---
 
@@ -186,6 +155,7 @@ Videoda gösterilecekler:
 - Ürün ekleme, düzenleme ve silme
 - Harita üzerinden tarla alanı seçimi
 - Takvim görünümü
+- Profil güncelleme
 - Render REST API bağlantısının çalışması
 - MongoDB üzerinde webden gelen verilerin görünmesi
 
