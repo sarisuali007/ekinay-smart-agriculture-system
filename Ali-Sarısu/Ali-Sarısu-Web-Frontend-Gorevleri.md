@@ -1,219 +1,357 @@
-# Ali Sarısu'nın Web Frontend Görevleri
+# Ali Sarısu Web Frontend Görevleri
 
-**Frontend Domain Adresi:**  
-https://ekinay-smart-agriculture-system.vercel.app
+Bu dosyada Ekinay web frontend tarafında geliştirilen ekranlar ve görevler açıklanmaktadır.
 
-**Front-end Test Videosu:** 
-https://youtu.be/MwbRercFgKg?si=u06kgc0HuLhhKLXN
+- **Öğrenci:** Ali Sarısu
+- **Grup:** TENGYAMİ
+- **Proje:** Ekinay
+- **Frontend Adresi:** https://ekinay-smart-agriculture-system.vercel.app
+- **Backend Adresi:** https://ekinay-smart-agriculture-system.onrender.com
 
-## 1. Kullanıcı Kaydı Oluşturma Sayfası
-- **API Endpoint:** `POST /auth/register`
-- **Görev:** Kullanıcının ad, email ve şifre bilgileri ile sisteme kayıt olmasını sağlayan web arayüzünü tasarlamak ve geliştirmek
-- **UI Bileşenleri:**
-  - Ad input alanı
-  - Email input alanı
-  - Şifre input alanı
-  - "Kayıt Ol" butonu
-  - Başarı ve hata mesaj alanı
-  - Form bölümü için başlık ve açıklama alanı
-- **Form Validasyonu:**
-  - Tüm alanlar boş bırakılamaz
-  - Email alanı email formatında olmalıdır
-  - Şifre alanı boş bırakılamaz
-  - İstek gönderilmeden önce alanlar kontrol edilir
-- **Kullanıcı Deneyimi:**
-  - Kullanıcı bilgileri girildikten sonra kayıt isteği backend'e gönderilir
-  - İşlem başarılı olursa kullanıcıya başarı mesajı gösterilir
-  - İşlem başarısız olursa hata mesajı gösterilir
-- **Teknik Detaylar:**
-  - HTML, CSS ve JavaScript kullanılmıştır
-  - `fetch` API ile backend'e POST isteği gönderilmiştir
-  - API domain adresi ile canlı bağlantı kurulmuştur
+---
 
-## 2. Kullanıcı Girişi Yapma Sayfası
-- **API Endpoint:** `POST /auth/login`
-- **Görev:** Kullanıcının email ve şifre bilgileri ile sisteme giriş yapmasını sağlayan arayüzü geliştirmek
-- **UI Bileşenleri:**
-  - Email input alanı
-  - Şifre input alanı
-  - "Giriş Yap" butonu
-  - Başarı ve hata mesaj alanı
-- **Form Validasyonu:**
-  - Email alanı boş bırakılamaz
-  - Şifre alanı boş bırakılamaz
-  - Email formatı kontrol edilir
-- **Kullanıcı Deneyimi:**
-  - Kullanıcı giriş bilgilerini girerek sisteme giriş yapabilir
-  - Başarılı girişte kullanıcıya mesaj gösterilir
-  - Hata durumunda kullanıcı bilgilendirilir
-- **Teknik Detaylar:**
-  - `fetch` API ile backend'e POST isteği gönderilir
-  - JSON formatında veri gönderilir ve cevap alınır
+## Web Frontend Kanıt Videosu
 
-## 3. Profil Güncelleme Sayfası
-- **API Endpoint:** `PUT /users/{userId}`
-- **Görev:** Kullanıcının kendi profil bilgilerini güncellemesini sağlayan form arayüzünü geliştirmek
-- **UI Bileşenleri:**
-  - Kullanıcı ID input alanı
-  - Yeni ad input alanı
-  - Yeni email input alanı
-  - Yeni şifre input alanı
-  - "Profili Güncelle" butonu
-  - Mesaj gösterim alanı
-- **Form Validasyonu:**
-  - Kullanıcı ID boş bırakılamaz
-  - Email alanı geçerli formatta olmalıdır
-  - Güncellenecek alanlar kontrol edilir
-- **Kullanıcı Deneyimi:**
-  - Kullanıcı mevcut bilgilerini değiştirip güncelleme isteği gönderebilir
-  - Başarılı işlem sonrası kullanıcıya bilgi verilir
-  - Hata durumlarında anlaşılır mesaj gösterilir
-- **Teknik Detaylar:**
-  - Dinamik `userId` değeri ile PUT isteği gönderilir
-  - Formdan alınan veriler JSON formatında backend'e iletilir
+**Video Linki:**  
+> Eklenecek
 
-## 4. Tarla Ekleme Sayfası
-- **API Endpoint:** `POST /fields`
-- **Görev:** Kullanıcının yeni bir tarla eklemesini sağlayan web arayüzünü geliştirmek
-- **UI Bileşenleri:**
-  - Tarla adı input alanı
-  - Konum input alanı
-  - "Ekle" butonu
-  - Sonuç mesaj alanı
-- **Form Validasyonu:**
-  - Tarla adı boş bırakılamaz
-  - Konum bilgisi boş bırakılamaz
-- **Kullanıcı Deneyimi:**
-  - Kullanıcı tarla bilgilerini girerek sisteme yeni tarla ekleyebilir
-  - Başarılı işlem sonrası kullanıcıya bilgi verilir
-- **Teknik Detaylar:**
-  - POST isteği ile backend'e tarla verisi gönderilir
-  - `fetch` API kullanılmıştır
+---
 
-## 5. Tarla Güncelleme Sayfası
-- **API Endpoint:** `PUT /fields/{fieldId}`
-- **Görev:** Kullanıcının mevcut tarla bilgisini güncellemesini sağlayan arayüzü geliştirmek
-- **UI Bileşenleri:**
-  - Tarla ID input alanı
-  - Yeni tarla adı input alanı
-  - Yeni konum input alanı
-  - "Tarlayı Güncelle" butonu
-  - Mesaj alanı
-- **Form Validasyonu:**
-  - Tarla ID zorunludur
-  - Güncellenecek bilgiler kontrol edilir
-- **Kullanıcı Deneyimi:**
-  - Kullanıcı tarla kimliğini girerek ilgili kaydı güncelleyebilir
-  - Güncelleme sonrası başarı mesajı gösterilir
-- **Teknik Detaylar:**
-  - Dinamik `fieldId` ile PUT isteği gönderilir
-  - JSON body kullanılır
+## 1. Tanıtım / Landing Sayfası
 
-## 6. Tarla Silme Sayfası
-- **API Endpoint:** `DELETE /fields/{fieldId}`
-- **Görev:** Kullanıcının seçtiği tarlayı silmesini sağlayan arayüzü geliştirmek
-- **UI Bileşenleri:**
-  - Tarla ID input alanı
-  - "Tarlayı Sil" butonu
-  - Sonuç mesajı alanı
-- **Kullanıcı Deneyimi:**
-  - Kullanıcı ID girerek ilgili tarlayı silebilir
-  - İşlem sonucunda kullanıcıya bilgi mesajı gösterilir
-- **Teknik Detaylar:**
-  - Dinamik `fieldId` ile DELETE isteği gönderilir
-  - Başarılı cevap kullanıcıya yansıtılır
+**Görev:**  
+Ekinay sistemini kullanıcıya tanıtan giriş sayfasını hazırlamak.
 
-## 7. Tarlaları Listeleme Sayfası
-- **API Endpoint:** `GET /fields`
-- **Görev:** Sistemde kayıtlı tarlaları kullanıcıya liste halinde göstermek
-- **UI Bileşenleri:**
-  - "Listele" butonu
-  - Liste gösterim alanı (`ul` ve `li`)
-- **Kullanıcı Deneyimi:**
-  - Kullanıcı butona bastığında mevcut tarlalar ekranda listelenir
-  - Liste okunabilir ve sade bir biçimde gösterilir
-- **Teknik Detaylar:**
-  - GET isteği ile backend'den veri alınır
-  - Gelen dizi JavaScript ile DOM üzerine yazdırılır
+**Yapılan işler:**
 
-## 8. Ürün Ekleme Sayfası
-- **API Endpoint:** `POST /crops`
-- **Görev:** Kullanıcının bir tarlaya yeni ürün eklemesini sağlayan arayüzü geliştirmek
-- **UI Bileşenleri:**
-  - Ürün adı input alanı
-  - Tarla ID input alanı
-  - "Ekle" butonu
-  - Sonuç mesaj alanı
-- **Form Validasyonu:**
-  - Ürün adı boş bırakılamaz
-  - Tarla ID boş bırakılamaz
-- **Kullanıcı Deneyimi:**
-  - Kullanıcı ürün bilgilerini girerek kayıt oluşturabilir
-  - Başarılı işlem sonrası mesaj gösterilir
-- **Teknik Detaylar:**
-  - POST isteği ile JSON veri backend'e gönderilir
+- Proje tanıtım metni eklendi.
+- Akıllı tarım sistemi anlatıldı.
+- Kullanıcıyı giriş/kayıt akışına yönlendiren butonlar eklendi.
+- Web sitesinin ilk izlenimi düzenlendi.
 
-## 9. Ürün Güncelleme Sayfası
-- **API Endpoint:** `PUT /crops/{cropId}`
-- **Görev:** Kullanıcının ürün bilgisini güncellemesini sağlayan arayüzü geliştirmek
-- **UI Bileşenleri:**
-  - Ürün ID input alanı
-  - Yeni ürün adı input alanı
-  - Tarla ID input alanı
-  - "Ürünü Güncelle" butonu
-  - Sonuç mesajı alanı
-- **Form Validasyonu:**
-  - Ürün ID zorunludur
-  - Güncellenecek bilgiler boş bırakılmamalıdır
-- **Kullanıcı Deneyimi:**
-  - Kullanıcı ürün kimliği ile mevcut ürünü güncelleyebilir
-  - Başarılı güncelleme sonrası mesaj gösterilir
-- **Teknik Detaylar:**
-  - Dinamik `cropId` ile PUT isteği gönderilir
-  - JSON body backend'e iletilir
+**İlgili teknolojiler:**
 
-## 10. Ürün Silme Sayfası
-- **API Endpoint:** `DELETE /crops/{cropId}`
-- **Görev:** Kullanıcının seçilen ürün kaydını silmesini sağlayan arayüzü geliştirmek
-- **UI Bileşenleri:**
-  - Ürün ID input alanı
-  - "Ürünü Sil" butonu
-  - Sonuç mesaj alanı
-- **Kullanıcı Deneyimi:**
-  - Kullanıcı ürün kimliğini girerek silme işlemi yapabilir
-  - Sonuç ekranda kullanıcıya gösterilir
-- **Teknik Detaylar:**
-  - Dinamik `cropId` ile DELETE isteği gönderilir
+```txt
+HTML
+CSS
+JavaScript
+```
 
-## 11. Sulama Önerisi Görüntüleme Sayfası
-- **API Endpoint:** `GET /recommendations/irrigation/{fieldId}`
-- **Görev:** Kullanıcının seçilen tarla için sulama önerisi almasını sağlayan arayüzü geliştirmek
-- **UI Bileşenleri:**
-  - Tarla ID input alanı
-  - "Öneri Al" butonu
-  - Sonuç mesaj alanı
-- **Kullanıcı Deneyimi:**
-  - Kullanıcı tarla ID girerek sulama önerisi alabilir
-  - Backend'den gelen sonuç kullanıcıya gösterilir
-- **Teknik Detaylar:**
-  - Dinamik `fieldId` ile GET isteği gönderilir
+---
 
-## 12. Hava Riski Uyarısı Görüntüleme Sayfası
-- **API Endpoint:** `GET /recommendations/alerts/{fieldId}`
-- **Görev:** Kullanıcının seçilen tarla için hava riski uyarısı almasını sağlayan arayüzü geliştirmek
-- **UI Bileşenleri:**
-  - Tarla ID input alanı
-  - "Uyarı Al" butonu
-  - Sonuç mesaj alanı
-- **Kullanıcı Deneyimi:**
-  - Kullanıcı tarla ID girerek hava durumu uyarısını alabilir
-  - Gelen sonuç mesajı kullanıcıya gösterilir
-- **Teknik Detaylar:**
-  - Dinamik `fieldId` ile GET isteği gönderilir
+## 2. Kullanıcı Kayıt Arayüzü
 
-## Kullanılan Teknolojiler
-- HTML
-- CSS
-- JavaScript
-- Fetch API
-- Vercel üzerinde yayınlanan canlı frontend
+**API Endpoint:**
+
+```txt
+POST /auth/register
+```
+
+**Görev:**  
+Kullanıcının ad, email ve şifre bilgileri ile sisteme kayıt olmasını sağlayan web arayüzünü geliştirmek.
+
+**UI Bileşenleri:**
+
+- Ad input alanı
+- Email input alanı
+- Şifre input alanı
+- Kayıt ol butonu
+- Başarı ve hata mesaj alanı
+
+**Teknik detaylar:**
+
+- Formdan alınan bilgiler JSON formatında backend’e gönderildi.
+- `fetch` API kullanıldı.
+- Başarılı kayıt sonrası kullanıcı bilgilendirildi.
+
+---
+
+## 3. Kullanıcı Giriş Arayüzü
+
+**API Endpoint:**
+
+```txt
+POST /auth/login
+```
+
+**Görev:**  
+Kullanıcının email ve şifre bilgileri ile sisteme giriş yapmasını sağlamak.
+
+**UI Bileşenleri:**
+
+- Email input alanı
+- Şifre input alanı
+- Giriş yap butonu
+- Hata mesaj alanı
+
+**Teknik detaylar:**
+
+- Backend’e login isteği gönderildi.
+- Başarılı girişte kullanıcı bilgisi tarayıcı tarafında tutuldu.
+- Kullanıcı dashboard ekranına yönlendirildi.
+
+---
+
+## 4. Dashboard Arayüzü
+
+**API Endpointleri:**
+
+```txt
+GET /fields?userId={userId}
+GET /crops?userId={userId}
+GET /recommendations/irrigation/{fieldId}
+GET /recommendations/alerts/{fieldId}
+```
+
+**Görev:**  
+Kullanıcının tarlalarını, ürünlerini, sulama özetini ve hava riski bilgilerini tek ekranda göstermesini sağlamak.
+
+**UI Bileşenleri:**
+
+- Tarla kartları
+- Ürün bilgisi
+- Ekim tarihi
+- Tahmini hasat tarihi
+- Bugünün sulama özeti
+- Hava riski mesajı
+- Tarla detayına geçiş
+- Tarla ekleme alanı
+
+**Teknik detaylar:**
+
+- Kullanıcıya ait tarlalar backend’den çekildi.
+- Her tarla için ürün bilgisi eşleştirildi.
+- Her tarla kartına sulama ve risk bilgisi eklendi.
+- Dashboard gereksiz profil ayarlarından temizlendi.
+
+---
+
+## 5. Profil Düzenleme Sayfası
+
+**API Endpointleri:**
+
+```txt
+GET /users/{userId}
+PUT /users/{userId}
+```
+
+**Görev:**  
+Kullanıcının profil bilgilerini ayrı bir sayfada görüntüleyip güncellemesini sağlamak.
+
+**UI Bileşenleri:**
+
+- Kullanıcı adı alanı
+- Email alanı
+- Şifre alanı
+- Profil güncelleme butonu
+- Başarı/hata mesaj alanı
+
+**Teknik detaylar:**
+
+- Profil ayarları dashboard’dan ayrıldı.
+- Kullanıcı bilgileri backend’den çekildi.
+- Güncelleme isteği backend’e gönderildi.
+
+---
+
+## 6. Tarla Ekleme Arayüzü
+
+**API Endpoint:**
+
+```txt
+POST /fields
+```
+
+**Görev:**  
+Kullanıcının yeni tarla ekleyebilmesini sağlamak.
+
+**UI Bileşenleri:**
+
+- Tarla adı alanı
+- Konum alanı
+- Harita alanı
+- Enlem ve boylam bilgisi
+- Alan bilgisi
+- Sera / açık alan seçimi
+- Kaydet butonu
+
+**Teknik detaylar:**
+
+- Harita üzerinden tarla konumu seçme yapısı eklendi.
+- Tarla poligon bilgisi backend’e gönderildi.
+- Backend’e `POST /fields` isteği gönderildi.
+- Kayıt sonrası dashboard güncellendi.
+
+---
+
+## 7. Tarla Güncelleme Arayüzü
+
+**API Endpoint:**
+
+```txt
+PUT /fields/{fieldId}
+```
+
+**Görev:**  
+Kullanıcının mevcut tarla bilgilerini güncelleyebilmesini sağlamak.
+
+**UI Bileşenleri:**
+
+- Güncelleme formu
+- Tarla adı
+- Konum
+- Koordinat bilgileri
+- Alan ve sera bilgisi
+- Güncelle butonu
+
+**Teknik detaylar:**
+
+- Seçilen tarla bilgileri forma dolduruldu.
+- Güncelleme isteği backend’e gönderildi.
+- Güncel bilgiler dashboard’a yansıtıldı.
+
+---
+
+## 8. Tarla Silme Arayüzü
+
+**API Endpoint:**
+
+```txt
+DELETE /fields/{fieldId}
+```
+
+**Görev:**  
+Kullanıcının mevcut tarlasını silebilmesini sağlamak.
+
+**UI Bileşenleri:**
+
+- Silme butonu
+- Kullanıcı onayı
+- İşlem sonucu mesajı
+
+**Teknik detaylar:**
+
+- Silme isteği backend’e gönderildi.
+- Silinen tarla dashboard listesinden kaldırıldı.
+
+---
+
+## 9. Ürün Ekleme ve Güncelleme Arayüzü
+
+**API Endpointleri:**
+
+```txt
+POST /crops
+PUT /crops/{cropId}
+DELETE /crops/{cropId}
+```
+
+**Görev:**  
+Kullanıcının tarlaya bağlı ürün bilgisi ekleyip güncelleyebilmesini sağlamak.
+
+**UI Bileşenleri:**
+
+- Ürün seçimi
+- Ekim tarihi seçimi
+- Ürün kaydetme butonu
+- Ürün güncelleme ve silme seçenekleri
+
+**Desteklenen ürünler:**
+
+```txt
+domates
+biber
+salatalık
+fasulye
+```
+
+**Teknik detaylar:**
+
+- Ürün bilgisi tarlaya bağlandı.
+- Ekim tarihi backend’e gönderildi.
+- Tahmini hasat tarihi ürün profiline göre hesaplandı.
+- Tarla kartları ürün bilgisine göre güncellendi.
+
+---
+
+## 10. Harita Üzerinden Tarla Seçimi
+
+**Görev:**  
+Kullanıcının tarlasını yalnızca koordinat yazarak değil, harita üzerinden seçebilmesini sağlamak.
+
+**Yapılan işler:**
+
+- Harita arayüzü eklendi.
+- Adres arama desteği eklendi.
+- Tarla alanı seçme/drawing mantığı oluşturuldu.
+- Seçilen alanın koordinatları backend’e gönderildi.
+
+**Amaç:**
+
+- Kullanıcının tarlasını daha kolay tanımlamasını sağlamak.
+- Tarla konumunu sulama ve hava riski önerilerinde kullanmak.
+
+---
+
+## 11. Takvim Arayüzü
+
+**Görev:**  
+Tarlanın bugünden tahmini hasat tarihine kadar olan sürecini takvim yapısında göstermek.
+
+**Yapılan işler:**
+
+- Takvim geçmiş günleri göstermeyecek şekilde düzenlendi.
+- Takvim bugünden başlatıldı.
+- Tahmini hasat tarihine kadar olan günler gösterildi.
+- Günlük sulama takip bilgisi takvime bağlandı.
+- Dashboard’daki gereksiz “bugün/yarın/2 gün sonra” yapısı sadeleştirildi.
+
+---
+
+## 12. Hata ve Başarı Mesajları
+
+**Görev:**  
+Kullanıcının yaptığı işlemlerde sonucu net şekilde görebilmesini sağlamak.
+
+**Yapılan işler:**
+
+- Kayıt işleminde başarı/hata mesajı gösterildi.
+- Giriş işleminde hata mesajı gösterildi.
+- Profil güncellemede sonuç mesajı gösterildi.
+- Tarla ve ürün işlemlerinde kullanıcı bilgilendirildi.
+- API hataları kullanıcıya anlaşılır şekilde yansıtıldı.
+
+---
+
+## 13. Frontend - Backend Entegrasyonu
+
+**Görev:**  
+Web arayüzünün canlı Render backend servisi ile çalışmasını sağlamak.
+
+**Yapılan işler:**
+
+- API istekleri `fetch` ile gönderildi.
+- Vercel frontend canlı backend domainine bağlandı.
+- Kullanıcı işlemleri MongoDB üzerinde karşılık buldu.
+- Dashboard verileri canlı API’den çekildi.
+
+---
+
+## Finalde Gösterilecek Web Frontend Kanıtları
+
+- Vercel web adresinin açılması
+- Kullanıcı kayıt ve giriş işlemleri
+- Dashboard ekranı
+- Tarla kartları
+- Tarla ekleme, düzenleme ve silme
+- Ürün ekleme, düzenleme ve silme
+- Harita üzerinden tarla seçimi
+- Takvim görünümü
+- Profil düzenleme
+- MongoDB’de web üzerinden oluşturulan verilerin görünmesi
+
+---
+
+## Sonuç
+
+Web frontend tarafında Ekinay sisteminin kullanıcıya dönük ana arayüzü geliştirilmiştir. Kullanıcılar web üzerinden kayıt olabilir, giriş yapabilir, tarlalarını ve ürünlerini yönetebilir, sulama önerilerini ve hava riski uyarılarını takip edebilir.

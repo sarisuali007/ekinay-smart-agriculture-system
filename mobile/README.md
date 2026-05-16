@@ -1,50 +1,145 @@
-# Welcome to your Expo app 👋
+# Ekinay Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Bu klasör Ekinay projesinin mobil uygulama kodlarını içerir.
 
-## Get started
+Mobil uygulama React Native ve Expo kullanılarak geliştirilmiştir. Uygulama gerçek Android telefon üzerinde test edilmiştir.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Kullanılan Teknolojiler
 
-2. Start the app
+- React Native
+- Expo
+- Expo Router
+- EAS Build
+- Expo Notifications
+- Firebase Cloud Messaging
+- JavaScript
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## Canlı Backend API
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Mobil uygulama canlı Render backend servisine bağlanır.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```txt
+https://ekinay-smart-agriculture-system.onrender.com
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Kurulum
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+cd mobile
+npm install
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## Geliştirme Ortamında Çalıştırma
 
-Join our community of developers creating universal apps.
+```bash
+npx expo start
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Expo geliştirme ekranından Android cihaz veya development build ile uygulama açılabilir.
+
+---
+
+## Android Build
+
+EAS Build ile Android build alınabilir.
+
+```bash
+eas build -p android --profile preview
+```
+
+veya production build için:
+
+```bash
+eas build -p android --profile production
+```
+
+---
+
+## Mobil Uygulama Özellikleri
+
+- Kullanıcı girişi
+- Kullanıcı kaydı
+- Dashboard
+- Tarla listeleme
+- Tarla ekleme
+- Tarla güncelleme
+- Tarla detay görüntüleme
+- Ürün yönetimi
+- Sulama önerisi görüntüleme
+- Hava riski uyarısı görüntüleme
+- Tarla takvimi
+- Telefon takvimine aktarma
+- Takvim kayıtlarını tek seferde silme
+- Push bildirim izni alma
+- Expo push token kaydı
+- Gerçek telefona bildirim alma
+
+---
+
+## Push Bildirim Sistemi
+
+Mobil uygulama kullanıcıdan bildirim izni alır. İzin verildiğinde Expo push token alınır ve backend’e gönderilir.
+
+Backend tarafında kullanıcı kaydına şu alanlar eklenir:
+
+```txt
+expoPushToken
+pushAlertsEnabled
+```
+
+Bu sayede otomatik hava riski uyarıları gerçek Android telefona gönderilebilir.
+
+---
+
+## Mobil Backend Bağlantısı
+
+Mobil uygulama aşağıdaki işlemleri REST API üzerinden gerçekleştirir:
+
+```txt
+POST /auth/register
+POST /auth/login
+GET /users/{userId}
+PUT /users/{userId}
+GET /fields?userId={userId}
+POST /fields
+PUT /fields/{fieldId}
+DELETE /fields/{fieldId}
+GET /crops?userId={userId}
+POST /crops
+PUT /crops/{cropId}
+DELETE /crops/{cropId}
+GET /recommendations/irrigation/{fieldId}
+GET /recommendations/alerts/{fieldId}
+PUT /users/{userId}/push-token
+```
+
+---
+
+## Final Kanıt Videosunda Gösterilecekler
+
+- Uygulamanın gerçek Android telefonda açılması
+- Kullanıcı girişi
+- Dashboard ekranı
+- Tarla kartları
+- Tarla detay ekranı
+- Takvim ekranı
+- Push bildirim izni
+- Test veya gerçek hava riski bildirimi
+- Bildirime tıklayınca uygulama içi yönlendirme
+
+---
+
+## Notlar
+
+- Firebase Admin SDK private key dosyaları repoya eklenmemelidir.
+- `.env` dosyaları repoya eklenmemelidir.
+- `google-services.json` Android bildirim yapılandırması için kullanılabilir.
+- Gerçek bildirim testi için EAS build alınmış uygulama kullanılmalıdır.
