@@ -33,7 +33,7 @@ https://ekinay-smart-agriculture-system.onrender.com
 
 Ayrıntılı görev listesi:
 
-- [Ali SARISU Mobil Backend Görevleri](Ali-SARISU/Ali-SARISU-Mobil-Backend-Gorevleri.md)
+- [Ali SARISU Mobil Backend Görevleri](Ali-SARISU-Mobil-Backend-Gorevleri.md)
 
 ---
 
