@@ -1008,4 +1008,4 @@ components:
           type: string
         published:
           type: boolean
-``
+```
